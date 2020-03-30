@@ -13,8 +13,8 @@
   -webkit-touch-callout: none;
   -webkit-tap-highlight-color: transparent;
 }
-[data-imgname='playlist'] {
-  background-image: url(/image/icon/playlist.svg);
+[data-imgname='queue'] {
+  background-image: url(/image/icon/queue.svg);
 }
 [data-imgname='play_circle'] {
   background-image: url(/image/icon/play_circle.svg);
@@ -25,11 +25,11 @@
 [data-imgname='folder'] {
   background-image: url(/image/icon/folder.svg);
 }
-[data-imgname='disk'] {
-  background-image: url(/image/icon/disk.svg);
-}
 [data-imgname='album'] {
   background-image: url(/image/icon/album.svg);
+}
+[data-imgname='playlist'] {
+  background-image: url(/image/icon/playlist.svg);
 }
 [data-imgname='tag'] {
   background-image: url(/image/icon/tag.svg);
@@ -87,4 +87,17 @@
   background-size: 18px 18px;
   background-position: 50%, 50%;
   background-image: url(/image/icon/menu_fill.svg);
+}
+[data-imgname='all_songs'] {
+  background-image: url(/image/icon/all_songs.svg);
+}[data-imgname='clock'] {
+  background-image: url(/image/icon/clock.svg);
+}[data-imgname='fire'] {
+  background-image: url(/image/icon/fire.svg);
+}[data-imgname='cancel'] {
+  background-image: url(/image/icon/cancel.svg);
+}[data-imgname='list'] {
+  background-image: url(/image/icon/list.svg);
+}[data-imgname='plus'] {
+  background-image: url(/image/icon/plus.svg);
 }

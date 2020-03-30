@@ -1,30 +1,66 @@
 import './Nav.css';
 import React from 'react';
+import { NavLink } from 'react-router-dom';
 
 function Nav() {
   return (
     <div className='nav'>
-      <div className='nav__link'>
-        <div data-img data-imgname='playlist' />
-      </div>
-      <div className='nav__link nav__link--active'>
+      <NavLink
+        exact
+        to={`/queues`}
+        activeClassName='nav__link--active'
+        className='nav__link'
+      >
+        <div data-img data-imgname='queue' />
+      </NavLink>
+      <NavLink
+        exact
+        to={`/`}
+        activeClassName='nav__link--active'
+        className='nav__link'
+      >
         <div data-img data-imgname='play_circle' />
-      </div>
-      <div className='nav__link'>
+      </NavLink>
+      <NavLink
+        exact
+        to={`/artist`}
+        activeClassName='nav__link--active'
+        className='nav__link'
+      >
         <div data-img data-imgname='artist' />
-      </div>
-      <div className='nav__link'>
+      </NavLink>
+      <NavLink
+        exact
+        to={`/folders`}
+        activeClassName='nav__link--active'
+        className='nav__link'
+      >
         <div data-img data-imgname='folder' />
-      </div>
-      <div className='nav__link'>
-        <div data-img data-imgname='disk' />
-      </div>
-      <div className='nav__link'>
+      </NavLink>
+      <NavLink
+        exact
+        to={`/albums`}
+        activeClassName='nav__link--active'
+        className='nav__link'
+      >
         <div data-img data-imgname='album' />
-      </div>
-      <div className='nav__link'>
+      </NavLink>
+      <NavLink
+        exact
+        to={`/playlists`}
+        activeClassName='nav__link--active'
+        className='nav__link'
+      >
+        <div data-img data-imgname='playlist' />
+      </NavLink>
+      <NavLink
+        exact
+        to={`/tags`}
+        activeClassName='nav__link--active'
+        className='nav__link'
+      >
         <div data-img data-imgname='tag' />
-      </div>
+      </NavLink>
       <div className='nav__link'>
         <div data-img data-imgname='menu' />
       </div>
