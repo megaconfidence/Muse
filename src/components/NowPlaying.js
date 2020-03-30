@@ -30,7 +30,7 @@ function NowPlaying() {
         </div>
         <AudioPlayer
           autoPlay
-          src='/audio/geniuss.mp3'
+          src='/audio/genius.mp3'
           showSkipControls={true}
           showJumpControls={false}
           customVolumeControls={[]}
