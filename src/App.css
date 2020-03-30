@@ -1,0 +1,90 @@
+[data-img] {
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  background-size: 24px 24px;
+  background-repeat: no-repeat;
+
+  user-select: none;
+  -ms-user-select: none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+[data-imgname='playlist'] {
+  background-image: url(/image/icon/playlist.svg);
+}
+[data-imgname='play_circle'] {
+  background-image: url(/image/icon/play_circle.svg);
+}
+[data-imgname='artist'] {
+  background-image: url(/image/icon/artist.svg);
+}
+[data-imgname='folder'] {
+  background-image: url(/image/icon/folder.svg);
+}
+[data-imgname='disk'] {
+  background-image: url(/image/icon/disk.svg);
+}
+[data-imgname='album'] {
+  background-image: url(/image/icon/album.svg);
+}
+[data-imgname='tag'] {
+  background-image: url(/image/icon/tag.svg);
+}
+[data-imgname='menu'] {
+  background-image: url(/image/icon/menu.svg);
+}
+[data-imgname='play'] {
+  background-image: url(/image/icon/play.svg);
+}
+[data-imgname='next'] {
+  background-image: url(/image/icon/next.svg);
+}
+[data-imgname='previous'] {
+  transform: rotate(180deg);
+  background-image: url(/image/icon/next.svg);
+}
+[data-imgname='pause'] {
+  background-image: url(/image/icon/pause.svg);
+}
+[data-imgname='repeat'] {
+  width: 27px;
+  height: 27px;
+  background-size: 27px 27px;
+  background-image: url(/image/icon/repeat.svg);
+}
+[data-imgname='no_repeat'] {
+  width: 27px;
+  height: 27px;
+  background-size: 27px 27px;
+  background-image: url(/image/icon/no_repeat.svg);
+}
+[data-imgname='volume'] {
+  background-image: url(/image/icon/volume.svg);
+}
+[data-imgname='mute'] {
+  background-image: url(/image/icon/mute.svg);
+}
+[data-imgname='like'] {
+  background-image: url(/image/icon/like.svg);
+}
+[data-imgname='like_fill'] {
+  background-image: url(/image/icon/like_fill.svg);
+}
+[data-imgname='info'] {
+  background-image: url(/image/icon/info.svg);
+}
+[data-imgname='menu_horizontal'] {
+  width: 18px;
+  height: 18px;
+  padding: 4px;
+  border-radius: 7px;
+  transform: rotate(90deg);
+  background-color: white;
+  background-size: 18px 18px;
+  background-position: 50%, 50%;
+  background-image: url(/image/icon/menu_fill.svg);
+}

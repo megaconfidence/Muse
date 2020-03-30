@@ -1,0 +1,24 @@
+.nav {
+  display: flex;
+  justify-content: space-evenly;
+  background-color: var(--dark-two);
+}
+.nav__link {
+  display: flex;
+  padding: 16px 0;
+  align-items: center;
+  width: calc(100% / 5);
+  justify-content: center;
+}
+.nav__link [data-img] {
+  width: 23px;
+  height: 23px;
+  opacity: 0.4;
+  background-size: 23px 23px;
+}
+.nav__link--active {
+  border-bottom: 2px solid #14c853;
+}
+.nav__link--active [data-img] {
+  opacity: 1;
+}

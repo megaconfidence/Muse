@@ -1,0 +1,302 @@
+.nowPlaying {
+  display: flex;
+  padding: 7px 12px 20px;
+  flex-direction: column;
+  height: calc(100vh - 84px);
+  justify-content: space-between;
+}
+.nowPlaying__albumArt {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.nowPlaying__albumArt__img {
+  width: 100%;
+  height: 400px;
+  object-fit: cover;
+}
+.nowPlaying__songInfo__name {
+  font-size: 1.2em;
+}
+.nowPlaying__songInfo__artist {
+  margin: 8px 0;
+}
+.nowPlaying__playArea {
+  position: relative;
+}
+.nowPlaying__playArea [data-imgname='play'],
+[data-imgname='pause'] {
+  margin: 0 auto;
+}
+.nowPlaying__playArea [data-imgname='previous'],
+[data-imgname='next'] {
+  width: 20px;
+  height: 20px;
+  margin: 0 auto;
+  background-size: 20px 20px;
+}
+.nowPlaying__playArea__item {
+  display: flex;
+  flex-wrap: nowrap;
+  margin-bottom: 22px;
+}
+
+.nowPlaying__playArea__item__controls {
+  width: 40%;
+  display: flex;
+  justify-content: space-around;
+}
+
+.rhap_container {
+  width: 100%;
+  display: flex;
+  line-height: 1;
+  min-width: 300px;
+  font-family: inherit;
+  box-sizing: border-box;
+  flex-direction: column;
+  background-color: var(--dark-one);
+}
+.rhap_container * {
+  outline: none;
+}
+.rhap_container:focus:not(:focus-visible) {
+  outline: 0;
+}
+
+.rhap_header {
+  margin-bottom: 10px;
+}
+
+.rhap_footer {
+  margin-top: 5px;
+}
+
+.rhap_main {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+}
+
+.rhap_stacked .rhap_controls-section {
+  margin: 0 auto;
+  margin-top: 20px;
+}
+
+.rhap_horizontal {
+  flex-direction: row;
+}
+.rhap_horizontal .rhap_controls-section {
+  margin-left: 8px;
+}
+
+.rhap_horizontal-reverse {
+  flex-direction: row-reverse;
+}
+.rhap_horizontal-reverse .rhap_controls-section {
+  margin-right: 8px;
+}
+
+.rhap_stacked-reverse {
+  flex-direction: column-reverse;
+}
+.rhap_stacked-reverse .rhap_controls-section {
+  margin-bottom: 8px;
+}
+
+.rhap_progress-section {
+  display: flex;
+  flex: 3 1 auto;
+  align-items: center;
+}
+
+.rhap_progress-container {
+  height: 20px;
+  display: flex;
+  flex: 1 0 auto;
+  cursor: pointer;
+  align-self: center;
+  align-items: center;
+  margin: 0 calc(10px + 1%);
+  -webkit-user-select: none;
+}
+.rhap_progress-container:focus:not(:focus-visible) {
+  outline: 0;
+}
+
+.rhap_time {
+  color: #fff;
+  font-size: 0.85em;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.rhap_progress-bar {
+  z-index: 0;
+  width: 100%;
+  height: 2px;
+  position: relative;
+  border-radius: 2px;
+  box-sizing: border-box;
+  background-color: #dddddd;
+}
+
+.rhap_progress-filled {
+  height: 100%;
+  position: absolute;
+  z-index: 2;
+  background-color: #fff;
+  border-radius: 2px;
+}
+
+.rhap_progress-bar-show-download {
+  background-color: #2c2c2c;
+}
+
+.rhap_download-progress {
+  height: 100%;
+  position: absolute;
+  z-index: 1;
+  background-color: #868686;
+  border-radius: 2px;
+}
+
+.rhap_progress-indicator {
+  box-sizing: border-box;
+  position: absolute;
+  z-index: 3;
+  width: 18px;
+  height: 18px;
+  margin-left: -10px;
+  top: -8px;
+  background: #fff;
+  border-radius: 50px;
+  box-shadow: rgba(134, 134, 134, 0.5) 0 0 5px;
+}
+
+.rhap_controls-section {
+  display: flex;
+  flex: 1 1 auto;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.rhap_additional-controls {
+  display: flex;
+  flex: 1 0 auto;
+  align-items: center;
+
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.rhap_repeat-button {
+  font-size: 26px;
+  width: 26px;
+  height: 26px;
+  color: #868686;
+  margin-right: 6px;
+}
+
+.rhap_main-controls {
+  flex: 0 1 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.rhap_main-controls-button {
+  margin: 0 3px;
+  color: #868686;
+  font-size: 35px;
+  width: 35px;
+  height: 35px;
+}
+
+.rhap_play-pause-button {
+  font-size: 40px;
+  width: 40px;
+  height: 40px;
+  margin: 0 20px;
+}
+
+.rhap_volume-controls {
+  display: flex;
+  flex: 1 0 auto;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.rhap_volume-button {
+  flex: 0 0 26px;
+  font-size: 26px;
+  width: 26px;
+  height: 26px;
+  color: #868686;
+  margin-right: 6px;
+}
+
+.rhap_volume-container {
+  display: flex;
+  align-items: center;
+  flex: 0 1 100px;
+  -webkit-user-select: none;
+}
+
+.rhap_volume-bar-area {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 14px;
+  cursor: pointer;
+}
+.rhap_volume-bar-area:focus:not(:focus-visible) {
+  outline: 0;
+}
+
+.rhap_volume-bar {
+  box-sizing: border-box;
+  position: relative;
+  width: 100%;
+  height: 2px;
+  background: #fff;
+  border-radius: 2px;
+}
+
+.rhap_volume-indicator {
+  box-sizing: border-box;
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  margin-left: -6px;
+  left: 0;
+  top: -5px;
+  background: #fff;
+  /* opacity: 0.9; */
+  border-radius: 50px;
+  box-shadow: rgba(255, 255, 255, 0.5) 0 0 3px;
+  cursor: pointer;
+}
+.rhap_volume-indicator:hover {
+  opacity: 0.9;
+}
+
+/* Utils */
+.rhap_button-clear {
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  overflow: hidden;
+  cursor: pointer;
+}
+.rhap_button-clear:hover {
+  opacity: 0.9;
+  transition-duration: 0.2s;
+}
+.rhap_button-clear:active {
+  opacity: 0.95;
+}
+.rhap_button-clear:focus:not(:focus-visible) {
+  outline: 0;
+}
