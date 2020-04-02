@@ -1,9 +1,10 @@
 import React from 'react';
+import AlbumsLanding from '../components/AlbumsLanding';
 
-function Albums() {
+function Albums({albums}) {
   return (
       <div className='albums'>
-        Albums
+        <AlbumsLanding albums={albums} />
       </div>
   );
 }

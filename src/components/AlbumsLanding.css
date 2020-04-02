@@ -1,0 +1,47 @@
+.aLanding__list {
+  display: flex;
+  flex-wrap: wrap;
+}
+.aLanding__list a {
+    all: unset;
+    display: block;
+    width: calc(50% - 12px);
+    margin: 6px;
+}
+.aLanding__list__album {
+  background-color: var(--dark-three);
+  border-radius: 5px;
+}
+
+.aLanding__list__album__cover {
+  width: 100%;
+  height: 190px;
+  background-size: cover;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+}
+.aLanding__list__album__cover__info {
+  padding: 10px 7px 7px;
+}
+.aLanding__list__album__cover__info__name {
+  color: #ededed;
+  /* font-size: 0.9em; */
+}
+.aLanding__list__album__cover__info__artist {
+  color: #ababab;
+  font-size: 0.9em;
+  margin-top: 3px;
+}
+
+.loading .aLanding__list__album__cover__info {
+  height: 37px;
+}
+.lazyload-custom-placeholder {
+  margin: 6px;
+  display: block;
+  width: calc(50% - 12px);
+}
+.loading.aLanding__list__album {
+  margin: 0;
+  width: 100%;
+}

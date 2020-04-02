@@ -1,3 +1,8 @@
+.truncate {
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  text-overflow: ellipsis !important;
+}
 [data-img] {
   width: 24px;
   height: 24px;
@@ -90,14 +95,34 @@
 }
 [data-imgname='all_songs'] {
   background-image: url(/image/icon/all_songs.svg);
-}[data-imgname='clock'] {
+}
+[data-imgname='clock'] {
   background-image: url(/image/icon/clock.svg);
-}[data-imgname='fire'] {
+}
+[data-imgname='fire'] {
   background-image: url(/image/icon/fire.svg);
-}[data-imgname='cancel'] {
+}
+[data-imgname='cancel'] {
   background-image: url(/image/icon/cancel.svg);
-}[data-imgname='list'] {
+}
+[data-imgname='list'] {
   background-image: url(/image/icon/list.svg);
-}[data-imgname='plus'] {
+}
+[data-imgname='plus'] {
   background-image: url(/image/icon/plus.svg);
+}
+[data-imgname='search'] {
+  background-image: url(/image/icon/search.svg);
+}
+[data-imgname='sort'] {
+  background-image: url(/image/icon/sort.svg);
+}
+[data-imgname='arrow_left'] {
+  background-image: url(/image/icon/arrow_left.svg);
+}
+[data-imgname='settings'] {
+  background-image: url(/image/icon/settings.svg);
+}
+[data-imgname='caret_down'] {
+  background-image: url(/image/icon/caret_down.svg);
 }

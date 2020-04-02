@@ -1,0 +1,7 @@
+.aLanding__item {
+    font-size: 1.3em;
+    margin: 25px 15px;
+}
+.aLanding__item a {
+    all: unset;
+}

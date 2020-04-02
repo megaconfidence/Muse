@@ -1,9 +1,10 @@
 import React from 'react';
+import ArtistLanding from '../components/ArtistLanding';
 
-function Artist() {
+function Artist({songs}) {
   return (
       <div className='artist'>
-        Artist
+        <ArtistLanding songs={songs} />
       </div>
   );
 }
