@@ -1,14 +1,21 @@
 import React from 'react';
 import './PlayList.css';
+import { Link } from 'react-router-dom';
 function PlayList() {
   return (
     <div className='playList'>
       <div className='playList__cat'>
         <ul>
-          <li>
-            <div data-img data-imgname='all_songs' />
-            <div className='playList__cat__name'>All songs</div>
-          </li>
+          <Link
+            to={{
+              pathname: `/view/allsongs/`
+            }}
+          >
+            <li>
+              <div data-img data-imgname='all_songs' />
+              <div className='playList__cat__name'>All songs</div>
+            </li>
+          </Link>
           <li>
             <div data-img data-imgname='like_fill' />
             <div className='playList__cat__name'>Favorites</div>
@@ -39,9 +46,11 @@ function PlayList() {
             <div className='playList__user__name'>Sad</div>
           </li>
         </ul>
-        <div className="playList__user__create">
+        <div className='playList__user__create'>
           <div data-img data-imgname='plus' />
-          <div className='playList__user__create__name'>Create a new playlist</div>
+          <div className='playList__user__create__name'>
+            Create a new playlist
+          </div>
         </div>
       </div>
     </div>

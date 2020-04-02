@@ -102,6 +102,9 @@
 .vLanding__info__msc__numArtist {
   margin-bottom: 14px;
 }
+.vLanding__songs__list a{ 
+    all: unset
+}
 .vLanding__songs__control {
   display: flex;
   padding: 15px 0;

@@ -7,15 +7,15 @@ li {
 }
 .playList [data-img] {
   margin: 0 25px;
-  width: 30px;
-  height: 30px;
-  background-size: 30px 30px;
 }
 .playList ul li {
   margin: 35px 0;
   display: flex;
   align-items: center;
-  font-size: 1.3em;
+  font-size: 1.1em;
+}
+.playList ul a  {
+  all: unset;
 }
 .playList__cat ul li:first-of-type {
   margin-top: 0;

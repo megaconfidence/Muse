@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import './ViewLanding.css';
 import _ from 'lodash';
-import { withRouter } from 'react-router-dom';
+import { withRouter, Link } from 'react-router-dom';
 
 const withRouterAndRef = Wrapped => {
   const WithRouter = withRouter(({ forwardRef, ...otherProps }) => (
@@ -86,7 +86,7 @@ function ViewLanding({ path, songs, history }) {
 
               allSongs.val.forEach(s => {
                 // console.log(s)
-                if (s.txt.includes(cardName)) {
+                if (s.album.includes(cardName)) {
                   arr.push(s);
                 }
               });
@@ -106,8 +106,9 @@ function ViewLanding({ path, songs, history }) {
             songs[a][s].albumSongs = songs[a][s].albumSongs.map(ss => ({
               url: ss.url,
               name: ss.name,
-              art: songs[a][s].albumArt,
-              txt: songs[a][s].albumArtist
+              cover: songs[a][s].albumArt,
+              artist: songs[a][s].albumArtist,
+              album: songs[a][s].albumName
             }));
             allSongsFixed.current = songs[a][s].albumSongs;
             setAllSongs({
@@ -139,7 +140,7 @@ function ViewLanding({ path, songs, history }) {
                 const save = v => {
                   const obj = {
                     albumName: v.replace(/[^a-zA-Z0-9 \-$]/g, '').trim(),
-                    albumArt: ss.art
+                    albumArt: ss.cover
                   };
 
                   if (!_.find(arr, obj)) {
@@ -169,8 +170,9 @@ function ViewLanding({ path, songs, history }) {
               arr.push({
                 url: s.url,
                 name: s.name,
-                art: songs[ar][a].albumArt,
-                txt: songs[ar][a].albumName
+                cover: songs[ar][a].albumArt,
+                album: songs[ar][a].albumName,
+                artist: songs[ar][a].albumArtist
               });
             });
           }
@@ -259,25 +261,34 @@ function ViewLanding({ path, songs, history }) {
         </div>
         <div className='vLanding__songs__list'>
           {allSongs.val.map((s, k) => (
-            <div key={k} className='vLanding__songs__list__item'>
-              <div
-                className='vLanding__songs__list__item__img'
-                style={{ backgroundImage: `url(${s.art})` }}
-              />
-              <div className='vLanding__songs__list__item__text'>
-                <div className='vLanding__songs__list__item__text__song '>
-                  {s.name}
+            <Link
+              key={k}
+              to={{
+                data: s,
+                pathname: `/play/p`,
+                search: `?artist=${s.artist}&song=${s.name}`,
+              }}
+            >
+              <div className='vLanding__songs__list__item'>
+                <div
+                  className='vLanding__songs__list__item__img'
+                  style={{ backgroundImage: `url(${s.cover})` }}
+                />
+                <div className='vLanding__songs__list__item__text'>
+                  <div className='vLanding__songs__list__item__text__song truncate'>
+                    {s.name}
+                  </div>
+                  <div className='vLanding__songs__list__item__text__artist truncate'>
+                    {cat === 'artist' ? s.album : s.artist}
+                  </div>
                 </div>
-                <div className='vLanding__songs__list__item__text__artist truncate'>
-                  {s.txt}
-                </div>
+                <div
+                  data-img
+                  data-imgname='menu_horizontal'
+                  className='vLanding__songs__list__item__option'
+                />
               </div>
-              <div
-                data-img
-                data-imgname='menu_horizontal'
-                className='vLanding__songs__list__item__option'
-              />
-            </div>
+            </Link>
           ))}
         </div>
       </div>

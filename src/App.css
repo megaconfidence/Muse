@@ -3,6 +3,9 @@
   white-space: nowrap !important;
   text-overflow: ellipsis !important;
 }
+.hide {
+  display: none !important;
+}
 [data-img] {
   width: 24px;
   height: 24px;
@@ -125,4 +128,7 @@
 }
 [data-imgname='caret_down'] {
   background-image: url(/image/icon/caret_down.svg);
+}
+[data-imgname='alert'] {
+  background-image: url(/image/icon/alert.svg);
 }

@@ -2,6 +2,8 @@ import React, { useState, useCallback, useEffect } from 'react';
 import './ArtistLanding.css';
 import LandingSearch from './LandingSearch';
 import { Link } from 'react-router-dom';
+import LazyLoad from 'react-lazyload';
+
 
 function ArtistLanding({ songs }) {
   // console.log(songs)
@@ -14,22 +16,23 @@ function ArtistLanding({ songs }) {
     setAllArtist({ val: arr });
   }, [songs]);
   useEffect(() => {
-    getArtist();
-  }, [getArtist]);
+      getArtist();
+    }, [getArtist]);
   return (
-    <div className='aLanding'>
+      
+    <div className='arLanding'>
       <LandingSearch />
       {allArtist.val.map((a, k) => (
-        <div key={k} className='aLanding__item truncate'>
-          {' '}
+        <LazyLoad key={k} placeholder='***'>
           <Link
+            key={k}
             to={{
               pathname: `/view/artist/${a}`
             }}
           >
-            {a}
+            <div className='arLanding__item truncate'>{a}</div>
           </Link>
-        </div>
+        </LazyLoad>
       ))}
     </div>
   );

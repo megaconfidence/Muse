@@ -1,7 +1,10 @@
-.aLanding__item {
-    font-size: 1.3em;
-    margin: 25px 15px;
+.arLanding a {
+  all: unset;
 }
-.aLanding__item a {
-    all: unset;
+.arLanding__item {
+  font-size: 1.3em;
+  margin: 25px 15px;
+}
+.arLanding .lazyload-custom-placeholder {
+  color: transparent;
 }
