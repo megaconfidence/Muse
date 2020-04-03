@@ -1,6 +1,6 @@
 .vLanding__nav {
   display: flex;
-  padding: 10px 0;
+  padding: 15px 0;
   align-items: center;
   justify-content: space-between;
   background-color: var(--dark-two);
@@ -44,6 +44,7 @@
   margin: 20px 0;
   padding-left: 10px;
   overflow-x: scroll;
+  /* flex-direction: column; */
   width: calc(100% - 10px);
 }
 
@@ -102,8 +103,21 @@
 .vLanding__info__msc__numArtist {
   margin-bottom: 14px;
 }
-.vLanding__songs__list a{ 
-    all: unset
+.vLanding__songs__list {
+  all: unset;
+  display: block;
+  /* height: calc(100vh - 411px); */
+  min-height: 300px;
+  overflow-y: scroll;
+  position: relative;
+}
+
+.vLanding__songs__list__container {
+  position: absolute;
+  width: calc(100vw - 32px);
+}
+.vLanding__songs__list a {
+  all: unset;
 }
 .vLanding__songs__control {
   display: flex;
@@ -115,6 +129,8 @@
 }
 .vLanding__songs__list__item {
   display: flex;
+  position: absolute;
+  width: 100%;
   align-items: center;
   margin: 0 15px 20px;
   justify-content: center;
@@ -141,4 +157,37 @@
   text-transform: capitalize;
 }
 .vLanding__songs__list__item__option {
+}
+.vLanding .lazyload-custom-placeholder {
+  width: 90%;
+  height: 50px;
+  padding: 10px;
+  margin: 0 auto;
+  display: block;
+}
+.vLanding__lazy {
+  height: 50px;
+  border-radius: 5px;
+  color: transparent;
+  background-color: var(--dark-two);
+}
+
+.viewPort {
+  position: relative;
+  height: 445px;
+  border: solid 1px;
+  overflow-y: scroll;
+}
+
+.itemContainer {
+  position: absolute;
+  background-color: azure;
+}
+
+.item {
+  position: absolute;
+  width: 90vw;
+  background-color: beige;
+  border: solid 1px;
+  text-align: center;
 }

@@ -8,7 +8,7 @@ function PlayList() {
         <ul>
           <Link
             to={{
-              pathname: `/view/allsongs/`
+              pathname: `/view/songs/all songs`
             }}
           >
             <li>
