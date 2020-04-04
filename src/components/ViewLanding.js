@@ -1,9 +1,9 @@
 import React, {
-  forwardRef,
+  useRef,
   useState,
   useEffect,
-  useCallback,
-  useRef
+  forwardRef,
+  useCallback
 } from 'react';
 import _ from 'lodash';
 import './ViewLanding.css';
@@ -33,8 +33,8 @@ function ViewLanding({
   path = path.split('/');
   const cat = path[0];
   const id = path[1];
-  const allSongsFixed = useRef(null);
   const songModalRef = useRef(null);
+  const allSongsFixed = useRef(null);
   const [allSongs, setAllSongs] = useState({ val: [] });
   const [allAlbums, setAllAlbums] = useState({ val: [] });
   const [songModalData, setSongModalData] = useState({ val: {} });
@@ -53,6 +53,14 @@ function ViewLanding({
     end: numVisibleItems
   });
 
+  const handleSetSongModalData = data => {
+    setSongModalData({ val: data });
+  };
+
+  const handleCloseSongModal = () => {
+    songModalRef.current.classList.toggle('hide');
+  };
+
   const handleScroll = () => {
     let currentIndx = Math.trunc(viewPort.current.scrollTop / itemheight);
 
@@ -69,6 +77,33 @@ function ViewLanding({
             : currentIndx + numVisibleItems
       });
     }
+  };
+
+  const renderSongs = () => {
+    let result = [];
+    for (let i = scrollState.start; i <= scrollState.end; i++) {
+      if (allSongs.val[i]) {
+        let item = allSongs.val[i];
+        result.push(
+          <SongItem
+            key={i}
+            cat={cat}
+            url={item.url}
+            name={item.name}
+            album={item.album}
+            cover={item.cover}
+            artist={item.artist}
+            queueId={item.queueId}
+            top={i * itemheight}
+            itemheight={itemheight}
+            ref={songModalRef}
+            handleSetSongQueues={handleSetSongQueues}
+            handleSetSongModalData={handleSetSongModalData}
+          />
+        );
+      }
+    }
+    return result;
   };
 
   const handleListCardClick = i => {
@@ -150,8 +185,8 @@ function ViewLanding({
               url: ss.url,
               name: ss.name,
               cover: songs[a][s].albumArt,
-              artist: songs[a][s].albumArtist,
-              album: songs[a][s].albumName
+              album: songs[a][s].albumName,
+              artist: songs[a][s].albumArtist
             }));
             allSongsFixed.current = songs[a][s].albumSongs;
             setAllSongs({
@@ -171,12 +206,7 @@ function ViewLanding({
             songs[a][s].albumSongs.forEach(ss => {
               let { name } = ss;
               const re = /[^le]fe?a?t\.?\s/g;
-              // name.includes('feat.') ||
-              // name.includes('ft.') ||
-              // name.includes(' feat ') ||
-              // name.includes(' ft ') ||
-              // name.includes('(feat ') ||
-              // name.includes('(ft ')
+
               if (re.test(name)) {
                 const typ = name.includes('feat') ? 'feat' : 'ft';
                 name = name.split(typ)[1];
@@ -248,41 +278,6 @@ function ViewLanding({
   useEffect(() => {
     getSongs();
   }, [getSongs]);
-
-  const handleSetSongModalData = data => {
-    setSongModalData({ val: data });
-  };
-
-  const renderSongs = () => {
-    let result = [];
-    for (let i = scrollState.start; i <= scrollState.end; i++) {
-      if (allSongs.val[i]) {
-        let item = allSongs.val[i];
-        result.push(
-          <SongItem
-            key={i}
-            cat={cat}
-            url={item.url}
-            name={item.name}
-            album={item.album}
-            cover={item.cover}
-            artist={item.artist}
-            queueId={item.queueId}
-            top={i * itemheight}
-            itemheight={itemheight}
-            ref={songModalRef}
-            handleSetSongQueues={handleSetSongQueues}
-            handleSetSongModalData={handleSetSongModalData}
-          />
-        );
-      }
-    }
-    return result;
-  };
-
-  const handleCloseSongModal = () => {
-    songModalRef.current.classList.toggle('hide');
-  };
 
   return (
     <div className='vLanding'>
@@ -416,8 +411,8 @@ function ViewLanding({
           style={{
             height: `calc(${vh}px)`
           }}
-          className='vLanding__songs__list'
           onScroll={handleScroll}
+          className='vLanding__songs__list'
         >
           <div
             className='vLanding__songs__list__container'

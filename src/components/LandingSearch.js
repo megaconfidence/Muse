@@ -1,20 +1,22 @@
-import React, { useState } from 'react';
 import './LandingSearch.css';
+import React, { useState } from 'react';
 
 function LandingSearch() {
   const [searchValue, setSearchValue] = useState({ val: '' });
+
   const handleSearchChange = ({ target }) => {
     setSearchValue({ val: target.value });
   };
+
   return (
     <div className='lSearch'>
       <div className='lSearch__icon' data-img data-imgname='search' />
       <input
         type='text'
-        placeholder='Search an album...'
-        className='lSearch__input'
         value={searchValue.val}
+        className='lSearch__input'
         onChange={handleSearchChange}
+        placeholder='Search an album...'
       />
       <div className='lSearch__icon' data-img data-imgname='sort' />
     </div>

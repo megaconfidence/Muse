@@ -1,12 +1,11 @@
-import React, { useState, useCallback, useEffect } from 'react';
 import './ArtistLanding.css';
-import LandingSearch from './LandingSearch';
 import { Link } from 'react-router-dom';
-
+import LandingSearch from './LandingSearch';
+import React, { useState, useCallback, useEffect } from 'react';
 
 function ArtistLanding({ songs }) {
-  // console.log(songs)
   const [allArtist, setAllArtist] = useState({ val: [] });
+
   const getArtist = useCallback(() => {
     const arr = [];
     for (const artist in songs) {
@@ -14,22 +13,23 @@ function ArtistLanding({ songs }) {
     }
     setAllArtist({ val: arr });
   }, [songs]);
+
   useEffect(() => {
-      getArtist();
-    }, [getArtist]);
+    getArtist();
+  }, [getArtist]);
+
   return (
-      
     <div className='arLanding'>
       <LandingSearch />
       {allArtist.val.map((a, k) => (
-          <Link
-            key={k}
-            to={{
-              pathname: `/view/artist/${a}`
-            }}
-          >
-            <div className='arLanding__item truncate'>{a}</div>
-          </Link>
+        <Link
+          key={k}
+          to={{
+            pathname: `/view/artist/${a}`
+          }}
+        >
+          <div className='arLanding__item truncate'>{a}</div>
+        </Link>
       ))}
     </div>
   );

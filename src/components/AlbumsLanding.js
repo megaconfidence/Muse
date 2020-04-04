@@ -3,6 +3,7 @@ import './AlbumsLanding.css';
 import LazyLoad from 'react-lazyload';
 import { Link } from 'react-router-dom';
 import LandingSearch from './LandingSearch';
+
 const LazyLoadPlaceholder = () => (
   <div className='aLanding__list__album loading'>
     <div
@@ -15,33 +16,26 @@ const LazyLoadPlaceholder = () => (
     </div>
   </div>
 );
+
 function AlbumsLanding({ albums }) {
   function shuffle(array) {
-    var currentIndex = array.length,
+    let currentIndex = array.length,
       temporaryValue,
       randomIndex;
 
-    // While there remain elements to shuffle...
     while (0 !== currentIndex) {
-      // Pick a remaining element...
       randomIndex = Math.floor(Math.random() * currentIndex);
       currentIndex -= 1;
 
-      // And swap it with the current element.
       temporaryValue = array[currentIndex];
       array[currentIndex] = array[randomIndex];
       array[randomIndex] = temporaryValue;
     }
-
     return array;
   }
 
   albums = albums.flat();
   shuffle(albums);
-
-
-
-  //   console.log(albums);
 
   return (
     <div className='aLanding'>

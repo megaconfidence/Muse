@@ -2,10 +2,9 @@ import './Nav.css';
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 
-function Nav({playPath}) {
+function Nav({ playPath }) {
   return (
     <div className='nav'>
-     
       <NavLink
         exact
         to={`/view/queues/all queues`}
@@ -15,7 +14,7 @@ function Nav({playPath}) {
         <div data-img data-imgname='queue' />
       </NavLink>
       <NavLink
-        to={`/play${playPath?'/p'+playPath:''}`}
+        to={`/play${playPath ? '/p' + playPath : ''}`}
         activeClassName='nav__link--active'
         className='nav__link'
       >

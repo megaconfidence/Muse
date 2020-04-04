@@ -1,9 +1,8 @@
-import React from 'react';
-import './App.css';
-import { Route, HashRouter as Router, Switch } from 'react-router-dom';
-import NoMatch from './routes/NoMatch';
-import apiData from './data.json';
 import Home from './Home';
+import React from 'react';
+import apiData from './data.json';
+import NoMatch from './routes/NoMatch';
+import { Route, HashRouter as Router, Switch } from 'react-router-dom';
 
 const App = () => {
   const { data } = apiData;

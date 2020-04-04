@@ -1,13 +1,12 @@
-
 .aLanding__list {
   display: flex;
   flex-wrap: wrap;
 }
 .aLanding__list a {
-    all: unset;
-    display: block;
-    width: calc(50% - 12px);
-    margin: 6px;
+  all: unset;
+  margin: 6px;
+  display: block;
+  width: calc(50% - 12px);
 }
 .aLanding__list__album {
   background-color: var(--dark-three);
@@ -29,9 +28,9 @@
   /* font-size: 0.9em; */
 }
 .aLanding__list__album__cover__info__artist {
-  color: #ababab;
-  font-size: 0.9em;
   margin-top: 3px;
+  font-size: 0.9em;
+  color: #ababab;
 }
 
 .loading .aLanding__list__album__cover__info {

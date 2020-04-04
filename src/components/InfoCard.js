@@ -1,5 +1,6 @@
-import React from 'react';
 import './InfoCard.css'
+import React from 'react';
+
 const InfoCard = ({ allAlbums, allSongs, handleListCardClick, cat }) => (
   <div className='vLanding__info'>
     <div className='vLanding__info__type'>
@@ -29,11 +30,11 @@ const InfoCard = ({ allAlbums, allSongs, handleListCardClick, cat }) => (
       {allAlbums.val.map((a, k) => (
         <div
           key={k}
-          className='vLanding__info__list__card'
-          style={{ backgroundImage: `url(${a.albumArt})` }}
           onClick={() => {
             handleListCardClick(k + 1);
           }}
+          className='vLanding__info__list__card'
+          style={{ backgroundImage: `url(${a.albumArt})` }}
         >
           <div className='vLanding__info__list__card__wrapper'>
             <div className='vLanding__info__list__card__name'>

@@ -1,17 +1,18 @@
 import React, {
-  useCallback,
-  useEffect,
+  useRef,
   useState,
+  useEffect,
   forwardRef,
-  useRef
+  useCallback,
 } from 'react';
 import './NowPlaying.css';
-import AudioPlayer from 'react-h5-audio-player';
 import { useSnackbar } from 'notistack';
+import AudioPlayer from 'react-h5-audio-player';
 
 // import 'react-h5-audio-player/lib/styles.css';
 
 const NowPlaying = forwardRef(({ playPath, data, songs, songQueues }, ref) => {
+  
   const playingId = useRef(null);
   const tempPlaying = useRef(null);
   const playerEleRef = useRef(null);

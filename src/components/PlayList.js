@@ -1,6 +1,7 @@
-import React from 'react';
 import './PlayList.css';
+import React from 'react';
 import { Link } from 'react-router-dom';
+
 function PlayList() {
   return (
     <div className='playList'>

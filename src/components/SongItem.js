@@ -6,16 +6,16 @@ const SongItem = forwardRef(
   (
     {
       top,
-      itemheight,
-      cover,
-      name,
-      cat,
-      album,
-      artist,
       url,
+      cat,
+      name,
+      album,
+      cover,
+      artist,
       queueId,
+      itemheight,
+      handleSetSongQueues,
       handleSetSongModalData,
-      handleSetSongQueues
     },
     ref
   ) => {
@@ -29,9 +29,10 @@ const SongItem = forwardRef(
     };
 
     const handleSongOptionClick = () => {
-      ref.current.classList.toggle('hide');
       handleSetSongModalData(songData);
+      ref.current.classList.toggle('hide');
     };
+
     return (
       <div
         className='vLanding__songs__list__item'
@@ -65,8 +66,8 @@ const SongItem = forwardRef(
         <div
           data-img
           data-imgname='menu_horizontal'
-          className='vLanding__songs__list__item__option'
           onClick={handleSongOptionClick}
+          className='vLanding__songs__list__item__option'
         />
       </div>
     );

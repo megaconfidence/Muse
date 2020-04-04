@@ -1,29 +1,30 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
-import './App.css';
-import Nav from './components/Nav';
 import {
   Route,
   Switch,
-  HashRouter as Router,
   withRouter,
-  Redirect
+  HashRouter as Router
 } from 'react-router-dom';
+import './App.css';
 import Play from './routes/Play';
+import View from './routes/View';
+import apiData from './data.json';
+import Nav from './components/Nav';
+import Genre from './routes/Genre';
 import Queues from './routes/Queues';
 import Albums from './routes/Albums';
 import Artist from './routes/Artist';
-import PlayLists from './routes/PlayList';
-import Genre from './routes/Genre';
-import apiData from './data.json';
-import View from './routes/View';
-import NowPlaying from './components/NowPlaying';
-import { forceCheck } from 'react-lazyload';
 import { useSnackbar } from 'notistack';
+import PlayLists from './routes/PlayList';
+import NowPlaying from './components/NowPlaying';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 
 const Home = withRouter(({ location, history }) => {
-  const { data } = apiData;
+  const { data  } = apiData;
   const songs = data;
-  const albums = [];
+  const playerRef = useRef(null);
+  const { enqueueSnackbar } = useSnackbar();
+  const [playing, setPlaying] = useState({ val: {} });
+  const [playPath, setPlayPath] = useState({ val: '' });
   const [songQueues, setSongQueues] = useState(() => {
     const queue = JSON.parse(localStorage.getItem('MUSE__SONGQUEUES'));
     if (queue) {
@@ -32,11 +33,9 @@ const Home = withRouter(({ location, history }) => {
       return { val: [] };
     }
   });
-  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
-  const [playing, setPlaying] = useState({ val: {} });
-  const playerRef = useRef(null);
-  const [playPath, setPlayPath] = useState({ val: '' });
 
+  
+  const albums = [];
   for (const artist in songs) {
     albums.push(songs[artist]);
   }
@@ -55,6 +54,7 @@ const Home = withRouter(({ location, history }) => {
       setSongQueues({ val: arr });
       localStorage.setItem('MUSE__SONGQUEUES', JSON.stringify(arr));
     };
+
     if (type === 'add') {
       addSong(data);
       enqueueSnackbar(`Song added to queue`);
@@ -70,7 +70,7 @@ const Home = withRouter(({ location, history }) => {
       };
       const arr = songQueues.val.filter(filterSong);
       const arr2 = arr.map((s, i) => ({ ...s, queueId: i }));
-      
+
       setSongQueues({ val: arr2 });
       localStorage.setItem('MUSE__SONGQUEUES', JSON.stringify(arr2));
       enqueueSnackbar(`Song removed from queue`);
@@ -95,20 +95,20 @@ const Home = withRouter(({ location, history }) => {
   }, [history, location.pathname]);
 
   const setPlayingData = useCallback(data => {
-    // console.log('gotten', data)
     setPlaying({ val: data });
   }, []);
+
   const setPlayPathData = useCallback(data => {
     setPlayPath({ val: data });
   }, []);
 
   useEffect(() => {
     getHistory();
-    forceCheck();
     if (location.pathname.includes('/play/')) {
       setPlayPath({ val: location.search });
     }
   }, [getHistory, location]);
+
   return (
     <Router>
       <div className='App'>

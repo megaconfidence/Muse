@@ -1,7 +1,7 @@
 .vLanding__songs__list__item {
+  width: 100%;
   display: flex;
   position: absolute;
-  width: 100%;
   align-items: center;
   margin: 0 15px 20px;
   justify-content: space-between;
