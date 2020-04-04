@@ -5,7 +5,8 @@ import {
   Route,
   Switch,
   HashRouter as Router,
-  withRouter
+  withRouter,
+  Redirect
 } from 'react-router-dom';
 import Play from './routes/Play';
 import Queues from './routes/Queues';
@@ -17,20 +18,63 @@ import apiData from './data.json';
 import View from './routes/View';
 import NowPlaying from './components/NowPlaying';
 import { forceCheck } from 'react-lazyload';
+import { useSnackbar } from 'notistack';
 
 const Home = withRouter(({ location, history }) => {
   const { data } = apiData;
   const songs = data;
   const albums = [];
-  for (const artist in songs) {
-    albums.push(songs[artist]);
-  }
+  const [songQueues, setSongQueues] = useState(() => {
+    const queue = JSON.parse(localStorage.getItem('MUSE__SONGQUEUES'));
+    if (queue) {
+      return { val: queue };
+    } else {
+      return { val: [] };
+    }
+  });
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const [playing, setPlaying] = useState({ val: {} });
   const playerRef = useRef(null);
   const [playPath, setPlayPath] = useState({ val: '' });
 
+  for (const artist in songs) {
+    albums.push(songs[artist]);
+  }
+
   const setNowPlaing = data => {
     console.log(data);
+  };
+
+  const handleSetSongQueues = (type, data) => {
+    const addSong = aData => {
+      const arr = songQueues.val;
+      arr.push({
+        ...aData,
+        queueId: songQueues.val.length
+      });
+      setSongQueues({ val: arr });
+      localStorage.setItem('MUSE__SONGQUEUES', JSON.stringify(arr));
+    };
+    if (type === 'add') {
+      addSong(data);
+      enqueueSnackbar(`Song added to queue`);
+    } else if (type === 'play') {
+      addSong(data);
+    } else if (type === 'remove') {
+      const filterSong = s => {
+        if (s.queueId === data) {
+          //Do nothing it the match is exact
+        } else {
+          return s;
+        }
+      };
+      const arr = songQueues.val.filter(filterSong);
+      const arr2 = arr.map((s, i) => ({ ...s, queueId: i }));
+      
+      setSongQueues({ val: arr2 });
+      localStorage.setItem('MUSE__SONGQUEUES', JSON.stringify(arr2));
+      enqueueSnackbar(`Song removed from queue`);
+    }
   };
 
   const getHistory = useCallback(() => {
@@ -60,7 +104,7 @@ const Home = withRouter(({ location, history }) => {
 
   useEffect(() => {
     getHistory();
-    forceCheck()
+    forceCheck();
     if (location.pathname.includes('/play/')) {
       setPlayPath({ val: location.search });
     }
@@ -69,12 +113,14 @@ const Home = withRouter(({ location, history }) => {
     <Router>
       <div className='App'>
         <Nav playPath={playPath.val} />
+        {/* <Redirect exact from="/" to="play" /> */}
 
         <NowPlaying
-          data={playing.val}
-          playPath={playPath.val}
           songs={songs}
           ref={playerRef}
+          data={playing.val}
+          playPath={playPath.val}
+          songQueues={songQueues.val}
         />
 
         <Switch>
@@ -110,7 +156,14 @@ const Home = withRouter(({ location, history }) => {
           <Route
             exact
             path='/view/:category/:viewId'
-            render={props => <View {...props} songs={songs} />}
+            render={props => (
+              <View
+                {...props}
+                songs={songs}
+                songQueues={songQueues.val}
+                handleSetSongQueues={handleSetSongQueues}
+              />
+            )}
           />
         </Switch>
       </div>

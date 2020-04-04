@@ -1,0 +1,36 @@
+.vLanding__songs__list__item {
+  display: flex;
+  position: absolute;
+  width: 100%;
+  align-items: center;
+  margin: 0 15px 20px;
+  justify-content: space-between;
+}
+.vLanding__songs__list a {
+  all: unset;
+  display: flex;
+  width: calc(100% - 24px);
+}
+.vLanding__songs__list__item__img {
+  width: 45px;
+  height: 45px;
+  background-size: contain;
+  background-color: var(--dark-two);
+}
+.vLanding__songs__list__item__text {
+  margin: 0 15px;
+  width: calc(100% - 75px);
+}
+.vLanding__songs__list__item__text__song {
+  width: 90%;
+  font-size: 1.1em;
+  margin-bottom: 5px;
+  text-transform: capitalize;
+}
+.vLanding__songs__list__item__text__artist {
+  width: 90%;
+  font-size: 0.8em;
+  text-transform: capitalize;
+}
+.vLanding__songs__list__item__option {
+}

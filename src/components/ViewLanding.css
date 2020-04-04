@@ -21,88 +21,7 @@
   width: calc(100% - 116px);
   text-transform: capitalize;
 }
-.vLanding__info {
-  background-color: var(--dark-two);
-}
-.vLanding__info__type {
-  display: flex;
-  margin: 0 20px 0;
-  padding-top: 30px;
-  align-items: center;
-}
-.vLanding__info__type__text {
-  font-weight: bold;
-}
-.vLanding__info__type__icon {
-  width: 8px;
-  height: 8px;
-  margin-left: 10px;
-  background-size: 8px 8px;
-}
-.vLanding__info__list {
-  display: flex;
-  margin: 20px 0;
-  padding-left: 10px;
-  overflow-x: scroll;
-  /* flex-direction: column; */
-  width: calc(100% - 10px);
-}
 
-.vLanding__info__list::-webkit-scrollbar-track {
-  background: transparent;
-}
-.vLanding__info__list::-webkit-scrollbar-thumb {
-  background: transparent;
-}
-.vLanding__info__list__card {
-  margin: 0 10px;
-  border-radius: 5px;
-  background-size: contain;
-  background-color: var(--dark-three);
-}
-.vLanding__info__list__card__wrapper {
-  display: flex;
-  height: 100px;
-  padding: 0 5px;
-  min-width: 80px;
-  max-width: 80px;
-  border-radius: 5px;
-  align-items: center;
-  flex-direction: column;
-  justify-content: center;
-  background-color: #323232c7;
-}
-.vLanding__info__list__card__name {
-  height: 90px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.vLanding__info__list__card__name span {
-  width: 70px;
-  font-size: 0.8em;
-  text-align: center;
-  word-wrap: break-word;
-  text-transform: capitalize;
-  text-shadow: 0px 0px 4px #000;
-}
-.vLanding__info__list__card__highlight {
-  width: 60px;
-  border: 1px solid transparent;
-}
-.vLanding__info__list__card--select .vLanding__info__list__card__highlight {
-  border: 1px solid var(--green);
-}
-.vLanding__info__list__clearFix {
-  color: transparent;
-}
-.vLanding__info__msc {
-  color: #b9b9b9;
-  padding: 0 20px 13px;
-}
-.vLanding__info__msc__numArtist {
-  margin-bottom: 14px;
-}
 .vLanding__songs__list {
   all: unset;
   display: block;
@@ -116,9 +35,7 @@
   position: absolute;
   width: calc(100vw - 32px);
 }
-.vLanding__songs__list a {
-  all: unset;
-}
+
 .vLanding__songs__control {
   display: flex;
   padding: 15px 0;
@@ -127,67 +44,77 @@
 .vLanding__songs__control [data-img] {
   margin: 0 15px;
 }
-.vLanding__songs__list__item {
-  display: flex;
-  position: absolute;
+
+.modal {
+  top: 0;
+  left: 0;
+  z-index: 10;
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  background-color: rgba(0, 0, 0, 0.9);
+}
+.modal__wrapper {
   width: 100%;
+  height: 100%;
+  position: absolute;
+}
+.modal__card {
+  top: 30%;
+  left: 50%;
+  width: 80%;
+  z-index: 10;
+  position: relative;
+  border-radius: 10px;
+  transform: translate(-50%, -30%);
+  background-color: var(--dark-three);
+}
+.modal__card__main {
+  padding: 15px;
+}
+.modal__card__main__head {
+  display: flex;
+  font-weight: 500;
+  font-size: 1.3em;
   align-items: center;
-  margin: 0 15px 20px;
   justify-content: center;
 }
-.vLanding__songs__list__item__img {
-  width: 45px;
-  height: 45px;
-  background-size: contain;
-  background-color: var(--dark-two);
+.modal__card__main__head__text {
+  width: calc(100% - 39px);
+  text-transform: capitalize;
+  border-right: 1px solid #424242;
 }
-.vLanding__songs__list__item__text {
-  margin: 0 15px;
-  width: calc(100% - 101px);
+.modal__card__main__head__icon {
+  margin-left: 15px;
 }
-.vLanding__songs__list__item__text__song {
-  width: 90%;
+.modal__card__main__content {
+  margin: 10px;
+}
+.modal__card__main__content__item {
+  display: flex;
+  margin: 25px 0;
   font-size: 1.1em;
-  margin-bottom: 5px;
-  text-transform: capitalize;
+  align-items: center;
 }
-.vLanding__songs__list__item__text__artist {
-  width: 90%;
-  font-size: 0.8em;
-  text-transform: capitalize;
+.modal__card__main__content__item:last-of-type {
+  margin-bottom: 0;
 }
-.vLanding__songs__list__item__option {
+.modal__card__main__content__item__icon {
+  margin-right: 15px;
 }
-.vLanding .lazyload-custom-placeholder {
-  width: 90%;
-  height: 50px;
-  padding: 10px;
-  margin: 0 auto;
-  display: block;
+.modal__card__main__content__item__text {
+  /* margin-left: 15px; */
+  width: fit-content;
 }
-.vLanding__lazy {
-  height: 50px;
-  border-radius: 5px;
-  color: transparent;
-  background-color: var(--dark-two);
+.modal__card__main__content__item__icon[data-img] {
+  width: 20px;
+  height: 20px;
+  background-size: 20px 20px;
 }
-
-.viewPort {
-  position: relative;
-  height: 445px;
-  border: solid 1px;
-  overflow-y: scroll;
-}
-
-.itemContainer {
-  position: absolute;
-  background-color: azure;
-}
-
-.item {
-  position: absolute;
-  width: 90vw;
-  background-color: beige;
-  border: solid 1px;
-  text-align: center;
+.modal__card__main__content__item__icon[data-imgname="next"] {
+  margin: 0;
+  width: 15px;
+  height: 15px;
+  margin-right: 20px;
+  background-size: 15px 15px;
 }

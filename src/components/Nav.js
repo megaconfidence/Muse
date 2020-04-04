@@ -8,7 +8,7 @@ function Nav({playPath}) {
      
       <NavLink
         exact
-        to={`/queues`}
+        to={`/view/queues/all queues`}
         activeClassName='nav__link--active'
         className='nav__link'
       >

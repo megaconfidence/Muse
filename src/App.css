@@ -86,13 +86,13 @@
   background-image: url(/image/icon/info.svg);
 }
 [data-imgname='menu_horizontal'] {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   padding: 4px;
   border-radius: 7px;
   transform: rotate(90deg);
   background-color: white;
-  background-size: 18px 18px;
+  background-size: 16px 16px;
   background-position: 50%, 50%;
   background-image: url(/image/icon/menu_fill.svg);
 }
@@ -131,4 +131,13 @@
 }
 [data-imgname='alert'] {
   background-image: url(/image/icon/alert.svg);
+}
+[data-imgname='remove'] {
+  background-image: url(/image/icon/remove.svg);
+}
+[data-imgname='add_playlist'] {
+  background-image: url(/image/icon/add_playlist.svg);
+}
+[data-imgname='share'] {
+  background-image: url(/image/icon/share.svg);
 }

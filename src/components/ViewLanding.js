@@ -5,9 +5,11 @@ import React, {
   useCallback,
   useRef
 } from 'react';
-import './ViewLanding.css';
 import _ from 'lodash';
-import { withRouter, Link } from 'react-router-dom';
+import './ViewLanding.css';
+import InfoCard from './InfoCard';
+import SongItem from './SongItem';
+import { withRouter } from 'react-router-dom';
 
 const withRouterAndRef = Wrapped => {
   const WithRouter = withRouter(({ forwardRef, ...otherProps }) => (
@@ -21,117 +23,21 @@ const withRouterAndRef = Wrapped => {
   return WithRouterAndRef;
 };
 
-const InfoCard = ({ allAlbums, allSongs, handleListCardClick, cat }) => (
-  <div className='vLanding__info'>
-    <div className='vLanding__info__type'>
-      <div className='vLanding__info__type__text'>
-        {cat === 'artist' ? 'Albums' : 'Artists'}
-      </div>
-      <div
-        data-img
-        data-imgname='caret_down'
-        className='vLanding__info__type__icon'
-      />
-    </div>
-    <div className='vLanding__info__list'>
-      <div
-        className='vLanding__info__list__card vLanding__info__list__card--select'
-        onClick={() => {
-          handleListCardClick(0);
-        }}
-      >
-        <div className='vLanding__info__list__card__wrapper'>
-          <div className='vLanding__info__list__card__name'>
-            All {cat === 'artist' ? 'albums' : 'artists'}
-          </div>
-          <div className='vLanding__info__list__card__highlight'></div>
-        </div>
-      </div>
-      {allAlbums.val.map((a, k) => (
-        <div
-          key={k}
-          className='vLanding__info__list__card'
-          style={{ backgroundImage: `url(${a.albumArt})` }}
-          onClick={() => {
-            handleListCardClick(k + 1);
-          }}
-        >
-          <div className='vLanding__info__list__card__wrapper'>
-            <div className='vLanding__info__list__card__name'>
-              <span>{a.albumName}</span>
-            </div>
-            <div className='vLanding__info__list__card__highlight'></div>
-          </div>
-        </div>
-      ))}
-      <div className='vLanding__info__list__clearFix'>.</div>
-    </div>
-    <div className='vLanding__info__msc'>
-      <div className='vLanding__info__msc__numArtist'>
-        {allAlbums.val.length} {cat === 'artist' ? 'albums' : 'album artists'}
-      </div>
-      <div className='vLanding__info__msc__numSongs'>
-        {allSongs.val.length} songs
-      </div>
-    </div>
-  </div>
-);
-
-const SongItem = ({
-  top,
-  itemheight,
-  cover,
-  name,
-  cat,
-  album,
-  artist,
-  url
-}) => (
-  <Link
-    to={{
-      data: {
-        url,
-        name,
-        album,
-        cover,
-        artist
-      },
-      pathname: `/play/p`,
-      search: `?artist=${artist}&song=${name}`
-    }}
-  >
-    <div
-      className='vLanding__songs__list__item'
-      style={{ top: top, height: itemheight }}
-    >
-      <div
-        className='vLanding__songs__list__item__img'
-        style={{ backgroundImage: `url(${cover})` }}
-      />
-      <div className='vLanding__songs__list__item__text'>
-        <div className='vLanding__songs__list__item__text__song truncate'>
-          {name}
-        </div>
-        <div className='vLanding__songs__list__item__text__artist truncate'>
-          {cat === 'artist' ? album : artist}
-        </div>
-      </div>
-      <div
-        data-img
-        data-imgname='menu_horizontal'
-        className='vLanding__songs__list__item__option'
-      />
-    </div>
-  </Link>
-);
-
-function ViewLanding({ path, songs, history }) {
+function ViewLanding({
+  path,
+  songs,
+  history,
+  songQueues,
+  handleSetSongQueues
+}) {
   path = path.split('/');
   const cat = path[0];
   const id = path[1];
   const allSongsFixed = useRef(null);
+  const songModalRef = useRef(null);
   const [allSongs, setAllSongs] = useState({ val: [] });
   const [allAlbums, setAllAlbums] = useState({ val: [] });
+  const [songModalData, setSongModalData] = useState({ val: {} });
 
   const vh =
     cat === 'songs'
@@ -149,6 +55,7 @@ function ViewLanding({ path, songs, history }) {
 
   const handleScroll = () => {
     let currentIndx = Math.trunc(viewPort.current.scrollTop / itemheight);
+
     currentIndx =
       currentIndx - numVisibleItems >= allSongs.val.length
         ? currentIndx - numVisibleItems
@@ -333,12 +240,18 @@ function ViewLanding({ path, songs, history }) {
       }
       allSongsFixed.current = songsArr;
       setAllSongs({ val: songsArr });
+    } else if (cat === 'queues') {
+      setAllSongs({ val: songQueues });
     }
-  }, [cat, id, songs]);
+  }, [cat, id, songQueues, songs]);
 
   useEffect(() => {
     getSongs();
   }, [getSongs]);
+
+  const handleSetSongModalData = data => {
+    setSongModalData({ val: data });
+  };
 
   const renderSongs = () => {
     let result = [];
@@ -354,8 +267,12 @@ function ViewLanding({ path, songs, history }) {
             album={item.album}
             cover={item.cover}
             artist={item.artist}
+            queueId={item.queueId}
             top={i * itemheight}
             itemheight={itemheight}
+            ref={songModalRef}
+            handleSetSongQueues={handleSetSongQueues}
+            handleSetSongModalData={handleSetSongModalData}
           />
         );
       }
@@ -363,31 +280,126 @@ function ViewLanding({ path, songs, history }) {
     return result;
   };
 
+  const handleCloseSongModal = () => {
+    songModalRef.current.classList.toggle('hide');
+  };
+
   return (
     <div className='vLanding'>
+      <div className='modal hide' ref={songModalRef}>
+        <div className='modal__wrapper ' onClick={handleCloseSongModal}></div>
+        <div className='modal__card'>
+          <div className='modal__card__main'>
+            <div className='modal__card__main__head'>
+              <div className='modal__card__main__head__text truncate'>
+                {songModalData.val.name}
+              </div>
+              <div
+                data-img
+                data-imgname='like'
+                className='modal__card__main__head__icon'
+              />
+            </div>
+            <div className='modal__card__main__content'>
+              <div className='modal__card__main__content__item'>
+                <div
+                  data-img
+                  data-imgname='info'
+                  className='modal__card__main__content__item__icon'
+                />
+                <div className='modal__card__main__content__item__text'>
+                  Song info
+                </div>
+              </div>
+              {cat === 'queues' ? (
+                <div
+                  className='modal__card__main__content__item'
+                  onClick={() => {
+                    handleCloseSongModal();
+                    handleSetSongQueues('remove', songModalData.val.queueId);
+                  }}
+                >
+                  <div
+                    data-img
+                    data-imgname='remove'
+                    className='modal__card__main__content__item__icon'
+                  />
+                  <div className='modal__card__main__content__item__text'>
+                    Remove from playlist
+                  </div>
+                </div>
+              ) : (
+                ''
+              )}
+              {cat !== 'queues' ? (
+                <div
+                  className='modal__card__main__content__item'
+                  onClick={() => {
+                    handleSetSongQueues('add', songModalData.val);
+                  }}
+                >
+                  <div
+                    data-img
+                    data-imgname='add_playlist'
+                    className='modal__card__main__content__item__icon'
+                  />
+                  <div className='modal__card__main__content__item__text'>
+                    Add to playlist
+                  </div>
+                </div>
+              ) : (
+                ''
+              )}
+              <div className='modal__card__main__content__item'>
+                <div
+                  data-img
+                  data-imgname='next'
+                  className='modal__card__main__content__item__icon'
+                />
+                <div className='modal__card__main__content__item__text'>
+                  Play after current song
+                </div>
+              </div>
+              <div className='modal__card__main__content__item'>
+                <div
+                  data-img
+                  data-imgname='share'
+                  className='modal__card__main__content__item__icon'
+                />
+                <div className='modal__card__main__content__item__text'>
+                  Share
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
       <div className='vLanding__nav'>
         <div
           data-img
+          onClick={history.goBack}
           data-imgname='arrow_left'
           className='vLanding__nav__icon'
-          onClick={history.goBack}
         />
         <div className='vLanding__nav__text truncate'>{id}</div>
         <div data-img data-imgname='settings' className='vLanding__nav__icon' />
       </div>
-      {cat !== 'songs' ? (
+      {cat !== 'songs' && cat !== 'queues' ? (
         <InfoCard
-          allAlbums={allAlbums}
-          allSongs={allSongs}
-          handleListCardClick={handleListCardClick}
           cat={cat}
+          allSongs={allSongs}
+          allAlbums={allAlbums}
+          handleListCardClick={handleListCardClick}
         />
       ) : (
-        <div className='' style={{
-          color: '#b9b9b9',
-          padding:' 0 20px 13px',
-          backgroundColor: 'var(--dark-two)',
-      }}>
+        <div
+          className=''
+          style={{
+            color: '#b9b9b9',
+            padding: ' 0 20px 13px',
+            backgroundColor: 'var(--dark-two)'
+          }}
+        >
           {allSongs.val.length} songs
         </div>
       )}
@@ -401,11 +413,11 @@ function ViewLanding({ path, songs, history }) {
 
         <div
           ref={viewPort}
-          className='vLanding__songs__list'
-          onScroll={handleScroll}
           style={{
             height: `calc(${vh}px)`
           }}
+          className='vLanding__songs__list'
+          onScroll={handleScroll}
         >
           <div
             className='vLanding__songs__list__container'
