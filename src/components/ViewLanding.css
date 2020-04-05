@@ -26,7 +26,6 @@
   all: unset;
   display: block;
   /* height: calc(100vh - 411px); */
-  min-height: 300px;
   overflow-y: scroll;
   position: relative;
 }
