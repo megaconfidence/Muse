@@ -1,10 +1,10 @@
 import React from 'react';
-import ArtistLanding from '../components/ArtistLanding';
+import ListLanding from '../components/ListLanding';
 
-function Artist({songs}) {
+function Artist({location, songs}) {
   return (
       <div className='artist'>
-        <ArtistLanding songs={songs} />
+        <ListLanding songs={songs} path={location.pathname.replace('/', '')} />
       </div>
   );
 }

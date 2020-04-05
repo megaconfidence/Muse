@@ -17,7 +17,7 @@ const LazyLoadPlaceholder = () => (
   </div>
 );
 
-function AlbumsLanding({ albums }) {
+function AlbumsLanding({path, albums }) {
   function shuffle(array) {
     let currentIndex = array.length,
       temporaryValue,
@@ -35,11 +35,11 @@ function AlbumsLanding({ albums }) {
   }
 
   albums = albums.flat();
-  shuffle(albums);
+  // shuffle(albums);
 
   return (
     <div className='aLanding'>
-      <LandingSearch />
+      <LandingSearch path={path}/>
       <div className='aLanding__list'>
         {albums.map((a, k) => (
           <LazyLoad key={k} placeholder={<LazyLoadPlaceholder />}>

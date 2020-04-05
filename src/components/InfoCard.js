@@ -5,7 +5,7 @@ const InfoCard = ({ allAlbums, allSongs, handleListCardClick, cat }) => (
   <div className='vLanding__info'>
     <div className='vLanding__info__type'>
       <div className='vLanding__info__type__text'>
-        {cat === 'artist' ? 'Albums' : 'Artists'}
+        {cat === 'artist' || cat === 'genre' ? 'Albums' : 'Artists'}
       </div>
       <div
         data-img
@@ -22,7 +22,7 @@ const InfoCard = ({ allAlbums, allSongs, handleListCardClick, cat }) => (
       >
         <div className='vLanding__info__list__card__wrapper'>
           <div className='vLanding__info__list__card__name'>
-            All {cat === 'artist' ? 'albums' : 'artists'}
+            All {cat === 'artist' || cat === 'genre' ? 'albums' : 'artists'}
           </div>
           <div className='vLanding__info__list__card__highlight'></div>
         </div>
@@ -48,7 +48,7 @@ const InfoCard = ({ allAlbums, allSongs, handleListCardClick, cat }) => (
     </div>
     <div className='vLanding__info__msc'>
       <div className='vLanding__info__msc__numArtist'>
-        {allAlbums.val.length} {cat === 'artist' ? 'albums' : 'album artists'}
+        {allAlbums.val.length} {cat === 'artist' || cat === 'genre' ? 'albums' : 'album artists'}
       </div>
       <div className='vLanding__info__msc__numSongs'>
         {allSongs.val.length} songs

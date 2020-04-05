@@ -1,7 +1,7 @@
 import './LandingSearch.css';
 import React, { useState } from 'react';
 
-function LandingSearch() {
+function LandingSearch({path}) {
   const [searchValue, setSearchValue] = useState({ val: '' });
 
   const handleSearchChange = ({ target }) => {
@@ -16,7 +16,7 @@ function LandingSearch() {
         value={searchValue.val}
         className='lSearch__input'
         onChange={handleSearchChange}
-        placeholder='Search an album...'
+        placeholder={`Search ${path}...`}
       />
       <div className='lSearch__icon' data-img data-imgname='sort' />
     </div>

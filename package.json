@@ -14,8 +14,7 @@
     "react-h5-audio-player": "^3.0.2",
     "react-lazyload": "^2.6.6",
     "react-router-dom": "^5.1.2",
-    "react-scripts": "3.4.1",
-    "react-window": "^1.8.5"
+    "react-scripts": "3.4.1"
   },
   "scripts": {
     "start": "react-scripts start",

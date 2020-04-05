@@ -1,11 +1,14 @@
 import React from 'react';
 import AlbumsLanding from '../components/AlbumsLanding';
 
-function Albums({albums}) {
+function Albums({ location, albums }) {
   return (
-      <div className='albums'>
-        <AlbumsLanding albums={albums} />
-      </div>
+    <div className='albums'>
+      <AlbumsLanding
+        albums={albums}
+        path={location.pathname.replace('/', '')}
+      />
+    </div>
   );
 }
 

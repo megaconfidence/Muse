@@ -25,12 +25,14 @@
 }
 .aLanding__list__album__cover__info__name {
   color: #ededed;
+  text-transform: capitalize;
   /* font-size: 0.9em; */
 }
 .aLanding__list__album__cover__info__artist {
   margin-top: 3px;
   font-size: 0.9em;
   color: #ababab;
+  text-transform: capitalize;
 }
 
 .loading .aLanding__list__album__cover__info {

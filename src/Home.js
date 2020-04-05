@@ -6,6 +6,7 @@ import {
 } from 'react-router-dom';
 import './App.css';
 import Play from './routes/Play';
+import Root from './routes/Root';
 import View from './routes/View';
 import apiData from './data.json';
 import Nav from './components/Nav';
@@ -19,7 +20,7 @@ import NowPlaying from './components/NowPlaying';
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 
 const Home = withRouter(({ location, history }) => {
-  const { data  } = apiData;
+  const { data } = apiData;
   const songs = data;
   const playerRef = useRef(null);
   const { enqueueSnackbar } = useSnackbar();
@@ -34,7 +35,6 @@ const Home = withRouter(({ location, history }) => {
     }
   });
 
-  
   const albums = [];
   for (const artist in songs) {
     albums.push(songs[artist]);
@@ -113,7 +113,6 @@ const Home = withRouter(({ location, history }) => {
     <Router>
       <div className='App'>
         <Nav playPath={playPath.val} />
-        {/* <Redirect exact from="/" to="play" /> */}
 
         <NowPlaying
           songs={songs}
@@ -124,6 +123,7 @@ const Home = withRouter(({ location, history }) => {
         />
 
         <Switch>
+          <Route exact path='/' render={props => <Root  />} />
           <Route
             path='/play/:playId'
             render={props => (
@@ -152,7 +152,11 @@ const Home = withRouter(({ location, history }) => {
             path='/playlists'
             render={props => <PlayLists {...props} />}
           />
-          <Route exact path='/genre' render={props => <Genre {...props} />} />
+          <Route
+            exact
+            path='/genre'
+            render={props => <Genre {...props} songs={songs} />}
+          />
           <Route
             exact
             path='/view/:category/:viewId'

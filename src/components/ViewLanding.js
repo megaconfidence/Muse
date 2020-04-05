@@ -39,10 +39,10 @@ function ViewLanding({
   const [allAlbums, setAllAlbums] = useState({ val: [] });
   const [songModalData, setSongModalData] = useState({ val: {} });
 
-  const vh =
-    cat === 'songs'
-      ? document.documentElement.clientHeight - 201
-      : document.documentElement.clientHeight - 411;
+  const vh = 650;
+    // cat === 'songs' || cat === 'queues'
+    //   ? document.documentElement.clientHeight - 201
+    //   : document.documentElement.clientHeight - 421;
 
   const itemheight = 65;
   const viewPort = useRef(null);
@@ -142,7 +142,7 @@ function ViewLanding({
             e.classList.remove('vLanding__info__list__card--select');
           }
         });
-    } else if (cat === 'artist') {
+    } else if (cat === 'artist' || cat === 'genre') {
       document
         .querySelectorAll('.vLanding__info__list__card')
         .forEach((e, k) => {
@@ -272,6 +272,29 @@ function ViewLanding({
       setAllSongs({ val: songsArr });
     } else if (cat === 'queues') {
       setAllSongs({ val: songQueues });
+    } else if (cat === 'genre') {
+      const songsArr = [];
+      const albumsArr = [];
+      for (const ar in songs) {
+        for (const a in songs[ar]) {
+          if (songs[ar][a].albumGenre === id) {
+            console.log(songs[ar][a])
+            albumsArr.push(songs[ar][a]);
+            songs[ar][a].albumSongs.forEach(s => {
+              songsArr.push({
+                url: s.url,
+                name: s.name,
+                cover: songs[ar][a].albumArt,
+                album: songs[ar][a].albumName,
+                artist: songs[ar][a].albumArtist
+              });
+            });
+          }
+        }
+      }
+      allSongsFixed.current = songsArr;
+      setAllAlbums({ val: albumsArr });
+      setAllSongs({ val: songsArr });
     }
   }, [cat, id, songQueues, songs]);
 

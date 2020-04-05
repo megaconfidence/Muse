@@ -1,10 +1,11 @@
 import React from 'react';
+import ListLanding from '../components/ListLanding';
 
-function Genre() {
+function Genre({ location, songs }) {
   return (
-      <div className='genre'>
-        Genre
-      </div>
+    <div className='genre'>
+      <ListLanding path={location.pathname.replace('/', '')} songs={songs} />
+    </div>
   );
 }
 

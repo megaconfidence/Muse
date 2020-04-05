@@ -5,6 +5,54 @@ import App from './App';
 import * as serviceWorker from './serviceWorker';
 import { SnackbarProvider } from 'notistack';
 
+const imgSrc = [
+  '/image/icon/add_playlist.svg',
+  '/image/icon/album.svg',
+  '/image/icon/alert.svg',
+  '/image/icon/all_songs.svg',
+  '/image/icon/arrow_left.svg',
+  '/image/icon/artist.svg',
+  '/image/icon/cancel.svg',
+  '/image/icon/caret_down.svg',
+  '/image/icon/clock.svg',
+  '/image/icon/fire.svg',
+  '/image/icon/folder.svg',
+  '/image/icon/getSvg.js',
+  '/image/icon/info.svg',
+  '/image/icon/like.svg',
+  '/image/icon/like_fill.svg',
+  '/image/icon/list.svg',
+  '/image/icon/menu.svg',
+  '/image/icon/menu_fill.svg',
+  '/image/icon/mute.svg',
+  '/image/icon/next.svg',
+  '/image/icon/no_repeat.svg',
+  '/image/icon/pause.svg',
+  '/image/icon/play.svg',
+  '/image/icon/play_circle.svg',
+  '/image/icon/play_circle4.svg',
+  '/image/icon/playlist.svg',
+  '/image/icon/plus.svg',
+  '/image/icon/queue.svg',
+  '/image/icon/remove.svg',
+  '/image/icon/repeat.svg',
+  '/image/icon/search.svg',
+  '/image/icon/settings.svg',
+  '/image/icon/share.svg',
+  '/image/icon/sort.svg',
+  '/image/icon/tag.svg',
+  '/image/icon/volume.svg'
+];
+
+ReactDOM.render(
+  <>
+    {imgSrc.map((d, i) => (
+      <img src={d} key={i} alt='' />
+    ))}
+  </>,
+  document.getElementById('imgcache')
+);
+
 ReactDOM.render(
   <SnackbarProvider>
     <App />
