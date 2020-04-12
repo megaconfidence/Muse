@@ -1,0 +1,39 @@
+.shLanding {
+  width: 100vw;
+}
+.shLanding__songs__list {
+  all: unset;
+  display: block;
+  padding: 0 10px;
+}
+.shLanding .lazyload-custom-placeholder {
+  width: 100%;
+  height: 45px;
+  display: block;
+  margin: 20px 0;
+  color: transparent;
+  background-color: var(--dark-two);
+}
+
+.shLanding__tab {
+  display: flex;
+  justify-content: space-evenly;
+  color: var(--green);
+  text-decoration: underline;
+}
+.shLanding__tab__item {
+  padding: 10px 20px;
+  border-radius: 5px;
+}
+.shLanding__tab__item--active {
+  background-color: var(--dark-three);
+}
+.shLanding__artistPane a,
+.shLanding__albumPane a {
+  all: unset;
+}
+.shLanding__pane__item {
+  font-size: 1.3em;
+  margin: 25px 15px;
+  text-transform: capitalize;
+}

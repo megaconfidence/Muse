@@ -1,12 +1,11 @@
 .vLanding__songs__list__item {
   width: 100%;
   display: flex;
-  position: absolute;
+  margin: 20px 0;
   align-items: center;
-  margin: 0 15px 20px;
   justify-content: space-between;
 }
-.vLanding__songs__list a {
+.vLanding__songs__list__item a {
   all: unset;
   display: flex;
   width: calc(100% - 24px);

@@ -23,16 +23,7 @@
 }
 
 .vLanding__songs__list {
-  all: unset;
-  display: block;
-  /* height: calc(100vh - 411px); */
-  overflow-y: scroll;
-  position: relative;
-}
-
-.vLanding__songs__list__container {
-  position: absolute;
-  width: calc(100vw - 32px);
+  padding: 0 10px;
 }
 
 .vLanding__songs__control {
@@ -44,76 +35,12 @@
   margin: 0 15px;
 }
 
-.modal {
-  top: 0;
-  left: 0;
-  z-index: 10;
-  width: 100vw;
-  height: 100vh;
-  position: fixed;
-  background-color: rgba(0, 0, 0, 0.9);
-}
-.modal__wrapper {
+.vLanding .lazyload-custom-placeholder {
   width: 100%;
-  height: 100%;
-  position: absolute;
+  height: 45px;
+  display: block;
+  margin: 20px 0;
+  color: transparent;
+  background-color: var(--dark-two);
 }
-.modal__card {
-  top: 30%;
-  left: 50%;
-  width: 80%;
-  z-index: 10;
-  position: relative;
-  border-radius: 10px;
-  transform: translate(-50%, -30%);
-  background-color: var(--dark-three);
-}
-.modal__card__main {
-  padding: 15px;
-}
-.modal__card__main__head {
-  display: flex;
-  font-weight: 500;
-  font-size: 1.3em;
-  align-items: center;
-  justify-content: center;
-}
-.modal__card__main__head__text {
-  width: calc(100% - 39px);
-  text-transform: capitalize;
-  border-right: 1px solid #424242;
-}
-.modal__card__main__head__icon {
-  margin-left: 15px;
-}
-.modal__card__main__content {
-  margin: 10px;
-}
-.modal__card__main__content__item {
-  display: flex;
-  margin: 25px 0;
-  font-size: 1.1em;
-  align-items: center;
-}
-.modal__card__main__content__item:last-of-type {
-  margin-bottom: 0;
-}
-.modal__card__main__content__item__icon {
-  margin-right: 15px;
-}
-.modal__card__main__content__item__text {
-  /* margin-left: 15px; */
-  width: fit-content;
-}
-.modal__card__main__content__item__icon[data-img] {
-  width: 20px;
-  height: 20px;
-  background-size: 20px 20px;
-}
-.modal__card__main__content__item__icon[data-imgname="next"] {
-  margin: 0;
-  width: 15px;
-  height: 15px;
-  margin-right: 20px;
-  background-size: 15px 15px;
-}
+

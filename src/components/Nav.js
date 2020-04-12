@@ -51,6 +51,14 @@ function Nav({ playPath }) {
         className='nav__link'
       >
         <div data-img data-imgname='tag' />
+      </NavLink>{' '}
+      <NavLink
+        exact
+        to={`/search`}
+        activeClassName='nav__link--active'
+        className='nav__link'
+      >
+        <div data-img data-imgname='search' />
       </NavLink>
       <div className='nav__link'>
         <div data-img data-imgname='menu' />

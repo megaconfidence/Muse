@@ -5,7 +5,6 @@ import React, { useState, useCallback, useEffect } from 'react';
 
 function ListLanding({ path, songs }) {
   const [allArtist, setAllArtist] = useState({ val: [] });
-  console.log(path);
   const getArtist = useCallback(() => {
     const arr = [];
     if (path === 'artist') {
@@ -25,13 +24,34 @@ function ListLanding({ path, songs }) {
     setAllArtist({ val: [...new Set(arr)].sort() });
   }, [path, songs]);
 
+  const getSearchVal = val => {
+    const arr = [];
+    if (path === 'artist') {
+      for (const artist in songs) {
+        if (artist.includes(val)) {
+          arr.push(artist);
+        }
+      }
+    } else if (path === 'genre') {
+      for (const ar in songs) {
+        for (const a in songs[ar]) {
+          if (songs[ar][a].albumGenre) {
+            if (songs[ar][a].albumGenre.includes(val)) {
+              arr.push(songs[ar][a].albumGenre);
+            }
+          }
+        }
+      }
+    }
+    setAllArtist({ val: [...new Set(arr)].sort() });
+  };
   useEffect(() => {
     getArtist();
   }, [getArtist]);
 
   return (
     <div className='lLanding'>
-      <LandingSearch path={path} />
+      <LandingSearch path={path} getSearchVal={getSearchVal} />
       {allArtist.val.map((a, k) => (
         <Link
           key={k}

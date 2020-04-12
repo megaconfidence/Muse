@@ -3,7 +3,7 @@ import React, {
   useState,
   useEffect,
   forwardRef,
-  useCallback,
+  useCallback
 } from 'react';
 import './NowPlaying.css';
 import { useSnackbar } from 'notistack';
@@ -12,7 +12,6 @@ import AudioPlayer from 'react-h5-audio-player';
 // import 'react-h5-audio-player/lib/styles.css';
 
 const NowPlaying = forwardRef(({ playPath, data, songs, songQueues }, ref) => {
-  
   const playingId = useRef(null);
   const tempPlaying = useRef(null);
   const playerEleRef = useRef(null);
@@ -82,17 +81,23 @@ const NowPlaying = forwardRef(({ playPath, data, songs, songQueues }, ref) => {
       // eslint-disable-next-line no-undef
       navigator.mediaSession.metadata = new MediaMetadata({
         title: data.name
-          .split(' ')
-          .map(s => s.charAt(0).toUpperCase() + s.substring(1))
-          .join(' '),
+          ? data.name
+              .split(' ')
+              .map(s => s.charAt(0).toUpperCase() + s.substring(1))
+              .join(' ')
+          : '',
         artist: data.artist
-          .split(' ')
-          .map(s => s.charAt(0).toUpperCase() + s.substring(1))
-          .join(' '),
+          ? data.artist
+              .split(' ')
+              .map(s => s.charAt(0).toUpperCase() + s.substring(1))
+              .join(' ')
+          : '',
         album: data.album
-          .split(' ')
-          .map(s => s.charAt(0).toUpperCase() + s.substring(1))
-          .join(' '),
+          ? data.album
+              .split(' ')
+              .map(s => s.charAt(0).toUpperCase() + s.substring(1))
+              .join(' ')
+          : '',
         artwork: [
           { src: data.cover, sizes: '96x96', type: 'image/png' },
           { src: data.cover, sizes: '128x128', type: 'image/png' },

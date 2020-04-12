@@ -9,7 +9,9 @@ import _ from 'lodash';
 import './ViewLanding.css';
 import InfoCard from './InfoCard';
 import SongItem from './SongItem';
+import LazyLoad from 'react-lazyload';
 import { withRouter } from 'react-router-dom';
+import SongModal from './SongModal';
 
 const withRouterAndRef = Wrapped => {
   const WithRouter = withRouter(({ forwardRef, ...otherProps }) => (
@@ -39,71 +41,8 @@ function ViewLanding({
   const [allAlbums, setAllAlbums] = useState({ val: [] });
   const [songModalData, setSongModalData] = useState({ val: {} });
 
-  const vh = 650;
-    // cat === 'songs' || cat === 'queues'
-    //   ? document.documentElement.clientHeight - 201
-    //   : document.documentElement.clientHeight - 421;
-
-  const itemheight = 65;
-  const viewPort = useRef(null);
-
-  const numVisibleItems = Math.trunc(vh / itemheight);
-  const [scrollState, setScrollSate] = useState({
-    start: 0,
-    end: numVisibleItems
-  });
-
   const handleSetSongModalData = data => {
     setSongModalData({ val: data });
-  };
-
-  const handleCloseSongModal = () => {
-    songModalRef.current.classList.toggle('hide');
-  };
-
-  const handleScroll = () => {
-    let currentIndx = Math.trunc(viewPort.current.scrollTop / itemheight);
-
-    currentIndx =
-      currentIndx - numVisibleItems >= allSongs.val.length
-        ? currentIndx - numVisibleItems
-        : currentIndx;
-    if (currentIndx !== scrollState.start) {
-      setScrollSate({
-        start: currentIndx,
-        end:
-          currentIndx + numVisibleItems >= allSongs.val.length
-            ? allSongs.val.length - 1
-            : currentIndx + numVisibleItems
-      });
-    }
-  };
-
-  const renderSongs = () => {
-    let result = [];
-    for (let i = scrollState.start; i <= scrollState.end; i++) {
-      if (allSongs.val[i]) {
-        let item = allSongs.val[i];
-        result.push(
-          <SongItem
-            key={i}
-            cat={cat}
-            url={item.url}
-            name={item.name}
-            album={item.album}
-            cover={item.cover}
-            artist={item.artist}
-            queueId={item.queueId}
-            top={i * itemheight}
-            itemheight={itemheight}
-            ref={songModalRef}
-            handleSetSongQueues={handleSetSongQueues}
-            handleSetSongModalData={handleSetSongModalData}
-          />
-        );
-      }
-    }
-    return result;
   };
 
   const handleListCardClick = i => {
@@ -278,7 +217,7 @@ function ViewLanding({
       for (const ar in songs) {
         for (const a in songs[ar]) {
           if (songs[ar][a].albumGenre === id) {
-            console.log(songs[ar][a])
+            console.log(songs[ar][a]);
             albumsArr.push(songs[ar][a]);
             songs[ar][a].albumSongs.forEach(s => {
               songsArr.push({
@@ -304,94 +243,12 @@ function ViewLanding({
 
   return (
     <div className='vLanding'>
-      <div className='modal hide' ref={songModalRef}>
-        <div className='modal__wrapper ' onClick={handleCloseSongModal}></div>
-        <div className='modal__card'>
-          <div className='modal__card__main'>
-            <div className='modal__card__main__head'>
-              <div className='modal__card__main__head__text truncate'>
-                {songModalData.val.name}
-              </div>
-              <div
-                data-img
-                data-imgname='like'
-                className='modal__card__main__head__icon'
-              />
-            </div>
-            <div className='modal__card__main__content'>
-              <div className='modal__card__main__content__item'>
-                <div
-                  data-img
-                  data-imgname='info'
-                  className='modal__card__main__content__item__icon'
-                />
-                <div className='modal__card__main__content__item__text'>
-                  Song info
-                </div>
-              </div>
-              {cat === 'queues' ? (
-                <div
-                  className='modal__card__main__content__item'
-                  onClick={() => {
-                    handleCloseSongModal();
-                    handleSetSongQueues('remove', songModalData.val.queueId);
-                  }}
-                >
-                  <div
-                    data-img
-                    data-imgname='remove'
-                    className='modal__card__main__content__item__icon'
-                  />
-                  <div className='modal__card__main__content__item__text'>
-                    Remove from playlist
-                  </div>
-                </div>
-              ) : (
-                ''
-              )}
-              {cat !== 'queues' ? (
-                <div
-                  className='modal__card__main__content__item'
-                  onClick={() => {
-                    handleSetSongQueues('add', songModalData.val);
-                  }}
-                >
-                  <div
-                    data-img
-                    data-imgname='add_playlist'
-                    className='modal__card__main__content__item__icon'
-                  />
-                  <div className='modal__card__main__content__item__text'>
-                    Add to playlist
-                  </div>
-                </div>
-              ) : (
-                ''
-              )}
-              <div className='modal__card__main__content__item'>
-                <div
-                  data-img
-                  data-imgname='next'
-                  className='modal__card__main__content__item__icon'
-                />
-                <div className='modal__card__main__content__item__text'>
-                  Play after current song
-                </div>
-              </div>
-              <div className='modal__card__main__content__item'>
-                <div
-                  data-img
-                  data-imgname='share'
-                  className='modal__card__main__content__item__icon'
-                />
-                <div className='modal__card__main__content__item__text'>
-                  Share
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <SongModal
+        cat={cat}
+        ref={songModalRef}
+        songModalData={songModalData.val}
+        handleSetSongQueues={handleSetSongQueues}
+      />
       <div className='vLanding__nav'>
         <div
           data-img
@@ -429,20 +286,23 @@ function ViewLanding({
           <div data-img data-imgname='menu_horizontal' />
         </div>
 
-        <div
-          ref={viewPort}
-          style={{
-            height: `calc(${vh}px)`
-          }}
-          onScroll={handleScroll}
-          className='vLanding__songs__list'
-        >
-          <div
-            className='vLanding__songs__list__container'
-            style={{ height: allSongs.val.length * itemheight }}
-          >
-            {renderSongs()}
-          </div>
+        <div className='vLanding__songs__list'>
+          {allSongs.val.map((s, k) => (
+            <LazyLoad key={k} placeholder={<div>***</div>}>
+              <SongItem
+                cat={cat}
+                url={s.url}
+                name={s.name}
+                album={s.album}
+                cover={s.cover}
+                artist={s.artist}
+                queueId={s.queueId}
+                ref={songModalRef}
+                handleSetSongQueues={handleSetSongQueues}
+                handleSetSongModalData={handleSetSongModalData}
+              />
+            </LazyLoad>
+          ))}
         </div>
       </div>
     </div>

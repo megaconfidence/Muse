@@ -5,7 +5,6 @@ import './SongItem.css';
 const SongItem = forwardRef(
   (
     {
-      top,
       url,
       cat,
       name,
@@ -13,9 +12,8 @@ const SongItem = forwardRef(
       cover,
       artist,
       queueId,
-      itemheight,
       handleSetSongQueues,
-      handleSetSongModalData,
+      handleSetSongModalData
     },
     ref
   ) => {
@@ -34,10 +32,7 @@ const SongItem = forwardRef(
     };
 
     return (
-      <div
-        className='vLanding__songs__list__item'
-        style={{ top: top, height: itemheight }}
-      >
+      <div className='vLanding__songs__list__item'>
         <Link
           to={{
             data: songData,

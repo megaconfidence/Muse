@@ -22,6 +22,7 @@ import Signin from './routes/Signin';
 import request from './helpers';
 import config from 'environment';
 import colorLog from './helpers/colorLog';
+import Search from './routes/Search';
 
 const Home = withRouter(({ location, history }) => {
   const { data } = apiData;
@@ -165,7 +166,7 @@ const Home = withRouter(({ location, history }) => {
 
   useEffect(() => {
     getHistory();
-    getPlayList();
+    // getPlayList();
     if (location.pathname.includes('/play/')) {
       setPlayPath({ val: location.search });
     }
@@ -219,6 +220,11 @@ const Home = withRouter(({ location, history }) => {
             exact
             path='/genre'
             render={props => <Genre {...props} songs={songs} />}
+          />{' '}
+          <Route
+            exact
+            path='/search'
+            render={props => <Search {...props} songs={songs} handleSetSongQueues={handleSetSongQueues} />}
           />
           <Route
             exact
