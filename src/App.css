@@ -141,3 +141,24 @@
 [data-imgname='share'] {
   background-image: url(/image/icon/share.svg);
 }
+[data-imgname='laptop'] {
+  background-image: url(/image/icon/laptop.svg);
+}
+[data-imgname='mobile'] {
+  background-image: url(/image/icon/mobile.svg);
+}
+[data-imgname='watch'] {
+  background-image: url(/image/icon/watch.svg);
+}
+[data-imgname='speakers'] {
+  background-image: url(/image/icon/speakers.svg);
+}
+[data-imgname='voice'] {
+  background-image: url(/image/icon/voice.svg);
+}
+[data-imgname='tv'] {
+  background-image: url(/image/icon/tv.svg);
+}
+[data-imgname='car'] {
+  background-image: url(/image/icon/car.svg);
+}

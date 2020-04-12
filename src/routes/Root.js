@@ -3,7 +3,8 @@ import { Redirect } from 'react-router-dom';
 
 function Root() {
   return (
-    <Redirect exact from="/" to="play" />
+    <Redirect exact from="/" to="signin" />
+    // <Redirect exact from="/" to="play" />
   );
 }
 

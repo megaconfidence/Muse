@@ -18,6 +18,10 @@ import { useSnackbar } from 'notistack';
 import PlayLists from './routes/PlayList';
 import NowPlaying from './components/NowPlaying';
 import React, { useState, useCallback, useRef, useEffect } from 'react';
+import Signin from './routes/Signin';
+import request from './helpers';
+import config from 'environment';
+import colorLog from './helpers/colorLog';
 
 const Home = withRouter(({ location, history }) => {
   const { data } = apiData;
@@ -27,7 +31,9 @@ const Home = withRouter(({ location, history }) => {
   const [playing, setPlaying] = useState({ val: {} });
   const [playPath, setPlayPath] = useState({ val: '' });
   const [songQueues, setSongQueues] = useState(() => {
-    const queue = JSON.parse(localStorage.getItem('MUSE__SONGQUEUES'));
+    const queue = JSON.parse(
+      localStorage.getItem(`${config.appName}_SONGQUEUES`)
+    );
     if (queue) {
       return { val: queue };
     } else {
@@ -44,6 +50,63 @@ const Home = withRouter(({ location, history }) => {
     console.log(data);
   };
 
+  const savePlayList = useCallback(async data => {
+    try {
+      localStorage.setItem(
+        `${config.appName}_SONGQUEUES`,
+        JSON.stringify(data.content)
+      );
+      localStorage.setItem(
+        `${config.appName}_QUEUEID`,
+        JSON.stringify(data._id)
+      );
+      setSongQueues({ val: data.content });
+      colorLog('Playlist saved', 'success');
+    } catch (err) {
+      console.log(err);
+    }
+  }, []);
+
+  const getPlayList = useCallback(async () => {
+    try {
+      colorLog('Getting playlist', 'info');
+      let data = await request('get', 'api/playlist');
+      data = data.data.data[0];
+      if (data) {
+        savePlayList(data);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }, [savePlayList]);
+
+  const uploadPlayList = async list => {
+    savePlayList({ content: list, _id: undefined });
+    try {
+      const payload = {
+        content: list
+      };
+
+      let id = localStorage.getItem(`${config.appName}_QUEUEID`);
+      if (id && id !== 'undefined') {
+        id = JSON.parse(id);
+      }
+      let data = await request('put', `api/playlist/${id}`, payload);
+
+      if (data) {
+        data = data.data.data;
+        savePlayList(data);
+      } else {
+        colorLog('Creating new playlist', 'info');
+        data = await request('post', `api/playlist/`, payload);
+        data = data.data.data;
+        savePlayList(data);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   const handleSetSongQueues = (type, data) => {
     const addSong = aData => {
       const arr = songQueues.val;
@@ -51,8 +114,7 @@ const Home = withRouter(({ location, history }) => {
         ...aData,
         queueId: songQueues.val.length
       });
-      setSongQueues({ val: arr });
-      localStorage.setItem('MUSE__SONGQUEUES', JSON.stringify(arr));
+      uploadPlayList(arr);
     };
 
     if (type === 'add') {
@@ -71,8 +133,7 @@ const Home = withRouter(({ location, history }) => {
       const arr = songQueues.val.filter(filterSong);
       const arr2 = arr.map((s, i) => ({ ...s, queueId: i }));
 
-      setSongQueues({ val: arr2 });
-      localStorage.setItem('MUSE__SONGQUEUES', JSON.stringify(arr2));
+      uploadPlayList(arr2);
       enqueueSnackbar(`Song removed from queue`);
     }
   };
@@ -104,10 +165,11 @@ const Home = withRouter(({ location, history }) => {
 
   useEffect(() => {
     getHistory();
+    getPlayList();
     if (location.pathname.includes('/play/')) {
       setPlayPath({ val: location.search });
     }
-  }, [getHistory, location]);
+  }, [getHistory, getPlayList, location, savePlayList]);
 
   return (
     <Router>
@@ -123,7 +185,8 @@ const Home = withRouter(({ location, history }) => {
         />
 
         <Switch>
-          <Route exact path='/' render={props => <Root  />} />
+          <Route exact path='/' render={props => <Root />} />
+          <Route exact path='/signin' render={props => <Signin />} />
           <Route
             path='/play/:playId'
             render={props => (
