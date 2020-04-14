@@ -35,6 +35,7 @@ const Home = withRouter(({ location, history }) => {
   const songs = data;
   const playerCompRef = useRef(null);
   const playerRef = useRef(null);
+  const queuePlayBtnRef = useRef(null);
   const createPlayListRef = useRef(null);
   const renamePlayListRef = useRef(null);
   const addToPlayListRef = useRef(null);
@@ -43,16 +44,18 @@ const Home = withRouter(({ location, history }) => {
   const [playPath, setPlayPath] = useState({ val: '' });
   const [playList, setPlayList] = useState({ val: [] });
   const [stagedSong, setStagedSong] = useState({ val: {} });
+  const [addTPLType, setAddTPLType] = useState({ val: '' });
   const [temPlayListId, setTempPlayListId] = useState({ val: '' });
 
   const [songQueues, setSongQueues] = useState({ val: [] });
   const [playingSongQueues, setPlayingSongQueues] = useState({ val: [] });
 
   const albums = [];
-  for (const artist in songs) {
-    albums.push(songs[artist]);
+  for (const ar in songs) {
+   for(const a in songs[ar]) {
+     albums.push(songs[ar][a])
+   }
   }
-
   const setNowPlaying = data => {
     console.log(data);
   };
@@ -162,6 +165,12 @@ const Home = withRouter(({ location, history }) => {
       enqueueSnackbar(`Song removed from queue`);
     }
   };
+
+  const deleteQueue = useCallback(() => {
+    localStorage.setItem(`${config.appName}_QUEUES`, JSON.stringify([]));
+    setSongQueues({ val: [] });
+    syncSavedQueue();
+  }, [syncSavedQueue]);
 
   const getHistory = useCallback(() => {
     const togglePlayer = () => {
@@ -391,19 +400,21 @@ const Home = withRouter(({ location, history }) => {
     [enqueueSnackbar, getPlayList, history, syncDeletedPlayList]
   );
 
-  const addToPlayList = useCallback(
-    (id, song, stgSong) => {
-      addToPlayListRef.current.classList.remove('hide');
+  const addToPlayList = useCallback((id, song, stgSong, type) => {
+    addToPlayListRef.current.classList.remove('hide');
 
-      if (stgSong) {
-        setStagedSong({ val: stgSong });
-      }
-      if (id && song) {
-        addToPlayListRef.current.classList.add('hide');
-        let pList = localStorage.getItem(`${config.appName}_PLAYLIST`);
-        if (pList && pList !== 'undefined') {
-          pList = JSON.parse(pList);
-
+    if (stgSong) {
+      setStagedSong({ val: stgSong });
+    }
+    if (type) {
+      setAddTPLType({ val: type });
+    }
+    if (id && song && type) {
+      addToPlayListRef.current.classList.add('hide');
+      let pList = localStorage.getItem(`${config.appName}_PLAYLIST`);
+      if (pList && pList !== 'undefined') {
+        pList = JSON.parse(pList);
+        if (type === 'single') {
           let isSongInList = false;
           for (const p in pList) {
             if (pList[p]._id === id) {
@@ -421,15 +432,40 @@ const Home = withRouter(({ location, history }) => {
                 delete song.queueId;
                 pList[p].songs.push(song);
                 saveToPlayList(pList, p, pList[p]);
-                enqueueSnackbar(`Song added to '${pList[p].name}'`);
+                enqueueSnackbar(`Added song to '${pList[p].name}'`);
               }
+            }
+          }
+        } else if (type === 'multiple') {
+          for (const p in pList) {
+            if (pList[p]._id === id) {
+              const list = [];
+              const tpList = pList[p].songs.concat(song);
+
+              const map = new Map();
+              for (const item of tpList) {
+                if (!map.has(item.name)) {
+                  map.set(item.name, true);
+                  delete song.queueId;
+                  list.push({
+                    ...item
+                  });
+                }
+              }
+
+              const obj = {
+                ...pList[p],
+                songs: list
+              };
+
+              saveToPlayList(pList, p, obj);
+              enqueueSnackbar(`Added songs to '${pList[p].name}'`);
             }
           }
         }
       }
-    },
-    [enqueueSnackbar, saveToPlayList]
-  );
+    }
+  }, [enqueueSnackbar, saveToPlayList]);
 
   const handleGroupContextMenueEvents = useCallback(
     (action, data) => {
@@ -499,7 +535,15 @@ const Home = withRouter(({ location, history }) => {
     if (location.pathname.includes('/play/')) {
       setPlayPath({ val: location.search });
     }
-  }, [getHistory, getPlayList, getPlayingData, getPlayingSongQueues, getSongQueues, location.pathname, location.search]);
+  }, [
+    getHistory,
+    getPlayList,
+    getPlayingData,
+    getPlayingSongQueues,
+    getSongQueues,
+    location.pathname,
+    location.search
+  ]);
 
   return (
     <Router>
@@ -508,6 +552,7 @@ const Home = withRouter(({ location, history }) => {
         <AddToPlayList
           ref={addToPlayListRef}
           playList={playList.val}
+          addTPLType={addTPLType.val}
           stagedSong={stagedSong.val}
           createPlayList={createPlayList}
           addToPlayList={addToPlayList}
@@ -524,8 +569,9 @@ const Home = withRouter(({ location, history }) => {
           songs={songs}
           ref={{
             playerRef,
-            playerCompRef,
+            playerCompRef
           }}
+          queuePlayBtnRef={queuePlayBtnRef}
           data={playing.val}
           playPath={playPath.val}
           playingSongQueues={playingSongQueues.val}
@@ -552,9 +598,14 @@ const Home = withRouter(({ location, history }) => {
               <Queues
                 {...props}
                 playerRef={playerRef}
+                ref={{
+                  queuePlayBtnRef
+                }}
                 savePlayingSongQueues={savePlayingSongQueues}
                 playing={playing.val}
                 playList={playList.val}
+                deleteQueue={deleteQueue}
+                addToPlayList={addToPlayList}
                 songQueues={songQueues.val}
                 handleSetSongQueues={handleSetSongQueues}
               />

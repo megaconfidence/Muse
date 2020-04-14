@@ -5,7 +5,17 @@ import colorLog from '../helpers/colorLog';
 import { useSnackbar } from 'notistack';
 
 const GroupContextMenue = forwardRef(
-  ({ cat, handleGroupContextMenueEvents, songs, catId, catName }, ref) => {
+  (
+    {
+      cat,
+      handleGroupContextMenueEvents,
+      addToPlayList,
+      songs,
+      catId,
+      catName
+    },
+    ref
+  ) => {
     const { enqueueSnackbar } = useSnackbar();
 
     return (
@@ -62,7 +72,6 @@ const GroupContextMenue = forwardRef(
               ) : (
                 ''
               )}
-
               {cat === 'playlist' ? (
                 <div
                   className='gcMenue__card__main__content__item'
@@ -98,7 +107,23 @@ const GroupContextMenue = forwardRef(
                   className='gcMenue__card__main__content__item__icon'
                 />
                 <div className='gcMenue__card__main__content__item__text'>
-                  Add to queue
+                  Add songs to queue
+                </div>
+              </div>{' '}
+              <div
+                className='gcMenue__card__main__content__item'
+                onClick={() => {
+                  ref.current.classList.add('hide');
+                  addToPlayList(undefined, undefined, songs, 'multiple');
+                }}
+              >
+                <div
+                  data-img
+                  data-imgname='add_playlist'
+                  className='gcMenue__card__main__content__item__icon'
+                />
+                <div className='gcMenue__card__main__content__item__text'>
+                  Add songs to playlist
                 </div>
               </div>
               <div

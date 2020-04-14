@@ -92,7 +92,7 @@ const SongModal = forwardRef(
                 className='modal__card__main__content__item'
                 onClick={() => {
                   ref.current.classList.add('hide');
-                  addToPlayList(undefined, undefined, songModalData);
+                  addToPlayList(undefined, undefined, songModalData, 'single');
                 }}
               >
                 <div

@@ -246,6 +246,7 @@ function ViewLanding({
         catName={catName}
         songs={allSongs.val}
         ref={groupContextMenueRef}
+        addToPlayList={addToPlayList}
         handleGroupContextMenueEvents={handleGroupContextMenueEvents}
       />
       <SongModal
@@ -308,6 +309,7 @@ function ViewLanding({
                 artist={s.artist}
                 queueId={s.queueId}
                 ref={songModalRef}
+                handleSetSongQueues={handleSetSongQueues}
                 handleSetSongModalData={handleSetSongModalData}
               />
             </LazyLoad>

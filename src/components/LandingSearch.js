@@ -7,7 +7,7 @@ const LandingSearch = ({ path, getSearchVal }) => {
   const handleSearchChange = ({ target }) => {
     setSearchValue({ val: target.value });
 
-    const duration = 1000;
+    const duration = 500;
     clearTimeout(target._timer);
     target._timer = setTimeout(() => {
       getSearchVal(target.value);

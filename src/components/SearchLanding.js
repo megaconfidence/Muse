@@ -4,16 +4,22 @@ import SongItem from './SongItem';
 import React, { useState, useRef } from 'react';
 import LazyLoad from 'react-lazyload';
 import { Link } from 'react-router-dom';
-import ObjectID from 'bson-objectid'
+import ObjectID from 'bson-objectid';
 
 import SongModal from './SongModal';
+import SearchNotFound from './SearchNotFound';
+import { useEffect } from 'react';
 
 function SearchLanding({ songs, handleSetSongQueues }) {
-  // console.log(songs)
   const [songMatch, setSongMatch] = useState({ val: [] });
   const [albumMatch, setAlbumMatch] = useState({ val: [] });
   const [artistMatch, setArtistMatch] = useState({ val: [] });
   const [songModalData, setSongModalData] = useState({ val: {} });
+
+  const [searchVal, setSearchVal] = useState({ val: '' });
+  const [dontShowSearchNotFound, setDontShowSearchNotFound] = useState({
+    val: true
+  });
 
   const [path, setPath] = useState({ val: 'Songs' });
 
@@ -30,6 +36,8 @@ function SearchLanding({ songs, handleSetSongQueues }) {
     const songMatchArr = [];
     const albumMatchArr = [];
     const artistMatchArr = [];
+
+    setSearchVal({ val });
 
     if (val) {
       for (const ar in songs) {
@@ -56,11 +64,21 @@ function SearchLanding({ songs, handleSetSongQueues }) {
         }
       }
     }
-
     setSongMatch({ val: songMatchArr });
     setAlbumMatch({ val: albumMatchArr });
     setArtistMatch({ val: artistMatchArr });
   };
+  useEffect(() => {
+    if (!songMatch.val.length && path.val === 'Songs') {
+      setDontShowSearchNotFound({ val: false });
+    } else if (!albumMatch.val.length && path.val === 'Albums') {
+      setDontShowSearchNotFound({ val: false });
+    } else if (!artistMatch.val.length && path.val === 'Artists') {
+      setDontShowSearchNotFound({ val: false });
+    } else {
+      setDontShowSearchNotFound({ val: true });
+    }
+  }, [albumMatch.val.length, artistMatch.val.length, path.val, songMatch.val]);
   const showCategory = ({ target }) => {
     document.querySelectorAll('.shLanding__tab__item').forEach(tab => {
       if (tab.id !== target.id) {
@@ -123,47 +141,65 @@ function SearchLanding({ songs, handleSetSongQueues }) {
           handleSetSongQueues={handleSetSongQueues}
         />
         <div className='shLanding__songs__list'>
-          {songMatch.val.map((s, k) => (
-            <LazyLoad key={k} placeholder={<div>***</div>}>
-              <SongItem
-                //   cat={cat}
-                url={s.url}
-                name={s.name}
-                album={s.album}
-                cover={s.cover}
-                artist={s.artist}
-                queueId={s.queueId}
-                ref={songModalRef}
-                handleSetSongQueues={handleSetSongQueues}
-                handleSetSongModalData={handleSetSongModalData}
-              />
-            </LazyLoad>
-          ))}
+          {dontShowSearchNotFound.val ? (
+            songMatch.val.map((s, k) => (
+              <LazyLoad key={k} placeholder={<div>***</div>}>
+                <SongItem
+                  url={s.url}
+                  name={s.name}
+                  cat={'search'}
+                  album={s.album}
+                  cover={s.cover}
+                  artist={s.artist}
+                  queueId={s.queueId}
+                  ref={songModalRef}
+                  handleSetSongQueues={handleSetSongQueues}
+                  handleSetSongModalData={handleSetSongModalData}
+                />
+              </LazyLoad>
+            ))
+          ) : searchVal.val.length ? (
+            <SearchNotFound />
+          ) : (
+            <SearchNotFound text={`Search for ${path.val}`} />
+          )}
         </div>
       </div>
       <div className='shLanding__albumPane hide' ref={albumPane}>
-        {albumMatch.val.map((a, k) => (
-          <Link
-            key={k}
-            to={{
-              pathname: `/view/album/${a}/${ObjectID()}`
-            }}
-          >
-            <div className='shLanding__pane__item truncate'>{a}</div>
-          </Link>
-        ))}
+        {dontShowSearchNotFound.val ? (
+          albumMatch.val.map((a, k) => (
+            <Link
+              key={k}
+              to={{
+                pathname: `/view/album/${a}/${ObjectID()}`
+              }}
+            >
+              <div className='shLanding__pane__item truncate'>{a}</div>
+            </Link>
+          ))
+        ) : searchVal.val.length ? (
+          <SearchNotFound />
+        ) : (
+          <SearchNotFound text={`Search for ${path.val}`} />
+        )}
       </div>
       <div className='shLanding__artistPane hide' ref={artistPane}>
-        {artistMatch.val.map((a, k) => (
-          <Link
-            key={k}
-            to={{
-              pathname: `/view/artist/${a}/${ObjectID()}`
-            }}
-          >
-            <div className='shLanding__pane__item truncate'>{a}</div>
-          </Link>
-        ))}
+        {dontShowSearchNotFound.val ? (
+          artistMatch.val.map((a, k) => (
+            <Link
+              key={k}
+              to={{
+                pathname: `/view/artist/${a}/${ObjectID()}`
+              }}
+            >
+              <div className='shLanding__pane__item truncate'>{a}</div>
+            </Link>
+          ))
+        ) : searchVal.val.length ? (
+          <SearchNotFound />
+        ) : (
+          <SearchNotFound text={`Search for ${path.val}`} />
+        )}
       </div>
     </div>
   );

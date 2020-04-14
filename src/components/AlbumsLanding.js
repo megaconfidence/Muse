@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import './AlbumsLanding.css';
-import LazyLoad from 'react-lazyload';
+import LazyLoad, { forceCheck } from 'react-lazyload';
 import { Link } from 'react-router-dom';
 import LandingSearch from './LandingSearch';
-import ObjectID from 'bson-objectid'
+import ObjectID from 'bson-objectid';
+import SearchNotFound from './SearchNotFound';
 
 const LazyLoadPlaceholder = () => (
   <div className='aLanding__list__album loading'>
@@ -18,7 +19,9 @@ const LazyLoadPlaceholder = () => (
   </div>
 );
 
-function AlbumsLanding({path, albums }) {
+const AlbumsLanding = ({ path, albums }) => {
+  const [searchVal, setSearchVal] = useState({ val: '' });
+  const [displayedAlbums, setDisplayedAlbums] = useState({ val: [] });
   function shuffle(array) {
     let currentIndex = array.length,
       temporaryValue,
@@ -35,40 +38,66 @@ function AlbumsLanding({path, albums }) {
     return array;
   }
 
-  albums = albums.flat();
   // shuffle(albums);
+
+  const getSearchVal = val => {
+    const arr = [];
+    setSearchVal({ val });
+    if (val) {
+      for (const a in albums) {
+        if (albums[a].albumName.includes(val)) {
+          arr.push(albums[a]);
+        }
+      }
+
+      setDisplayedAlbums({ val: arr });
+    } else {
+      setDisplayedAlbums({ val: albums });
+    }
+  };
+
+  useEffect(() => {
+    setDisplayedAlbums({ val: albums });
+    forceCheck()
+  }, [albums]);
 
   return (
     <div className='aLanding'>
-      <LandingSearch path={path}/>
+      <LandingSearch path={path} getSearchVal={getSearchVal} />
       <div className='aLanding__list'>
-        {albums.map((a, k) => (
-          <LazyLoad key={k} placeholder={<LazyLoadPlaceholder />}>
-            <Link
-              to={{
-                pathname: `/view/album/${a.albumName}/${ObjectID()}`,
-              }}
-            >
-              <div key={k} className='aLanding__list__album'>
-                <div
-                  className='aLanding__list__album__cover'
-                  style={{ backgroundImage: `url(${a.albumArt})` }}
-                ></div>
-                <div className='aLanding__list__album__cover__info'>
-                  <div className='aLanding__list__album__cover__info__name truncate'>
-                    {a.albumName}
-                  </div>
-                  <div className='aLanding__list__album__cover__info__artist truncate'>
-                    {a.albumArtist}
+        {displayedAlbums.val.length ? (
+          displayedAlbums.val.map((a, k) => (
+            <LazyLoad key={k} placeholder={<LazyLoadPlaceholder />}>
+              <Link
+                to={{
+                  pathname: `/view/album/${a.albumName}/${ObjectID()}`
+                }}
+              >
+                <div key={k} className='aLanding__list__album'>
+                  <div
+                    className='aLanding__list__album__cover'
+                    style={{ backgroundImage: `url(${a.albumArt})` }}
+                  ></div>
+                  <div className='aLanding__list__album__cover__info'>
+                    <div className='aLanding__list__album__cover__info__name truncate'>
+                      {a.albumName}
+                    </div>
+                    <div className='aLanding__list__album__cover__info__artist truncate'>
+                      {a.albumArtist}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </Link>
-          </LazyLoad>
-        ))}
+              </Link>
+            </LazyLoad>
+          ))
+        ) : searchVal.val.length ? (
+          <SearchNotFound />
+        ) : (
+          ''
+        )}
       </div>
     </div>
   );
-}
+};
 
 export default AlbumsLanding;

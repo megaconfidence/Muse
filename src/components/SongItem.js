@@ -13,7 +13,8 @@ const SongItem = forwardRef(
       artist,
       queueId,
       isPlaying,
-      handleSetSongModalData
+      handleSetSongModalData,
+      handleSetSongQueues
     },
     ref
   ) => {
@@ -42,6 +43,11 @@ const SongItem = forwardRef(
             data: songData,
             pathname: `/play/p`,
             search: `?artist=${artist}&song=${name}`
+          }}
+          onClick={() => {
+            if (cat !== 'queues') {
+              handleSetSongQueues('play', songData);
+            }
           }}
         >
           <div

@@ -12,12 +12,23 @@ import AudioPlayer from 'react-h5-audio-player';
 // import 'react-h5-audio-player/lib/styles.css';
 
 const NowPlaying = forwardRef(
-  ({ playPath, data, songs, setPlayingData, playingSongQueues }, ref) => {
+  (
+    {
+      playPath,
+      data,
+      songs,
+      queuePlayBtnRef,
+      setPlayingData,
+      playingSongQueues
+    },
+    ref
+  ) => {
     const { playerRef, playerCompRef } = ref;
     const playingId = useRef(null);
     const tempPlaying = useRef(null);
     const errorModalRef = useRef(null);
     const { enqueueSnackbar } = useSnackbar();
+    const playLoderRef = useRef(null);
     const [playing, setPlaying] = useState({ val: {} });
 
     const handlePlayError = ({ target }) => {
@@ -205,7 +216,13 @@ const NowPlaying = forwardRef(
           );
         });
       }
-    }, [playerRef, playingSongQueues, setMediaMetaData, setPlayingData, playPath]);
+    }, [
+      playerRef,
+      playingSongQueues,
+      setMediaMetaData,
+      setPlayingData,
+      playPath
+    ]);
 
     const getSong = useCallback(
       (data, playPath, songs) => {
@@ -276,6 +293,9 @@ const NowPlaying = forwardRef(
     useEffect(() => {
       setMediaControls();
     });
+    useEffect(() => {
+      playLoderRef.current.classList.remove('hide');
+    }, [playing]);
 
     return (
       <div className='nowPlaying hide' ref={playerCompRef}>
@@ -341,6 +361,12 @@ const NowPlaying = forwardRef(
             </div>
             <div className='nowPlaying__playArea__item__offset'> </div>
           </div>
+          <div
+            data-img
+            data-imgname='loading'
+            className='nowPlaying__playArea__loader hide'
+            ref={playLoderRef}
+          />
           <AudioPlayer
             autoPlay
             ref={playerRef}
@@ -348,6 +374,19 @@ const NowPlaying = forwardRef(
             showSkipControls={true}
             showJumpControls={false}
             customVolumeControls={[]}
+            onPlay={() => {
+              if (queuePlayBtnRef.current) {
+                queuePlayBtnRef.current.setAttribute('data-imgname', 'pause');
+              }
+            }}
+            onCanPlay={() => {
+              playLoderRef.current.classList.add('hide');
+            }}
+            onPause={() => {
+              if (queuePlayBtnRef.current) {
+                queuePlayBtnRef.current.setAttribute('data-imgname', 'play');
+              }
+            }}
             onError={handlePlayError}
             onPlayError={handlePlayError}
             onClickNext={handleClickNext}

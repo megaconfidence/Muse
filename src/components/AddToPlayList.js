@@ -3,7 +3,7 @@ import './AddToPlayList.css';
 import { forwardRef } from 'react';
 
 const AddToPlayList = forwardRef(
-  ({ playList, addToPlayList, createPlayList, stagedSong }, ref) => {
+  ({ playList, addToPlayList, createPlayList, stagedSong, addTPLType }, ref) => {
     return (
       <div className='atPlayList__modal hide' ref={ref}>
         <div
@@ -34,7 +34,7 @@ const AddToPlayList = forwardRef(
                 key={k}
                 className='atPlayList__modal__card__body__item'
                 onClick={() => {
-                  addToPlayList(p._id, stagedSong, undefined);
+                  addToPlayList(p._id, stagedSong, undefined, addTPLType);
                 }}
               >
                 {k + 1}. {p.name}
