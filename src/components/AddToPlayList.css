@@ -1,0 +1,46 @@
+.atPlayList__modal {
+  top: 0;
+  left: 0;
+  z-index: 10;
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  background-color: rgba(0, 0, 0, 0.9);
+}
+.atPlayList__modal__wrapper {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+}
+.atPlayList__modal__card {
+  top: 30%;
+  left: 50%;
+  width: 70%;
+  z-index: 10;
+  position: relative;
+  border-radius: 10px;
+  transform: translate(-50%, -30%);
+  background-color: var(--dark-three);
+  padding: 20px;
+}
+.atPlayList__modal__card__head {
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  font-size: 1.3em;
+  /* margin-bottom: 20px; */
+}
+
+.atPlayList__modal__card__body {
+  margin-top: 30px;
+}
+.atPlayList__modal__card__body__item--new {
+  color: var(--green);
+}
+.atPlayList__modal__card__body__item {
+  margin: 20px 0;
+  font-size: 1.1em;
+}
+.atPlayList__modal__card__body__item:last-of-type {
+    margin-bottom: 0;
+}

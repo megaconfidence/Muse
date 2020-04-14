@@ -1,26 +1,18 @@
 import React, { useCallback, useEffect } from 'react';
 
-function Play({ location, songs, setPlayingData, setPlayPathData }) {
-  const path = location.search;
+function Play({ location, songs, setPlayingData }) {
   const data = location.data;
+  const path = location.search;
 
   const uploadSetPlayingData = useCallback(() => {
-    if (data) {
-      setPlayingData(data);
-    }
-    if(path) {
-      setPlayPathData(path)
-    }
-  }, [data, path, setPlayPathData, setPlayingData]);
-  
+    setPlayingData(data, path);
+  }, [data, path, setPlayingData]);
+
   useEffect(() => {
     uploadSetPlayingData();
   }, [uploadSetPlayingData]);
 
-  return (
-    <div className='play'>
-    </div>
-  );
+  return <div className='play'></div>;
 }
 
 export default Play;

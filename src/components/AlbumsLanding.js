@@ -3,6 +3,7 @@ import './AlbumsLanding.css';
 import LazyLoad from 'react-lazyload';
 import { Link } from 'react-router-dom';
 import LandingSearch from './LandingSearch';
+import ObjectID from 'bson-objectid'
 
 const LazyLoadPlaceholder = () => (
   <div className='aLanding__list__album loading'>
@@ -45,7 +46,7 @@ function AlbumsLanding({path, albums }) {
           <LazyLoad key={k} placeholder={<LazyLoadPlaceholder />}>
             <Link
               to={{
-                pathname: `/view/album/${a.albumName}`,
+                pathname: `/view/album/${a.albumName}/${ObjectID()}`,
               }}
             >
               <div key={k} className='aLanding__list__album'>

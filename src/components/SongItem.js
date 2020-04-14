@@ -12,7 +12,7 @@ const SongItem = forwardRef(
       cover,
       artist,
       queueId,
-      handleSetSongQueues,
+      isPlaying,
       handleSetSongModalData
     },
     ref
@@ -32,17 +32,16 @@ const SongItem = forwardRef(
     };
 
     return (
-      <div className='vLanding__songs__list__item'>
+      <div
+        className={`vLanding__songs__list__item ${
+          isPlaying ? 'item--playing' : ''
+        }`}
+      >
         <Link
           to={{
             data: songData,
             pathname: `/play/p`,
             search: `?artist=${artist}&song=${name}`
-          }}
-          onClick={() => {
-            if (cat !== 'queues') {
-              handleSetSongQueues('play', songData);
-            }
           }}
         >
           <div

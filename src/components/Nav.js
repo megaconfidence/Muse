@@ -7,7 +7,7 @@ function Nav({ playPath }) {
     <div className='nav'>
       <NavLink
         exact
-        to={`/view/queues/all queues`}
+        to={`/queues`}
         activeClassName='nav__link--active'
         className='nav__link'
       >
@@ -60,9 +60,14 @@ function Nav({ playPath }) {
       >
         <div data-img data-imgname='search' />
       </NavLink>
-      <div className='nav__link'>
+      <NavLink
+        exact
+        to={`/settings`}
+        activeClassName='nav__link--active'
+        className='nav__link'
+      >
         <div data-img data-imgname='menu' />
-      </div>
+      </NavLink>
     </div>
   );
 }

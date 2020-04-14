@@ -13,7 +13,7 @@
 .vLanding__songs__list__item__img {
   width: 45px;
   height: 45px;
-  background-size: contain;
+  background-size: cover;
   background-color: var(--dark-two);
 }
 .vLanding__songs__list__item__text {

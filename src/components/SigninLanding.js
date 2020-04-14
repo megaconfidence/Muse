@@ -21,6 +21,12 @@ function SigninLanding() {
       } = await request('post', `signin/${provider}`, payload);
 
       localStorage.setItem(`${config.appName}_TOKEN`, token);
+
+      const user = await request('get', 'api/user');
+      localStorage.setItem(
+        `${config.appName}_USER`,
+        JSON.stringify(user.data.data)
+      );
       enqueueSnackbar('Welcome 😜');
       setRedirectTo('/play');
     } catch (err) {
@@ -37,11 +43,11 @@ function SigninLanding() {
   };
 
   useEffect(() => {
-    if (localStorage.getItem(`${config.appName}_TOKEN`)) {
-      setTimeout(() => {
-        setRedirectTo('/play');
-      }, 2000);
-    }
+    // if (localStorage.getItem(`${config.appName}_TOKEN`)) {
+    //   setTimeout(() => {
+    //     setRedirectTo('/play');
+    //   }, 2000);
+    // }
     return () => {};
   }, []);
 

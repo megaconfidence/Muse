@@ -34,7 +34,8 @@
   .vLanding__info__list__card {
     margin: 0 10px;
     border-radius: 5px;
-    background-size: contain;
+    background-size: cover;
+    background-repeat: no-repeat;
     background-color: var(--dark-three);
   }
   .vLanding__info__list__card__wrapper {

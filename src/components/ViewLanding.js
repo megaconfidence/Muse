@@ -12,6 +12,7 @@ import SongItem from './SongItem';
 import LazyLoad from 'react-lazyload';
 import { withRouter } from 'react-router-dom';
 import SongModal from './SongModal';
+import GroupContextMenue from './GroupContextMenue';
 
 const withRouterAndRef = Wrapped => {
   const WithRouter = withRouter(({ forwardRef, ...otherProps }) => (
@@ -27,15 +28,20 @@ const withRouterAndRef = Wrapped => {
 
 function ViewLanding({
   path,
+  removeFromPlayList,
+  handleGroupContextMenueEvents,
+  addToPlayList,
+  playList,
   songs,
   history,
-  songQueues,
   handleSetSongQueues
 }) {
   path = path.split('/');
   const cat = path[0];
-  const id = path[1];
+  const catName = path[1];
+  const catId = path[2];
   const songModalRef = useRef(null);
+  const groupContextMenueRef = useRef(null);
   const allSongsFixed = useRef(null);
   const [allSongs, setAllSongs] = useState({ val: [] });
   const [allAlbums, setAllAlbums] = useState({ val: [] });
@@ -119,7 +125,7 @@ function ViewLanding({
     if (cat === 'album') {
       for (const a in songs) {
         for (const s in songs[a]) {
-          if (songs[a][s].albumName === id) {
+          if (songs[a][s].albumName === catName) {
             songs[a][s].albumSongs = songs[a][s].albumSongs.map(ss => ({
               url: ss.url,
               name: ss.name,
@@ -174,7 +180,7 @@ function ViewLanding({
       }
     } else if (cat === 'artist') {
       for (const ar in songs) {
-        if (ar === id) {
+        if (ar === catName) {
           setAllAlbums({ val: songs[ar] });
           const arr = [];
           for (const a in songs[ar]) {
@@ -192,31 +198,12 @@ function ViewLanding({
           setAllSongs({ val: arr });
         }
       }
-    } else if (cat === 'songs' && id === 'all songs') {
-      const songsArr = [];
-      for (const ar in songs) {
-        for (const a in songs[ar]) {
-          songs[ar][a].albumSongs.forEach(s => {
-            songsArr.push({
-              url: s.url,
-              name: s.name,
-              cover: songs[ar][a].albumArt,
-              album: songs[ar][a].albumName,
-              artist: songs[ar][a].albumArtist
-            });
-          });
-        }
-      }
-      allSongsFixed.current = songsArr;
-      setAllSongs({ val: songsArr });
-    } else if (cat === 'queues') {
-      setAllSongs({ val: songQueues });
     } else if (cat === 'genre') {
       const songsArr = [];
       const albumsArr = [];
       for (const ar in songs) {
         for (const a in songs[ar]) {
-          if (songs[ar][a].albumGenre === id) {
+          if (songs[ar][a].albumGenre === catName) {
             console.log(songs[ar][a]);
             albumsArr.push(songs[ar][a]);
             songs[ar][a].albumSongs.forEach(s => {
@@ -234,8 +221,18 @@ function ViewLanding({
       allSongsFixed.current = songsArr;
       setAllAlbums({ val: albumsArr });
       setAllSongs({ val: songsArr });
+    } else if (cat === 'playlist') {
+      for (const p in playList) {
+        if (playList[p]._id === catId) {
+          const pListSongs = playList[p].songs;
+          allSongsFixed.current = pListSongs;
+          setAllSongs({
+            val: pListSongs
+          });
+        }
+      }
     }
-  }, [cat, id, songQueues, songs]);
+  }, [cat, catId, catName, playList, songs]);
 
   useEffect(() => {
     getSongs();
@@ -243,23 +240,40 @@ function ViewLanding({
 
   return (
     <div className='vLanding'>
+      <GroupContextMenue
+        cat={cat}
+        catId={catId}
+        catName={catName}
+        songs={allSongs.val}
+        ref={groupContextMenueRef}
+        handleGroupContextMenueEvents={handleGroupContextMenueEvents}
+      />
       <SongModal
+        catId={catId}
         cat={cat}
         ref={songModalRef}
+        addToPlayList={addToPlayList}
+        removeFromPlayList={removeFromPlayList}
         songModalData={songModalData.val}
         handleSetSongQueues={handleSetSongQueues}
       />
       <div className='vLanding__nav'>
         <div
           data-img
-          onClick={history.goBack}
+          onClick={() => {
+            if (cat !== 'playlist') {
+              history.goBack();
+            } else {
+              history.push('/playlists');
+            }
+          }}
           data-imgname='arrow_left'
           className='vLanding__nav__icon'
         />
-        <div className='vLanding__nav__text truncate'>{id}</div>
+        <div className='vLanding__nav__text truncate'>{catName}</div>
         <div data-img data-imgname='settings' className='vLanding__nav__icon' />
       </div>
-      {cat !== 'songs' && cat !== 'queues' ? (
+      {cat !== 'playlist' ? (
         <InfoCard
           cat={cat}
           allSongs={allSongs}
@@ -267,23 +281,19 @@ function ViewLanding({
           handleListCardClick={handleListCardClick}
         />
       ) : (
-        <div
-          className=''
-          style={{
-            color: '#b9b9b9',
-            padding: ' 0 20px 13px',
-            backgroundColor: 'var(--dark-two)'
-          }}
-        >
-          {allSongs.val.length} songs
-        </div>
+        ''
       )}
-
       <div className='vLanding__songs'>
         <div className='vLanding__songs__control'>
           <div data-img data-imgname='repeat' />
           <div data-img data-imgname='sort' />
-          <div data-img data-imgname='menu_horizontal' />
+          <div
+            data-img
+            data-imgname='menu_horizontal'
+            onClick={() => {
+              groupContextMenueRef.current.classList.remove('hide');
+            }}
+          />
         </div>
 
         <div className='vLanding__songs__list'>
@@ -298,7 +308,6 @@ function ViewLanding({
                 artist={s.artist}
                 queueId={s.queueId}
                 ref={songModalRef}
-                handleSetSongQueues={handleSetSongQueues}
                 handleSetSongModalData={handleSetSongModalData}
               />
             </LazyLoad>
@@ -310,41 +319,3 @@ function ViewLanding({
 }
 
 export default withRouterAndRef(ViewLanding);
-
-// {allSongs.val.map((s, k) => (
-//   // <LazyLoad  placeholder={<LazyLoadPlaceholder />}>
-//   // <Link
-//   // key={k}
-
-//   //   to={{
-//   //     data: s,
-//   //     pathname: `/play/p`,
-//   //     search: `?artist=${s.artist}&song=${s.name}`
-//   //   }}
-//   // >
-//   <div
-//     key={k}
-//     className='vLanding__songs__list__item'
-//     style={{ top: k * itemHeight.current, height: itemHeight.current }}
-//   >
-//     <div
-//       className='vLanding__songs__list__item__img'
-//       style={{ backgroundImage: `url(${s.cover})` }}
-//     />
-//     <div className='vLanding__songs__list__item__text'>
-//       <div className='vLanding__songs__list__item__text__song truncate'>
-//         {s.name}
-//       </div>
-//       <div className='vLanding__songs__list__item__text__artist truncate'>
-//         {cat === 'artist' ? s.album : s.artist}
-//       </div>
-//     </div>
-//     <div
-//       data-img
-//       data-imgname='menu_horizontal'
-//       className='vLanding__songs__list__item__option'
-//     />
-//   </div>
-//   // </Link>
-//   // </LazyLoad>
-// ))}

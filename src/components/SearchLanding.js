@@ -4,6 +4,7 @@ import SongItem from './SongItem';
 import React, { useState, useRef } from 'react';
 import LazyLoad from 'react-lazyload';
 import { Link } from 'react-router-dom';
+import ObjectID from 'bson-objectid'
 
 import SongModal from './SongModal';
 
@@ -13,6 +14,8 @@ function SearchLanding({ songs, handleSetSongQueues }) {
   const [albumMatch, setAlbumMatch] = useState({ val: [] });
   const [artistMatch, setArtistMatch] = useState({ val: [] });
   const [songModalData, setSongModalData] = useState({ val: {} });
+
+  const [path, setPath] = useState({ val: 'Songs' });
 
   const songPane = useRef(null);
   const albumPane = useRef(null);
@@ -66,16 +69,19 @@ function SearchLanding({ songs, handleSetSongQueues }) {
         tab.classList.add('shLanding__tab__item--active');
       }
       if (target.id === 'songs') {
+        setPath({ val: 'Songs' });
         songPane.current.classList.remove('hide');
         albumPane.current.classList.add('hide');
         artistPane.current.classList.add('hide');
       }
       if (target.id === 'albums') {
+        setPath({ val: 'Albums' });
         songPane.current.classList.add('hide');
         albumPane.current.classList.remove('hide');
         artistPane.current.classList.add('hide');
       }
       if (target.id === 'artists') {
+        setPath({ val: 'Artists' });
         songPane.current.classList.add('hide');
         albumPane.current.classList.add('hide');
         artistPane.current.classList.remove('hide');
@@ -84,7 +90,7 @@ function SearchLanding({ songs, handleSetSongQueues }) {
   };
   return (
     <div className='shLanding'>
-      <LandingSearch getSearchVal={getSearchVal} />
+      <LandingSearch getSearchVal={getSearchVal} path={path.val} />
       <div className='shLanding__tab'>
         <div
           id='songs'
@@ -140,7 +146,7 @@ function SearchLanding({ songs, handleSetSongQueues }) {
           <Link
             key={k}
             to={{
-              pathname: `/view/album/${a}`
+              pathname: `/view/album/${a}/${ObjectID()}`
             }}
           >
             <div className='shLanding__pane__item truncate'>{a}</div>
@@ -152,7 +158,7 @@ function SearchLanding({ songs, handleSetSongQueues }) {
           <Link
             key={k}
             to={{
-              pathname: `/view/artist/${a}`
+              pathname: `/view/artist/${a}/${ObjectID()}`
             }}
           >
             <div className='shLanding__pane__item truncate'>{a}</div>

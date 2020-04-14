@@ -38,7 +38,7 @@
     "asap rocky": [
       {
         "albumArtist": "asap rocky",
-        "albumArt": "//upload.wikimedia.org/wikipedia/en/thumb/e/eb/Live_Love_ASAP.jpg/220px-Live_Love_ASAP.jpg",
+        "albumArt": "https://upload.wikimedia.org/wikipedia/en/thumb/e/eb/Live_Love_ASAP.jpg/220px-Live_Love_ASAP.jpg",
         "albumName": "alla (at long last asap)",
         "albumGenre": "rap",
         "albumDate": "may, 26 2015",

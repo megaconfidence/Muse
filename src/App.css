@@ -6,6 +6,26 @@
 .hide {
   display: none !important;
 }
+@media (min-width: 800px) {
+  div.App__main {
+    margin: 0 auto;
+    max-width: 700px;
+  }
+  div.nowPlaying__albumArt__temp {
+    height: 450px;
+    width: 500px;
+  }
+  div.error__card,
+  div.modal__card {
+    width: 320px;
+  }
+  div.sLanding {
+    left: 50%;
+    width: 710px;
+    transform: translateX(-50%);
+  }
+}
+
 [data-img] {
   width: 24px;
   height: 24px;
@@ -161,4 +181,13 @@
 }
 [data-imgname='car'] {
   background-image: url(/image/icon/car.svg);
+}
+[data-imgname='close'] {
+  background-image: url(/image/icon/close.svg);
+}
+[data-imgname='save'] {
+  background-image: url(/image/icon/save.svg);
+}
+[data-imgname='edit'] {
+  background-image: url(/image/icon/edit.svg);
 }

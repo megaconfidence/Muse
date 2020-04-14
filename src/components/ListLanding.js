@@ -2,6 +2,8 @@ import './ListLanding.css';
 import { Link } from 'react-router-dom';
 import LandingSearch from './LandingSearch';
 import React, { useState, useCallback, useEffect } from 'react';
+import ObjectID from 'bson-objectid'
+
 
 function ListLanding({ path, songs }) {
   const [allArtist, setAllArtist] = useState({ val: [] });
@@ -56,7 +58,7 @@ function ListLanding({ path, songs }) {
         <Link
           key={k}
           to={{
-            pathname: `/view/${path}/${a}`
+            pathname: `/view/${path}/${a}/${ObjectID()}`
           }}
         >
           <div className='lLanding__item truncate'>{a}</div>

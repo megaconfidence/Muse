@@ -1,10 +1,14 @@
 import React from 'react';
-import PlayList from '../components/PlayList'
-function PlayLists() {
+import PlayListLanding from '../components/PlayListLanding';
+function PlayLists({ createPlayList, getPlayList, playList }) {
   return (
-      <div className='playLists'>
-        <PlayList />
-      </div>
+    <div className='playLists'>
+      <PlayListLanding
+        playList={playList}
+        getPlayList={getPlayList}
+        createPlayList={createPlayList}
+      />
+    </div>
   );
 }
 

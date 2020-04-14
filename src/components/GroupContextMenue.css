@@ -1,0 +1,74 @@
+.gcMenue {
+    top: 0;
+    left: 0;
+    z-index: 10;
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    background-color: rgba(0, 0, 0, 0.9);
+  }
+  .gcMenue__wrapper {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+  }
+  .gcMenue__card {
+    top: 30%;
+    left: 50%;
+    width: 80%;
+    z-index: 10;
+    position: relative;
+    border-radius: 10px;
+    transform: translate(-50%, -30%);
+    background-color: var(--dark-three);
+  }
+  .gcMenue__card__main {
+    padding: 15px;
+  }
+  .gcMenue__card__main__head {
+    display: flex;
+    font-weight: 500;
+    font-size: 1.3em;
+    align-items: center;
+    margin-top: 10px;
+    justify-content: center;
+  }
+  .gcMenue__card__main__head__text {
+    width: 100%;
+    padding: 0 20px;
+    text-transform: capitalize;
+  }
+  .gcMenue__card__main__head__icon {
+    margin-left: 15px;
+  }
+  .gcMenue__card__main__content {
+    margin: 10px;
+  }
+  .gcMenue__card__main__content__item {
+    display: flex;
+    margin: 25px 0;
+    font-size: 1.1em;
+    align-items: center;
+  }
+  .gcMenue__card__main__content__item:last-of-type {
+    margin-bottom: 0;
+  }
+  .gcMenue__card__main__content__item__icon {
+    margin-right: 15px;
+  }
+  .gcMenue__card__main__content__item__text {
+    /* margin-left: 15px; */
+    width: fit-content;
+  }
+  .gcMenue__card__main__content__item__icon[data-img] {
+    width: 20px;
+    height: 20px;
+    background-size: 20px 20px;
+  }
+  .gcMenue__card__main__content__item__icon[data-imgname='next'] {
+    margin: 0;
+    width: 15px;
+    height: 15px;
+    margin-right: 20px;
+    background-size: 15px 15px;
+  }

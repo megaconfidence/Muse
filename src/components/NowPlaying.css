@@ -12,14 +12,20 @@
 }
 .nowPlaying__albumArt__img {
   width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+.nowPlaying__albumArt__temp {
+  width: 100%;
   height: 350px;
-  object-fit: cover;
   background-position: 50% 50%;
   background-repeat: no-repeat;
   background-size: 250px 250px;
   background-color: var(--dark-three);
   background-image: url('/image/muse.png');
 }
+
 .nowPlaying__songInfo {
   margin: 20px 0;
 }

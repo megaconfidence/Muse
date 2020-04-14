@@ -19,9 +19,6 @@
   opacity: 0.4;
   background-size: 23px 23px;
 }
-.nav__link [data-imgname='menu'] {
-  opacity: 0.8;
-}
 .nav__link--active {
   border-bottom: 2px solid var(--green);
 }

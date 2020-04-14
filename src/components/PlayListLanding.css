@@ -27,6 +27,7 @@ li {
 }
 .playList__user__create {
   display: flex;
+  margin-top: 20px;
   font-weight: 500;
   align-items: center;
 }
