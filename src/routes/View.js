@@ -1,7 +1,15 @@
 import React from 'react';
 import ViewLanding from '../components/ViewLanding';
 
-function View({ location, songs, handleSetSongQueues,handleGroupContextMenueEvents, removeFromPlayList,addToPlayList, playList }) {
+function View({
+  songs,
+  location,
+  playList,
+  addToPlayList,
+  removeFromPlayList,
+  handleSetSongQueues,
+  handleGroupContextMenueEvents
+}) {
   const path = location.pathname.replace('/view/', '');
   return (
     <div className='view'>
@@ -11,8 +19,8 @@ function View({ location, songs, handleSetSongQueues,handleGroupContextMenueEven
         playList={playList}
         addToPlayList={addToPlayList}
         removeFromPlayList={removeFromPlayList}
-        handleGroupContextMenueEvents={handleGroupContextMenueEvents}
         handleSetSongQueues={handleSetSongQueues}
+        handleGroupContextMenueEvents={handleGroupContextMenueEvents}
       />
     </div>
   );

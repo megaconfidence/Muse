@@ -32,6 +32,7 @@ const NowPlaying = forwardRef(
     const [playing, setPlaying] = useState({ val: {} });
 
     const handlePlayError = ({ target }) => {
+      playLoderRef.current.classList.remove('hide');
       errorModalRef.current.classList.toggle('hide');
     };
 
@@ -140,12 +141,12 @@ const NowPlaying = forwardRef(
                 .join(' ')
             : '',
           artwork: [
-            { src: data.cover, sizes: '96x96', type: 'image/png' },
-            { src: data.cover, sizes: '128x128', type: 'image/png' },
-            { src: data.cover, sizes: '192x192', type: 'image/png' },
-            { src: data.cover, sizes: '256x256', type: 'image/png' },
-            { src: data.cover, sizes: '384x384', type: 'image/png' },
-            { src: data.cover, sizes: '512x512', type: 'image/png' }
+            { src: data.cover || '', sizes: '96x96', type: 'image/png' },
+            { src: data.cover || '', sizes: '128x128', type: 'image/png' },
+            { src: data.cover || '', sizes: '192x192', type: 'image/png' },
+            { src: data.cover || '', sizes: '256x256', type: 'image/png' },
+            { src: data.cover || '', sizes: '384x384', type: 'image/png' },
+            { src: data.cover || '', sizes: '512x512', type: 'image/png' }
           ]
         });
       }
@@ -293,9 +294,6 @@ const NowPlaying = forwardRef(
     useEffect(() => {
       setMediaControls();
     });
-    useEffect(() => {
-      playLoderRef.current.classList.remove('hide');
-    }, [playing]);
 
     return (
       <div className='nowPlaying hide' ref={playerCompRef}>
@@ -371,16 +369,20 @@ const NowPlaying = forwardRef(
             autoPlay
             ref={playerRef}
             src={playing.val.url}
+            listenInterval={1000}
             showSkipControls={true}
             showJumpControls={false}
             customVolumeControls={[]}
+            onListen={() => {
+              playLoderRef.current.classList.add('hide');
+            }}
+            onAbort={() => {
+              playLoderRef.current.classList.remove('hide');
+            }}
             onPlay={() => {
               if (queuePlayBtnRef.current) {
                 queuePlayBtnRef.current.setAttribute('data-imgname', 'pause');
               }
-            }}
-            onCanPlay={() => {
-              playLoderRef.current.classList.add('hide');
             }}
             onPause={() => {
               if (queuePlayBtnRef.current) {

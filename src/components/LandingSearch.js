@@ -1,7 +1,7 @@
 import './LandingSearch.css';
 import React, { useState } from 'react';
 
-const LandingSearch = ({ path, getSearchVal }) => {
+const LandingSearch = ({ path, getSearchVal, filterList }) => {
   const [searchValue, setSearchValue] = useState({ val: '' });
 
   const handleSearchChange = ({ target }) => {
@@ -10,7 +10,7 @@ const LandingSearch = ({ path, getSearchVal }) => {
     const duration = 500;
     clearTimeout(target._timer);
     target._timer = setTimeout(() => {
-      getSearchVal(target.value);
+      getSearchVal(target.value, path);
     }, duration);
   };
 
@@ -22,9 +22,11 @@ const LandingSearch = ({ path, getSearchVal }) => {
         value={searchValue.val}
         className='lSearch__input'
         onChange={handleSearchChange}
-        placeholder={`Search ${path}...`}
+        placeholder={`Search ${path.toLowerCase()}...`}
       />
-      <div className='lSearch__icon' data-img data-imgname='sort' />
+      <div className='lSearch__icon' data-img data-imgname='sort' onClick={()=> {
+        filterList(path, undefined);
+      }} />
     </div>
   );
 };

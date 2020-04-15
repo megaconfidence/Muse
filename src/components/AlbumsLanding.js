@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import LandingSearch from './LandingSearch';
 import ObjectID from 'bson-objectid';
 import SearchNotFound from './SearchNotFound';
+import { useCallback } from 'react';
 
 const LazyLoadPlaceholder = () => (
   <div className='aLanding__list__album loading'>
@@ -19,9 +20,14 @@ const LazyLoadPlaceholder = () => (
   </div>
 );
 
-const AlbumsLanding = ({ path, albums }) => {
+const AlbumsLanding = ({
+  path,
+  albumsDisplay,
+  updateAlbumsDisplay,
+  handleSearch,
+  filterList
+}) => {
   const [searchVal, setSearchVal] = useState({ val: '' });
-  const [displayedAlbums, setDisplayedAlbums] = useState({ val: [] });
   function shuffle(array) {
     let currentIndex = array.length,
       temporaryValue,
@@ -40,33 +46,23 @@ const AlbumsLanding = ({ path, albums }) => {
 
   // shuffle(albums);
 
-  const getSearchVal = val => {
-    const arr = [];
-    setSearchVal({ val });
-    if (val) {
-      for (const a in albums) {
-        if (albums[a].albumName.includes(val)) {
-          arr.push(albums[a]);
-        }
-      }
 
-      setDisplayedAlbums({ val: arr });
-    } else {
-      setDisplayedAlbums({ val: albums });
-    }
-  };
 
-  useEffect(() => {
-    setDisplayedAlbums({ val: albums });
-    forceCheck()
-  }, [albums]);
+  const setSearch = useCallback((query, cat) => {
+    handleSearch(query, cat);
+    setSearchVal({ val: query });
+  }, [handleSearch]);
 
   return (
     <div className='aLanding'>
-      <LandingSearch path={path} getSearchVal={getSearchVal} />
+      <LandingSearch
+        path={path}
+        filterList={filterList}
+        getSearchVal={setSearch}
+      />
       <div className='aLanding__list'>
-        {displayedAlbums.val.length ? (
-          displayedAlbums.val.map((a, k) => (
+        {albumsDisplay.length ? (
+          albumsDisplay.map((a, k) => (
             <LazyLoad key={k} placeholder={<LazyLoadPlaceholder />}>
               <Link
                 to={{

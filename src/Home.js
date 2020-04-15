@@ -29,6 +29,11 @@ import CreatePlayList from './components/CreatePlayList';
 import RenamePlayList from './components/RenamePlayList';
 import AddToPlayList from './components/AddToPlayList';
 import ObjectID from 'bson-objectid';
+import FilterModal from './components/FilterModal';
+// eslint-disable-next-line import/no-webpack-loader-syntax
+import srtWorker from 'worker-loader!./sortWorker.js';
+// eslint-disable-next-line import/no-webpack-loader-syntax
+import schWorker from 'worker-loader!./searchWorker.js';
 
 const Home = withRouter(({ location, history }) => {
   const { data } = apiData;
@@ -37,6 +42,7 @@ const Home = withRouter(({ location, history }) => {
   const playerRef = useRef(null);
   const queuePlayBtnRef = useRef(null);
   const createPlayListRef = useRef(null);
+  const filterModalRef = useRef(null);
   const renamePlayListRef = useRef(null);
   const addToPlayListRef = useRef(null);
   const { enqueueSnackbar } = useSnackbar();
@@ -52,9 +58,9 @@ const Home = withRouter(({ location, history }) => {
 
   const albums = [];
   for (const ar in songs) {
-   for(const a in songs[ar]) {
-     albums.push(songs[ar][a])
-   }
+    for (const a in songs[ar]) {
+      albums.push(songs[ar][a]);
+    }
   }
   const setNowPlaying = data => {
     console.log(data);
@@ -400,72 +406,75 @@ const Home = withRouter(({ location, history }) => {
     [enqueueSnackbar, getPlayList, history, syncDeletedPlayList]
   );
 
-  const addToPlayList = useCallback((id, song, stgSong, type) => {
-    addToPlayListRef.current.classList.remove('hide');
+  const addToPlayList = useCallback(
+    (id, song, stgSong, type) => {
+      addToPlayListRef.current.classList.remove('hide');
 
-    if (stgSong) {
-      setStagedSong({ val: stgSong });
-    }
-    if (type) {
-      setAddTPLType({ val: type });
-    }
-    if (id && song && type) {
-      addToPlayListRef.current.classList.add('hide');
-      let pList = localStorage.getItem(`${config.appName}_PLAYLIST`);
-      if (pList && pList !== 'undefined') {
-        pList = JSON.parse(pList);
-        if (type === 'single') {
-          let isSongInList = false;
-          for (const p in pList) {
-            if (pList[p]._id === id) {
-              for (const s in pList[p].songs) {
-                if (
-                  song.name === pList[p].songs[s].name &&
-                  song.album === pList[p].songs[s].album &&
-                  song.artist === pList[p].songs[s].artist
-                ) {
-                  isSongInList = true;
-                  enqueueSnackbar(`Song is already in '${pList[p].name}'`);
+      if (stgSong) {
+        setStagedSong({ val: stgSong });
+      }
+      if (type) {
+        setAddTPLType({ val: type });
+      }
+      if (id && song && type) {
+        addToPlayListRef.current.classList.add('hide');
+        let pList = localStorage.getItem(`${config.appName}_PLAYLIST`);
+        if (pList && pList !== 'undefined') {
+          pList = JSON.parse(pList);
+          if (type === 'single') {
+            let isSongInList = false;
+            for (const p in pList) {
+              if (pList[p]._id === id) {
+                for (const s in pList[p].songs) {
+                  if (
+                    song.name === pList[p].songs[s].name &&
+                    song.album === pList[p].songs[s].album &&
+                    song.artist === pList[p].songs[s].artist
+                  ) {
+                    isSongInList = true;
+                    enqueueSnackbar(`Song is already in '${pList[p].name}'`);
+                  }
                 }
-              }
-              if (!isSongInList) {
-                delete song.queueId;
-                pList[p].songs.push(song);
-                saveToPlayList(pList, p, pList[p]);
-                enqueueSnackbar(`Added song to '${pList[p].name}'`);
+                if (!isSongInList) {
+                  delete song.queueId;
+                  pList[p].songs.push(song);
+                  saveToPlayList(pList, p, pList[p]);
+                  enqueueSnackbar(`Added song to '${pList[p].name}'`);
+                }
               }
             }
-          }
-        } else if (type === 'multiple') {
-          for (const p in pList) {
-            if (pList[p]._id === id) {
-              const list = [];
-              const tpList = pList[p].songs.concat(song);
+          } else if (type === 'multiple') {
+            for (const p in pList) {
+              if (pList[p]._id === id) {
+                const list = [];
+                const tpList = pList[p].songs.concat(song);
 
-              const map = new Map();
-              for (const item of tpList) {
-                if (!map.has(item.name)) {
-                  map.set(item.name, true);
-                  delete song.queueId;
-                  list.push({
-                    ...item
-                  });
+                const map = new Map();
+                for (const item of tpList) {
+                  if (!map.has(item.name)) {
+                    map.set(item.name, true);
+                    delete song.queueId;
+                    list.push({
+                      ...item
+                    });
+                  }
                 }
+
+                const obj = {
+                  ...pList[p],
+                  songs: list
+                };
+
+                saveToPlayList(pList, p, obj);
+                enqueueSnackbar(`Added songs to '${pList[p].name}'`);
               }
-
-              const obj = {
-                ...pList[p],
-                songs: list
-              };
-
-              saveToPlayList(pList, p, obj);
-              enqueueSnackbar(`Added songs to '${pList[p].name}'`);
             }
           }
         }
       }
-    }
-  }, [enqueueSnackbar, saveToPlayList]);
+    },
+    [enqueueSnackbar, saveToPlayList]
+  );
 
   const handleGroupContextMenueEvents = useCallback(
     (action, data) => {
@@ -526,6 +535,181 @@ const Home = withRouter(({ location, history }) => {
     [enqueueSnackbar, saveToPlayList]
   );
 
+  /*
+   *
+   *
+   *
+   *
+   *
+   *
+   *
+   *
+   *
+   *
+   *
+   *
+   *
+   *
+   *
+   *
+   *
+   *
+   *
+   *
+   *
+   *
+   *
+   *
+   *
+   *
+   *
+   *
+   *
+   *
+   *
+   *
+   *
+   *
+   *
+   *
+   *
+   *
+   *
+   *
+   * */
+
+  const sortWorker = new srtWorker();
+  const searchWorker = new schWorker();
+
+  const [fLCalledFrom, setFLCalledFrom] = useState({ val: '' });
+  const [queueDisplay, setQueueDisplay] = useState({ val: [] });
+  const [albumsDisplay, setAlbumsDisplay] = useState({ val: albums });
+  const [listLandingDisplay, setListLandingDisplay] = useState({ val: [] });
+  const [songMatchDisplay, setSongMatchDisplay] = useState({ val: [] });
+  const [albumMatchDisplay, setAlbumMatchDisplay] = useState({ val: [] });
+  const [artistMatchDisplay, setArtistMatchDisplay] = useState({ val: [] });
+
+  const updateQueueDisplay = useCallback(
+    newQueueData => {
+      setQueueDisplay({ val: newQueueData });
+      savePlayingSongQueues(newQueueData);
+    },
+    [savePlayingSongQueues]
+  );
+
+  const updateAlbumsDisplay = useCallback(newAlbumData => {
+    setAlbumsDisplay({ val: newAlbumData });
+  }, []);
+
+  const updateListLandingDisplay = useCallback(
+    displayType => {
+      const arr = [];
+      if (displayType === 'artist') {
+        for (const artist in songs) {
+          arr.push(artist);
+        }
+      } else if (displayType === 'genre') {
+        for (const ar in songs) {
+          for (const a in songs[ar]) {
+            if (songs[ar][a].albumGenre) {
+              arr.push(songs[ar][a].albumGenre);
+            }
+          }
+        }
+      }
+
+      setListLandingDisplay({ val: [...new Set(arr)].sort() });
+    },
+    [songs]
+  );
+
+  const handleSearch = useCallback(
+    (query, cat) => {
+      console.log(query, cat);
+      if (cat === 'albums') {
+        if (query) {
+          searchWorker.postMessage([query, cat]);
+          searchWorker.onmessage = ({ data }) => {
+            updateAlbumsDisplay(data);
+          };
+        } else {
+          updateAlbumsDisplay(albums);
+        }
+      } else if (cat === 'artist' || cat === 'genre') {
+        searchWorker.postMessage([query, cat]);
+        searchWorker.onmessage = ({ data }) => {
+          setListLandingDisplay({ val: data });
+        };
+      } else if (cat === 'search') {
+        searchWorker.postMessage([query, cat]);
+        searchWorker.onmessage = ({ data }) => {
+          setSongMatchDisplay({ val: data[0] });
+          setAlbumMatchDisplay({ val: data[1] });
+          setArtistMatchDisplay({ val: data[2] });
+        };
+      }
+    },
+    [albums, searchWorker, updateAlbumsDisplay]
+  );
+
+  const filterList = useCallback(
+    (calledFrom, type) => {
+      filterModalRef.current.classList.remove('hide');
+      setFLCalledFrom({ val: calledFrom });
+      if (type && fLCalledFrom.val) {
+        console.log(fLCalledFrom.val, type);
+        filterModalRef.current.classList.add('hide');
+
+        if (fLCalledFrom.val === 'queue') {
+          sortWorker.postMessage([queueDisplay.val, type, 'songs']);
+          sortWorker.onmessage = ({ data }) => {
+            updateQueueDisplay(data);
+          };
+        } else if (fLCalledFrom.val === 'albums') {
+          sortWorker.postMessage([albumsDisplay.val, type, 'albums']);
+          sortWorker.onmessage = ({ data }) => {
+            updateAlbumsDisplay(data);
+          };
+        } else if (
+          fLCalledFrom.val === 'artist' ||
+          fLCalledFrom.val === 'genre'
+        ) {
+          sortWorker.postMessage([listLandingDisplay.val, type, 'artist']);
+          sortWorker.onmessage = ({ data }) => {
+            setListLandingDisplay({ val: data });
+          };
+        } else if (fLCalledFrom.val === 'search songs') {
+          sortWorker.postMessage([songMatchDisplay.val, type, 'songs']);
+          sortWorker.onmessage = ({ data }) => {
+            setSongMatchDisplay({ val: data });
+          };
+        } else if (fLCalledFrom.val === 'search albums') {
+          sortWorker.postMessage([albumMatchDisplay.val, type, 'artist']);
+          sortWorker.onmessage = ({ data }) => {
+            setAlbumMatchDisplay({ val: data });
+          };
+        } else if (fLCalledFrom.val === 'search artists') {
+          sortWorker.postMessage([artistMatchDisplay.val, type, 'artist']);
+          sortWorker.onmessage = ({ data }) => {
+            setArtistMatchDisplay({ val: data });
+          };
+        }
+      }
+    },
+    [
+      albumMatchDisplay.val,
+      albumsDisplay.val,
+      artistMatchDisplay.val,
+      fLCalledFrom.val,
+      listLandingDisplay.val,
+      queueDisplay.val,
+      songMatchDisplay.val,
+      sortWorker,
+      updateAlbumsDisplay,
+      updateQueueDisplay
+    ]
+  );
+
   useEffect(() => {
     getHistory();
     getPlayList();
@@ -549,21 +733,22 @@ const Home = withRouter(({ location, history }) => {
     <Router>
       <div className='App App__main'>
         <Nav playPath={playPath.val} />
+        <CreatePlayList
+          ref={createPlayListRef}
+          createPlayList={createPlayList}
+        />
+        <RenamePlayList
+          ref={renamePlayListRef}
+          renamePlayList={renamePlayList}
+        />
+        <FilterModal ref={filterModalRef} filterList={filterList} />
         <AddToPlayList
           ref={addToPlayListRef}
           playList={playList.val}
           addTPLType={addTPLType.val}
           stagedSong={stagedSong.val}
-          createPlayList={createPlayList}
           addToPlayList={addToPlayList}
-        />
-        <CreatePlayList
-          ref={createPlayListRef}
           createPlayList={createPlayList}
-        />{' '}
-        <RenamePlayList
-          ref={renamePlayListRef}
-          renamePlayList={renamePlayList}
         />
         <NowPlaying
           songs={songs}
@@ -597,16 +782,18 @@ const Home = withRouter(({ location, history }) => {
             render={props => (
               <Queues
                 {...props}
-                playerRef={playerRef}
                 ref={{
                   queuePlayBtnRef
                 }}
-                savePlayingSongQueues={savePlayingSongQueues}
+                playerRef={playerRef}
                 playing={playing.val}
                 playList={playList.val}
+                filterList={filterList}
                 deleteQueue={deleteQueue}
-                addToPlayList={addToPlayList}
                 songQueues={songQueues.val}
+                addToPlayList={addToPlayList}
+                queueDisplay={queueDisplay.val}
+                updateQueueDisplay={updateQueueDisplay}
                 handleSetSongQueues={handleSetSongQueues}
               />
             )}
@@ -614,12 +801,28 @@ const Home = withRouter(({ location, history }) => {
           <Route
             exact
             path='/albums'
-            render={props => <Albums {...props} albums={albums} />}
+            render={props => (
+              <Albums
+                {...props}
+                filterList={filterList}
+                handleSearch={handleSearch}
+                albumsDisplay={albumsDisplay.val}
+                updateAlbumsDisplay={updateAlbumsDisplay}
+              />
+            )}
           />
           <Route
             exact
             path='/artist'
-            render={props => <Artist {...props} songs={songs} />}
+            render={props => (
+              <Artist
+                {...props}
+                filterList={filterList}
+                handleSearch={handleSearch}
+                listLandingDisplay={listLandingDisplay.val}
+                updateListLandingDisplay={updateListLandingDisplay}
+              />
+            )}
           />
           <Route
             exact
@@ -636,7 +839,15 @@ const Home = withRouter(({ location, history }) => {
           <Route
             exact
             path='/genre'
-            render={props => <Genre {...props} songs={songs} />}
+            render={props => (
+              <Genre
+                {...props}
+                filterList={filterList}
+                handleSearch={handleSearch}
+                listLandingDisplay={listLandingDisplay.val}
+                updateListLandingDisplay={updateListLandingDisplay}
+              />
+            )}
           />{' '}
           <Route
             exact
@@ -644,8 +855,12 @@ const Home = withRouter(({ location, history }) => {
             render={props => (
               <Search
                 {...props}
-                songs={songs}
+                filterList={filterList}
+                handleSearch={handleSearch}
+                songMatchDisplay={songMatchDisplay.val}
+                albumMatchDisplay={albumMatchDisplay.val}
                 handleSetSongQueues={handleSetSongQueues}
+                artistMatchDisplay={artistMatchDisplay.val}
               />
             )}
           />{' '}
@@ -662,10 +877,10 @@ const Home = withRouter(({ location, history }) => {
                 {...props}
                 songs={songs}
                 playList={playList.val}
-                handleGroupContextMenueEvents={handleGroupContextMenueEvents}
                 addToPlayList={addToPlayList}
                 removeFromPlayList={removeFromPlayList}
                 handleSetSongQueues={handleSetSongQueues}
+                handleGroupContextMenueEvents={handleGroupContextMenueEvents}
               />
             )}
           />

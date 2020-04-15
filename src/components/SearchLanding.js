@@ -2,26 +2,29 @@ import LandingSearch from './LandingSearch';
 import './SearchLanding.css';
 import SongItem from './SongItem';
 import React, { useState, useRef } from 'react';
-import LazyLoad from 'react-lazyload';
+import LazyLoad, { forceCheck } from 'react-lazyload';
 import { Link } from 'react-router-dom';
 import ObjectID from 'bson-objectid';
 
 import SongModal from './SongModal';
 import SearchNotFound from './SearchNotFound';
 import { useEffect } from 'react';
+import { useCallback } from 'react';
 
-function SearchLanding({ songs, handleSetSongQueues }) {
-  const [songMatch, setSongMatch] = useState({ val: [] });
-  const [albumMatch, setAlbumMatch] = useState({ val: [] });
-  const [artistMatch, setArtistMatch] = useState({ val: [] });
-  const [songModalData, setSongModalData] = useState({ val: {} });
-
+function SearchLanding({
+  filterList,
+  songMatchDisplay,
+  albumMatchDisplay,
+  artistMatchDisplay,
+  handleSearch,
+  handleSetSongQueues
+}) {
+  const [path, setPath] = useState({ val: 'Songs' });
   const [searchVal, setSearchVal] = useState({ val: '' });
+  const [songModalData, setSongModalData] = useState({ val: {} });
   const [dontShowSearchNotFound, setDontShowSearchNotFound] = useState({
     val: true
   });
-
-  const [path, setPath] = useState({ val: 'Songs' });
 
   const songPane = useRef(null);
   const albumPane = useRef(null);
@@ -32,53 +35,40 @@ function SearchLanding({ songs, handleSetSongQueues }) {
     setSongModalData({ val: data });
   };
 
-  const getSearchVal = val => {
-    const songMatchArr = [];
-    const albumMatchArr = [];
-    const artistMatchArr = [];
+  const setSearch = useCallback(
+    (query, cat) => {
+      setSearchVal({ val: query });
+      handleSearch(query, 'search');
+    },
+    [handleSearch]
+  );
 
-    setSearchVal({ val });
-
-    if (val) {
-      for (const ar in songs) {
-        if (ar.includes(val)) {
-          artistMatchArr.push(ar);
-        }
-
-        for (const a in songs[ar]) {
-          if (songs[ar][a].albumName.includes(val)) {
-            albumMatchArr.push(songs[ar][a].albumName);
-          }
-          for (const s in songs[ar][a].albumSongs) {
-            if (songs[ar][a].albumSongs[s].name.includes(val)) {
-              const obj = {
-                cover: songs[ar][a].albumArt,
-                album: songs[ar][a].albumName,
-                artist: songs[ar][a].albumArtist,
-                url: songs[ar][a].albumSongs[s].url,
-                name: songs[ar][a].albumSongs[s].name
-              };
-              songMatchArr.push(obj);
-            }
-          }
-        }
-      }
-    }
-    setSongMatch({ val: songMatchArr });
-    setAlbumMatch({ val: albumMatchArr });
-    setArtistMatch({ val: artistMatchArr });
-  };
   useEffect(() => {
-    if (!songMatch.val.length && path.val === 'Songs') {
+    forceCheck();
+  }, [path]);
+
+  useEffect(() => {
+    setTimeout(() => {
+      forceCheck();
+    }, 500)
+  }, []);
+
+  useEffect(() => {
+    if (!songMatchDisplay.length && path.val === 'Songs') {
       setDontShowSearchNotFound({ val: false });
-    } else if (!albumMatch.val.length && path.val === 'Albums') {
+    } else if (!albumMatchDisplay.length && path.val === 'Albums') {
       setDontShowSearchNotFound({ val: false });
-    } else if (!artistMatch.val.length && path.val === 'Artists') {
+    } else if (!artistMatchDisplay.length && path.val === 'Artists') {
       setDontShowSearchNotFound({ val: false });
     } else {
       setDontShowSearchNotFound({ val: true });
     }
-  }, [albumMatch.val.length, artistMatch.val.length, path.val, songMatch.val]);
+  }, [
+    albumMatchDisplay.length,
+    artistMatchDisplay.length,
+    path.val,
+    songMatchDisplay.length
+  ]);
   const showCategory = ({ target }) => {
     document.querySelectorAll('.shLanding__tab__item').forEach(tab => {
       if (tab.id !== target.id) {
@@ -106,9 +96,20 @@ function SearchLanding({ songs, handleSetSongQueues }) {
       }
     });
   };
+
+  const interCeptFilterList = useCallback(
+    val => {
+      filterList('search ' + val.toLowerCase());
+    },
+    [filterList]
+  );
   return (
     <div className='shLanding'>
-      <LandingSearch getSearchVal={getSearchVal} path={path.val} />
+      <LandingSearch
+        getSearchVal={setSearch}
+        filterList={interCeptFilterList}
+        path={path.val}
+      />
       <div className='shLanding__tab'>
         <div
           id='songs'
@@ -142,7 +143,7 @@ function SearchLanding({ songs, handleSetSongQueues }) {
         />
         <div className='shLanding__songs__list'>
           {dontShowSearchNotFound.val ? (
-            songMatch.val.map((s, k) => (
+            songMatchDisplay.map((s, k) => (
               <LazyLoad key={k} placeholder={<div>***</div>}>
                 <SongItem
                   url={s.url}
@@ -167,7 +168,7 @@ function SearchLanding({ songs, handleSetSongQueues }) {
       </div>
       <div className='shLanding__albumPane hide' ref={albumPane}>
         {dontShowSearchNotFound.val ? (
-          albumMatch.val.map((a, k) => (
+          albumMatchDisplay.map((a, k) => (
             <Link
               key={k}
               to={{
@@ -185,7 +186,7 @@ function SearchLanding({ songs, handleSetSongQueues }) {
       </div>
       <div className='shLanding__artistPane hide' ref={artistPane}>
         {dontShowSearchNotFound.val ? (
-          artistMatch.val.map((a, k) => (
+          artistMatchDisplay.map((a, k) => (
             <Link
               key={k}
               to={{
