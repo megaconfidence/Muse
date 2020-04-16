@@ -1,38 +1,32 @@
 import './QueueLanding.css';
 import React, { useRef, useState, useEffect } from 'react';
 import SongItem from './SongItem';
-import SongModal from './SongModal';
 import config from 'environment';
 import { useCallback } from 'react';
 import { forwardRef } from 'react';
 const QueueLanding = forwardRef(
   (
     {
-      songQueues,
+      playing,
       playList,
       playerRef,
-      playing,
-      handleSetSongQueues,
-      deleteQueue,
-      addToPlayList,
       filterList,
+      songQueues,
+      deleteQueue,
       queueDisplay,
-      updateQueueDisplay
+      showSongModal,
+      addToPlayList,
+      updateQueueDisplay,
+      handleSetSongQueues
     },
     ref
   ) => {
     const { queuePlayBtnRef } = ref;
     // const  queuePlayBtnRef  = useRef(null);
-    const songModalRef = useRef(null);
     const queueModal = useRef(null);
     const [museViewQueue, setMuseViewQueue] = useState({ val: '' });
     const [displayedTitle, setDisplayedTitle] = useState({ val: 'Queue' });
     const [displayedCount, setDisplayedCount] = useState({ val: 1 });
-    const [songModalData, setSongModalData] = useState({ val: {} });
-
-    const handleSetSongModalData = data => {
-      setSongModalData({ val: data });
-    };
 
     useEffect(() => {
       setDisplayedCount({ val: '-- ' });
@@ -46,7 +40,13 @@ const QueueLanding = forwardRef(
           setDisplayedCount({ val: i + 1 });
         }
       });
-    }, [playing.album, playing.artist, playing.name, playing.queueId, queueDisplay]);
+    }, [
+      playing.album,
+      playing.artist,
+      playing.name,
+      playing.queueId,
+      queueDisplay
+    ]);
 
     useEffect(() => {
       setDisplayedCount({ val: playing.queueId ? playing.queueId + 1 : 1 });
@@ -56,7 +56,7 @@ const QueueLanding = forwardRef(
         setMuseViewQueue({ val: vQueue });
 
         if (vQueue === 'Queues') {
-          updateQueueDisplay(songQueues)
+          updateQueueDisplay(songQueues);
         } else {
           for (const p in playList) {
             if (playList[p]._id === vQueue) {
@@ -64,14 +64,14 @@ const QueueLanding = forwardRef(
                 return { ...p, queueId: i };
               });
               setDisplayedCount({ val: '-- ' });
-              updateQueueDisplay(songs)
+              updateQueueDisplay(songs);
               setDisplayedTitle({ val: playList[p].name });
             }
           }
         }
       } else {
         setDisplayedTitle({ val: 'Queues' });
-        updateQueueDisplay(songQueues)
+        updateQueueDisplay(songQueues);
         localStorage.setItem(
           `${config.appName}_VIEWING_QUEUE`,
           JSON.stringify('Queues')
@@ -109,7 +109,7 @@ const QueueLanding = forwardRef(
                 }}
                 onClick={() => {
                   deleteQueue();
-                  updateQueueDisplay([])
+                  updateQueueDisplay([]);
                 }}
                 className='qLanding__ctrl__top__cancel__img'
               />
@@ -151,12 +151,7 @@ const QueueLanding = forwardRef(
                 data-img
                 data-imgname='save'
                 onClick={() => {
-                  addToPlayList(
-                    undefined,
-                    undefined,
-                    queueDisplay,
-                    'multiple'
-                  );
+                  addToPlayList(undefined, undefined, queueDisplay, 'multiple');
                 }}
               />
             </div>
@@ -183,7 +178,7 @@ const QueueLanding = forwardRef(
               <div
                 className='qLanding__modal__card__body__item'
                 onClick={() => {
-                  updateQueueDisplay(songQueues)
+                  updateQueueDisplay(songQueues);
                   setDisplayedTitle({ val: 'Queues' });
                   localStorage.setItem(
                     `${config.appName}_VIEWING_QUEUE`,
@@ -206,7 +201,7 @@ const QueueLanding = forwardRef(
                     const songs = p.songs.map((p, i) => {
                       return { ...p, queueId: i };
                     });
-                    updateQueueDisplay(songs)
+                    updateQueueDisplay(songs);
                     setDisplayedTitle({ val: p.name });
                     localStorage.setItem(
                       `${config.appName}_VIEWING_QUEUE`,
@@ -222,12 +217,7 @@ const QueueLanding = forwardRef(
             </div>
           </div>
         </div>
-        <SongModal
-          cat='queues'
-          ref={songModalRef}
-          songModalData={songModalData.val}
-          handleSetSongQueues={handleSetSongQueues}
-        />
+
         <div className='qLanding__songlist'>
           {queueDisplay.map((s, k) => {
             if (
@@ -242,14 +232,13 @@ const QueueLanding = forwardRef(
                   key={k}
                   url={s.url}
                   name={s.name}
+                  cat={'queues'}
                   album={s.album}
                   cover={s.cover}
-                  cat={'queues'}
                   artist={s.artist}
                   queueId={s.queueId}
-                  ref={songModalRef}
+                  showSongModal={showSongModal}
                   handleSetSongQueues={handleSetSongQueues}
-                  handleSetSongModalData={handleSetSongModalData}
                 />
               );
             } else {
@@ -264,9 +253,8 @@ const QueueLanding = forwardRef(
                   cover={s.cover}
                   artist={s.artist}
                   queueId={s.queueId}
-                  ref={songModalRef}
+                  showSongModal={showSongModal}
                   handleSetSongQueues={handleSetSongQueues}
-                  handleSetSongModalData={handleSetSongModalData}
                 />
               );
             }

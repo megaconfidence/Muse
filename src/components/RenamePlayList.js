@@ -1,5 +1,5 @@
 import React, { useRef, forwardRef, useState } from 'react';
-import './CreatePlayList.css';
+import './RenamePlayList.css';
 
 const RenamePlayList = forwardRef(({ renamePlayList }, ref) => {
   const [name, setName] = useState({ val: '' });
@@ -7,32 +7,32 @@ const RenamePlayList = forwardRef(({ renamePlayList }, ref) => {
     setName({ val: target.value });
   };
   return (
-    <div className='crPlayList__modal hide' ref={ref}>
+    <div className='rnPlayList__modal hide' ref={ref}>
       <div
-        className='crPlayList__modal__wrapper '
+        className='rnPlayList__modal__wrapper '
         onClick={() => {
           ref.current.classList.toggle('hide');
         }}
       ></div>
 
-      <div className='crPlayList__modal__card'>
-        <div className='crPlayList__modal__card__head'>
-          <div className='crPlayList__modal__card__head__text'>
+      <div className='rnPlayList__modal__card'>
+        <div className='rnPlayList__modal__card__head'>
+          <div className='rnPlayList__modal__card__head__text'>
             Enter new name
           </div>
         </div>
-        <div className='crPlayList__modal__card__body'>
+        <div className='rnPlayList__modal__card__body'>
           <input
             type='text'
             value={name.val}
             onChange={handleInputChange}
             placeholder='Enter new name'
-            className='crPlayList__modal__card__body__input'
+            className='rnPlayList__modal__card__body__input'
           />
 
-          <div className='crPlayList__modal__card__body__controls'>
+          <div className='rnPlayList__modal__card__body__controls'>
             <div
-              className='crPlayList__modal__card__body__controls__cancel'
+              className='rnPlayList__modal__card__body__controls__cancel'
               onClick={() => {
                 ref.current.classList.toggle('hide');
               }}
@@ -40,7 +40,7 @@ const RenamePlayList = forwardRef(({ renamePlayList }, ref) => {
               cancel
             </div>
             <div
-              className='crPlayList__modal__card__body__controls__ok'
+              className='rnPlayList__modal__card__body__controls__ok'
               style={{
                 opacity: name.val.length ? '1' : '0.4',
                 pointerEvents: name.val.length ? 'initial' : 'none'

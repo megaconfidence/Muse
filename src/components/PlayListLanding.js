@@ -2,6 +2,7 @@ import './PlayListLanding.css';
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import config from 'environment';
+import ObjectID from 'bson-objectid';
 
 function PlayListLanding({ playList, createPlayList, getPlayList }) {
   useEffect(() => {
@@ -28,14 +29,26 @@ function PlayListLanding({ playList, createPlayList, getPlayList }) {
             <div data-img data-imgname='cancel' />
             <div className='playList__cat__name'>Not played</div>
           </li> */}
-          <li>
-            <div data-img data-imgname='like_fill' />
-            <div className='playList__cat__name'>Favorites</div>
-          </li>
-          <li>
-            <div data-img data-imgname='clock' />
-            <div className='playList__cat__name'>Recently played</div>
-          </li>
+          <Link
+            to={{
+              pathname: `/view/favorites/favorites/${ObjectID()}`
+            }}
+          >
+            <li>
+              <div data-img data-imgname='like_fill' />
+              <div className='playList__cat__name'>Favorites</div>
+            </li>
+          </Link>
+          <Link
+            to={{
+              pathname: `/view/recents/Recently played/${ObjectID()}`
+            }}
+          >
+            <li>
+              <div data-img data-imgname='clock' />
+              <div className='playList__cat__name'>Recently played</div>
+            </li>
+          </Link>
         </ul>
       </div>
       <div className='playList__user'>

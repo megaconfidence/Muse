@@ -1,8 +1,10 @@
 .nowPlaying {
   display: flex;
-  padding: 7px 12px 20px;
+  margin-bottom: 10px;
   flex-direction: column;
-  height: calc(100vh - 84px);
+  padding: 7px 12px 20px;
+  /* height: calc(100vh - 84px); */
+  /* height: calc(100vh - 141px); */
   justify-content: space-between;
 }
 .nowPlaying__albumArt {
@@ -25,6 +27,11 @@
   background-color: var(--dark-three);
   background-image: url('/image/muse.png');
 }
+@media(max-width: 360px) {
+  .nowPlaying__albumArt__temp {
+    height: 300px;
+  }
+}
 
 .nowPlaying__songInfo {
   margin: 20px 0;
@@ -42,7 +49,6 @@
 }
 .nowPlaying__playArea {
   position: relative;
-  margin-bottom: 20px;
 }
 .nowPlaying__playArea [data-imgname='play'],
 [data-imgname='pause'] {

@@ -8,18 +8,22 @@ import React, {
 import './NowPlaying.css';
 import { useSnackbar } from 'notistack';
 import AudioPlayer from 'react-h5-audio-player';
+import config from 'environment';
 
 // import 'react-h5-audio-player/lib/styles.css';
 
 const NowPlaying = forwardRef(
   (
     {
-      playPath,
       data,
       songs,
-      queuePlayBtnRef,
+      playPath,
+      showSongModal,
       setPlayingData,
-      playingSongQueues
+      queuePlayBtnRef,
+      showSongInfoModal,
+      playingSongQueues,
+      syncLikes
     },
     ref
   ) => {
@@ -29,7 +33,9 @@ const NowPlaying = forwardRef(
     const errorModalRef = useRef(null);
     const { enqueueSnackbar } = useSnackbar();
     const playLoderRef = useRef(null);
+    const songModalRef = useRef(null);
     const [playing, setPlaying] = useState({ val: {} });
+    const [likeBtn, setLikeBtn] = useState({ val: false });
 
     const handlePlayError = ({ target }) => {
       playLoderRef.current.classList.remove('hide');
@@ -91,6 +97,7 @@ const NowPlaying = forwardRef(
     ]);
 
     const handleClickNext = useCallback(() => {
+      console.log('click next');
       if (playingSongQueues.length) {
         const pIndex = getPlayingIndex();
         if (pIndex < playingSongQueues.length - 1) {
@@ -287,16 +294,150 @@ const NowPlaying = forwardRef(
       [setMediaMetaData, setPlayingData, playingSongQueues]
     );
 
+    const handleLikeClick = ({ target }) => {
+      const state = target.getAttribute('data-imgname');
+      if (state === 'like') {
+        target.setAttribute('data-imgname', 'like_fill');
+        let likes = localStorage.getItem(`${config.appName}_LIKES`);
+        if (likes && likes !== 'undefined') {
+          likes = JSON.parse(likes);
+          let isSongInList = false;
+          for (const s in likes) {
+            if (
+              playing.val.name === likes[s].name &&
+              playing.val.album === likes[s].album &&
+              playing.val.artist === likes[s].artist
+            ) {
+              isSongInList = true;
+              // Song is already in likes
+            }
+          }
+          if (!isSongInList) {
+            const data = playing.val;
+            delete data.cat;
+            delete data.catId;
+            delete data.queueId;
+            likes.push(data);
+            localStorage.setItem(
+              `${config.appName}_LIKES`,
+              JSON.stringify(likes)
+            );
+          }
+        } else {
+          localStorage.setItem(
+            `${config.appName}_LIKES`,
+            JSON.stringify([playing.val])
+          );
+        }
+      } else {
+        target.setAttribute('data-imgname', 'like');
+        let likes = localStorage.getItem(`${config.appName}_LIKES`);
+        if (likes && likes !== 'undefined') {
+          likes = JSON.parse(likes);
+          const arr = [];
+          for (const s in likes) {
+            if (
+              likes[s].name === data.name &&
+              likes[s].artist === data.artist &&
+              likes[s].album === data.album
+            ) {
+              // Do nothing if found in likes
+            } else {
+              arr.push(likes[s]);
+            }
+          }
+          localStorage.setItem(`${config.appName}_LIKES`, JSON.stringify(arr));
+        }
+      }
+
+      syncLikes();
+    };
+
+    useEffect(() => {
+      let likes = localStorage.getItem(`${config.appName}_LIKES`);
+      if (likes && likes !== 'undefined') {
+        likes = JSON.parse(likes);
+        let isFound = false;
+        for (const s in likes) {
+          if (
+            likes[s].name === playing.val.name &&
+            likes[s].artist === playing.val.artist &&
+            likes[s].album === playing.val.album
+          ) {
+            isFound = true;
+          }
+        }
+        if (isFound) {
+          setLikeBtn({ val: true });
+        } else {
+          setLikeBtn({ val: false });
+        }
+      }
+    }, [playing.val.album, playing.val.artist, playing.val.name]);
+
     useEffect(() => {
       getSong(data, playPath, songs);
     }, [data, getSong, playPath, songs]);
 
     useEffect(() => {
+      // console.log(playerRef.current)
+      // playerRef.current.audio.current.addEventListener('suspend', () => {
+      //   console.log('suspend')
+      //   playLoderRef.current.classList.remove('hide');
+      // });
+
+      playerRef.current.audio.current.addEventListener('waiting', () => {
+        console.log('waiting')
+        playLoderRef.current.classList.remove('hide');
+      });
+      playerRef.current.audio.current.addEventListener('loadeddata', () => {
+        console.log('loadeddata')
+        playLoderRef.current.classList.add('hide');
+      });
+      playerRef.current.audio.current.addEventListener('canplay', () => {
+        console.log('canplay')
+        playLoderRef.current.classList.add('hide');
+      });
+
+      // playerRef.current.audio.current.addEventListener('ended', () => {
+      //   const repeatBtn = document.querySelector(
+      //     '.rhap_repeat-button [data-img="true"]'
+      //   );
+      //   if (repeatBtn.getAttribute('data-imgname') === 'repeat') {
+      //     console.log('clicking next')
+      //     // handleClickNext();
+      //   } else {
+
+      //     console.log('not clicking next')
+      //   }
+      // });
+    }, [playerRef]);
+    useEffect(() => {
+      // console.log(window.screen.height);
+      // console.log(window.innerHeight);
+      // console.log(document.documentElement.clientHeight);
+      // console.log(document.body.clientHeight);
       setMediaControls();
+      // setTimeout(() => {
+
+      //   // window.scrollTo(0,document.body.scrollHeight);
+      //   window.addEventListener("load",function() {
+      //     setTimeout(function(){
+      //         // This hides the address bar:
+      //         window.scrollTo(0, 1);
+      //     }, 0);
+      // });
+      // }, 1000)
     });
 
     return (
-      <div className='nowPlaying hide' ref={playerCompRef}>
+      <div
+        className='nowPlaying hide'
+        ref={playerCompRef}
+        style={{
+          height: `calc(${document.documentElement.clientHeight}px - 84px)`
+        }}
+      >
         <div className='error hide' ref={errorModalRef}>
           <div
             className='error__wrapper '
@@ -352,10 +493,26 @@ const NowPlaying = forwardRef(
         <div className='nowPlaying__playArea'>
           <div className='nowPlaying__playArea__item'>
             <div className='nowPlaying__playArea__item__controls'>
-              <div data-img data-imgname='like' />
+              <div
+                data-img
+                data-imgname={likeBtn.val ? 'like_fill' : 'like'}
+                onClick={handleLikeClick}
+              />
               {/* <div data-img data-imgname='like_fill' /> */}
-              <div data-img data-imgname='info' />
-              <div data-img data-imgname='menu_horizontal' />
+              <div
+                data-img
+                data-imgname='info'
+                onClick={() => {
+                  showSongInfoModal(playing.val);
+                }}
+              />
+              <div
+                data-img
+                data-imgname='menu_horizontal'
+                onClick={() => {
+                  showSongModal({ cat: 'nowplaying', ...playing.val });
+                }}
+              />
             </div>
             <div className='nowPlaying__playArea__item__offset'> </div>
           </div>
@@ -373,10 +530,8 @@ const NowPlaying = forwardRef(
             showSkipControls={true}
             showJumpControls={false}
             customVolumeControls={[]}
-            onListen={() => {
-              playLoderRef.current.classList.add('hide');
-            }}
             onAbort={() => {
+              console.log('abort');
               playLoderRef.current.classList.remove('hide');
             }}
             onPlay={() => {

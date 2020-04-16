@@ -5,23 +5,21 @@ import React, { useState, useRef } from 'react';
 import LazyLoad, { forceCheck } from 'react-lazyload';
 import { Link } from 'react-router-dom';
 import ObjectID from 'bson-objectid';
-
-import SongModal from './SongModal';
 import SearchNotFound from './SearchNotFound';
 import { useEffect } from 'react';
 import { useCallback } from 'react';
 
 function SearchLanding({
   filterList,
+  handleSearch,
+  showSongModal,
   songMatchDisplay,
   albumMatchDisplay,
   artistMatchDisplay,
-  handleSearch,
   handleSetSongQueues
 }) {
   const [path, setPath] = useState({ val: 'Songs' });
   const [searchVal, setSearchVal] = useState({ val: '' });
-  const [songModalData, setSongModalData] = useState({ val: {} });
   const [dontShowSearchNotFound, setDontShowSearchNotFound] = useState({
     val: true
   });
@@ -30,10 +28,7 @@ function SearchLanding({
   const albumPane = useRef(null);
   const artistPane = useRef(null);
 
-  const songModalRef = useRef(null);
-  const handleSetSongModalData = data => {
-    setSongModalData({ val: data });
-  };
+
 
   const setSearch = useCallback(
     (query, cat) => {
@@ -135,12 +130,6 @@ function SearchLanding({
       </div>
 
       <div className='shLanding__songPane' ref={songPane}>
-        <SongModal
-          cat='search'
-          ref={songModalRef}
-          songModalData={songModalData.val}
-          handleSetSongQueues={handleSetSongQueues}
-        />
         <div className='shLanding__songs__list'>
           {dontShowSearchNotFound.val ? (
             songMatchDisplay.map((s, k) => (
@@ -153,9 +142,8 @@ function SearchLanding({
                   cover={s.cover}
                   artist={s.artist}
                   queueId={s.queueId}
-                  ref={songModalRef}
+                  showSongModal={showSongModal}
                   handleSetSongQueues={handleSetSongQueues}
-                  handleSetSongModalData={handleSetSongModalData}
                 />
               </LazyLoad>
             ))

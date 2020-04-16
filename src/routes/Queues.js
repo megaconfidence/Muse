@@ -12,6 +12,7 @@ const Queues = forwardRef(
       songQueues,
       deleteQueue,
       queueDisplay,
+      showSongModal,
       addToPlayList,
       updateQueueDisplay,
       handleSetSongQueues,
@@ -21,6 +22,7 @@ const Queues = forwardRef(
     return (
       <QueueLanding
         ref={ref}
+        showSongModal={showSongModal}
         playing={playing}
         playList={playList}
         playerRef={playerRef}

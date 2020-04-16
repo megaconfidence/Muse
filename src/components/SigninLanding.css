@@ -1,5 +1,6 @@
 .sLanding {
   top: 0;
+  width: 100%;
   position: absolute;
   background-color: var(--dark-one);
 }

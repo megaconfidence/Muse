@@ -7,12 +7,14 @@ function Search({
   songMatchDisplay,
   albumMatchDisplay,
   artistMatchDisplay,
+  showSongModal,
   handleSetSongQueues
 }) {
   return (
     <SearchLanding
       filterList={filterList}
       handleSearch={handleSearch}
+      showSongModal={showSongModal}
       songMatchDisplay={songMatchDisplay}
       albumMatchDisplay={albumMatchDisplay}
       artistMatchDisplay={artistMatchDisplay}

@@ -7,6 +7,7 @@ import {
 } from 'react-router-dom';
 import './App.css';
 import Play from './routes/Play';
+import _ from 'lodash';
 import Root from './routes/Root';
 import View from './routes/View';
 import apiData from './data.json';
@@ -34,6 +35,8 @@ import FilterModal from './components/FilterModal';
 import srtWorker from 'worker-loader!./sortWorker.js';
 // eslint-disable-next-line import/no-webpack-loader-syntax
 import schWorker from 'worker-loader!./searchWorker.js';
+import SongModal from './components/SongModal';
+import SongInfoModal from './components/SongInfoModal';
 
 const Home = withRouter(({ location, history }) => {
   const { data } = apiData;
@@ -83,6 +86,9 @@ const Home = withRouter(({ location, history }) => {
   }, []);
   const savePlayingSongQueues = useCallback(async queue => {
     const arr = await queue.map((q, i) => {
+      delete q.cat;
+      delete q.catId;
+      delete q.catName;
       return { ...q, queueId: i };
     });
 
@@ -481,6 +487,9 @@ const Home = withRouter(({ location, history }) => {
       if (action === 'play') {
         const arr = [];
         for (const s in data) {
+          delete data[s].cat;
+          delete data[s].catId;
+          delete data[s].catName;
           data[s].queueId = s;
           arr.push(data[s]);
         }
@@ -490,6 +499,9 @@ const Home = withRouter(({ location, history }) => {
         const arr = songQueues.val;
         const l = arr.length;
         for (const s in data) {
+          delete data[s].cat;
+          delete data[s].catId;
+          delete data[s].catName;
           data[s].queueId = l + Number(s);
           arr.push(data[s]);
         }
@@ -534,6 +546,55 @@ const Home = withRouter(({ location, history }) => {
     },
     [enqueueSnackbar, saveToPlayList]
   );
+
+  const syncLikes = useCallback(async () => {
+    try {
+      let id = localStorage.getItem(`${config.appName}_LIKESID`);
+      let likes = localStorage.getItem(`${config.appName}_LIKES`);
+      if (likes && likes !== 'undefined') {
+        likes = JSON.parse(likes);
+        if (id && id !== 'undefined') {
+          id = JSON.parse(id);
+          const data = await request('put', `api/like/${id}`, {
+            songs: likes
+          });
+
+          localStorage.setItem(
+            `${config.appName}_LIKES`,
+            JSON.stringify(data.data.data.songs)
+          );
+        } else {
+          const data = await request('post', 'api/like', {
+            songs: likes
+          });
+          localStorage.setItem(
+            `${config.appName}_LIKESID`,
+            JSON.stringify(data.data.data._id)
+          );
+          localStorage.setItem(
+            `${config.appName}_LIKES`,
+            JSON.stringify(data.data.data.songs)
+          );
+        }
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }, []);
+
+  const [songModalData, setSongModalData] = useState({ val: {} });
+  const songModalRef = useRef(null);
+  const showSongModal = useCallback(data => {
+    songModalRef.current.classList.remove('hide');
+    setSongModalData({ val: data });
+  }, []);
+
+  const songInfoModalRef = useRef(null);
+  const [songInfoModalData, setSongInfoModalData] = useState({ val: {} });
+  const showSongInfoModal = useCallback(data => {
+    songInfoModalRef.current.classList.remove('hide');
+    setSongInfoModalData({ val: data });
+  });
 
   /*
    *
@@ -588,6 +649,156 @@ const Home = withRouter(({ location, history }) => {
   const [songMatchDisplay, setSongMatchDisplay] = useState({ val: [] });
   const [albumMatchDisplay, setAlbumMatchDisplay] = useState({ val: [] });
   const [artistMatchDisplay, setArtistMatchDisplay] = useState({ val: [] });
+
+  const [viewSongsDisplay, setViewSongsDisplay] = useState({ val: [] });
+  const viewSongsDisplayFixed = useRef(null);
+  const [viewAlbumsDisplay, setViewAlbumsDisplay] = useState({ val: [] });
+
+  const updateViewSongsDisplay = useCallback(newSongData => {
+    setViewSongsDisplay({ val: newSongData });
+  }, []);
+
+  const setViewDisplay = useCallback(
+    (cat, catName, catId) => {
+      if (cat === 'album') {
+        for (const a in songs) {
+          for (const s in songs[a]) {
+            if (songs[a][s].albumName === catName) {
+              songs[a][s].albumSongs = songs[a][s].albumSongs.map(ss => ({
+                url: ss.url,
+                name: ss.name,
+                cover: songs[a][s].albumArt,
+                album: songs[a][s].albumName,
+                artist: songs[a][s].albumArtist
+              }));
+              viewSongsDisplayFixed.current = songs[a][s].albumSongs;
+              setViewSongsDisplay({
+                val: songs[a][s].albumSongs
+              });
+
+              /**
+               * The below block generates card from song names containing feat or ft
+               */
+              const arr = [
+                {
+                  albumArt: songs[a][s].albumArt,
+                  albumName: songs[a][s].albumArtist
+                }
+              ];
+
+              songs[a][s].albumSongs.forEach(ss => {
+                let { name } = ss;
+                const re = /[^le]fe?a?t\.?\s/g;
+
+                if (re.test(name)) {
+                  const typ = name.includes('feat') ? 'feat' : 'ft';
+                  name = name.split(typ)[1];
+                  const save = v => {
+                    const obj = {
+                      albumName: v.replace(/[^a-zA-Z0-9 \-$]/g, '').trim(),
+                      albumArt: ss.cover
+                    };
+
+                    if (!_.find(arr, obj)) {
+                      arr.push(obj);
+                    }
+                  };
+
+                  name.split(/[&,]+/).forEach(n => {
+                    save(n);
+                  });
+                }
+              });
+              setViewAlbumsDisplay({ val: arr });
+              /**
+               * End of card generation block
+               */
+            }
+          }
+        }
+      } else if (cat === 'artist') {
+        for (const ar in songs) {
+          if (ar === catName) {
+            setViewAlbumsDisplay({ val: songs[ar] });
+            const arr = [];
+            for (const a in songs[ar]) {
+              songs[ar][a].albumSongs.forEach(s => {
+                arr.push({
+                  url: s.url,
+                  name: s.name,
+                  cover: songs[ar][a].albumArt,
+                  album: songs[ar][a].albumName,
+                  artist: songs[ar][a].albumArtist
+                });
+              });
+            }
+            viewSongsDisplayFixed.current = arr;
+            setViewSongsDisplay({ val: arr });
+          }
+        }
+      } else if (cat === 'genre') {
+        const songsArr = [];
+        const albumsArr = [];
+        for (const ar in songs) {
+          for (const a in songs[ar]) {
+            if (songs[ar][a].albumGenre === catName) {
+              albumsArr.push(songs[ar][a]);
+              songs[ar][a].albumSongs.forEach(s => {
+                songsArr.push({
+                  url: s.url,
+                  name: s.name,
+                  cover: songs[ar][a].albumArt,
+                  album: songs[ar][a].albumName,
+                  artist: songs[ar][a].albumArtist
+                });
+              });
+            }
+          }
+        }
+        viewSongsDisplayFixed.current = songsArr;
+        setViewAlbumsDisplay({ val: albumsArr });
+        setViewSongsDisplay({ val: songsArr });
+      } else if (cat === 'playlist') {
+        for (const p in playList.val) {
+          if (playList.val[p]._id === catId) {
+            const pListSongs = playList.val[p].songs;
+            viewSongsDisplayFixed.current = pListSongs;
+            setViewSongsDisplay({
+              val: pListSongs
+            });
+          }
+        }
+      } else if (cat === 'favorites') {
+        let likes = localStorage.getItem(`${config.appName}_LIKES`);
+        if (likes && likes !== 'undefined') {
+          likes = JSON.parse(likes);
+          viewSongsDisplayFixed.current = likes;
+          setViewSongsDisplay({
+            val: likes
+          });
+        }
+      } else if (cat === 'recents') {
+        let recents = localStorage.getItem(`${config.appName}_PLAYING_QUEUES`);
+        if (recents && recents !== 'undefined') {
+          recents = JSON.parse(recents);
+          viewSongsDisplayFixed.current = recents;
+          setViewSongsDisplay({ val: recents });
+
+          const result = [];
+          const map = new Map();
+          for (const s of recents) {
+            if (!map.has(s.album)) {
+              map.set(s.album, true); // set any value to Map
+              result.push({ albumName: s.album.trim(), albumArt: s.cover });
+            }
+          }
+
+          setViewAlbumsDisplay({ val: result });
+        }
+      }
+    },
+    [playList.val, songs]
+  );
 
   const updateQueueDisplay = useCallback(
     newQueueData => {
@@ -693,6 +904,11 @@ const Home = withRouter(({ location, history }) => {
           sortWorker.onmessage = ({ data }) => {
             setArtistMatchDisplay({ val: data });
           };
+        } else if (fLCalledFrom.val === 'view') {
+          sortWorker.postMessage([viewSongsDisplay.val, type, 'songs']);
+          sortWorker.onmessage = ({ data }) => {
+            updateViewSongsDisplay(data);
+          };
         }
       }
     },
@@ -706,7 +922,9 @@ const Home = withRouter(({ location, history }) => {
       songMatchDisplay.val,
       sortWorker,
       updateAlbumsDisplay,
-      updateQueueDisplay
+      updateQueueDisplay,
+      updateViewSongsDisplay,
+      viewSongsDisplay.val
     ]
   );
 
@@ -733,6 +951,7 @@ const Home = withRouter(({ location, history }) => {
     <Router>
       <div className='App App__main'>
         <Nav playPath={playPath.val} />
+        <SongInfoModal ref={songInfoModalRef} data={songInfoModalData.val} />
         <CreatePlayList
           ref={createPlayListRef}
           createPlayList={createPlayList}
@@ -750,17 +969,29 @@ const Home = withRouter(({ location, history }) => {
           addToPlayList={addToPlayList}
           createPlayList={createPlayList}
         />
+        <SongModal
+          ref={songModalRef}
+          syncLikes={syncLikes}
+          showSongInfoModal={showSongInfoModal}
+          removeFromPlayList={removeFromPlayList}
+          addToPlayList={addToPlayList}
+          data={songModalData.val}
+          handleSetSongQueues={handleSetSongQueues}
+        />
         <NowPlaying
           songs={songs}
           ref={{
             playerRef,
             playerCompRef
           }}
-          queuePlayBtnRef={queuePlayBtnRef}
+          syncLikes={syncLikes}
           data={playing.val}
           playPath={playPath.val}
-          playingSongQueues={playingSongQueues.val}
+          showSongModal={showSongModal}
           setPlayingData={setPlayingData}
+          queuePlayBtnRef={queuePlayBtnRef}
+          showSongInfoModal={showSongInfoModal}
+          playingSongQueues={playingSongQueues.val}
         />
         <Switch>
           <Route exact path='/' render={props => <Root />} />
@@ -791,6 +1022,7 @@ const Home = withRouter(({ location, history }) => {
                 filterList={filterList}
                 deleteQueue={deleteQueue}
                 songQueues={songQueues.val}
+                showSongModal={showSongModal}
                 addToPlayList={addToPlayList}
                 queueDisplay={queueDisplay.val}
                 updateQueueDisplay={updateQueueDisplay}
@@ -857,6 +1089,7 @@ const Home = withRouter(({ location, history }) => {
                 {...props}
                 filterList={filterList}
                 handleSearch={handleSearch}
+                showSongModal={showSongModal}
                 songMatchDisplay={songMatchDisplay.val}
                 albumMatchDisplay={albumMatchDisplay.val}
                 handleSetSongQueues={handleSetSongQueues}
@@ -875,10 +1108,16 @@ const Home = withRouter(({ location, history }) => {
             render={props => (
               <View
                 {...props}
-                songs={songs}
-                playList={playList.val}
+                viewSongsDisplay={viewSongsDisplay.val}
+                ref={{
+                  viewSongsDisplayFixed
+                }}
+                setViewDisplay={setViewDisplay}
+                filterList={filterList}
+                viewAlbumsDisplay={viewAlbumsDisplay.val}
+                updateViewSongsDisplay={updateViewSongsDisplay}
                 addToPlayList={addToPlayList}
-                removeFromPlayList={removeFromPlayList}
+                showSongModal={showSongModal}
                 handleSetSongQueues={handleSetSongQueues}
                 handleGroupContextMenueEvents={handleGroupContextMenueEvents}
               />
@@ -892,3 +1131,16 @@ const Home = withRouter(({ location, history }) => {
 
 export default Home;
 // export default withRouter(App);
+
+{
+  /* <SongModal
+catId={catId}
+cat={cat}
+syncLikes={syncLikes}
+ref={songModalRef}
+addToPlayList={addToPlayList}
+removeFromPlayList={removeFromPlayList}
+songModalData={songModalData.val}
+handleSetSongQueues={handleSetSongQueues}
+/> */
+}

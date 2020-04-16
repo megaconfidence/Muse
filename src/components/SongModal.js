@@ -4,24 +4,107 @@ import './SongModal.css';
 import { useRef } from 'react';
 import colorLog from '../helpers/colorLog';
 import { useSnackbar } from 'notistack';
+import config from 'environment';
+import { useState } from 'react';
+import { useEffect } from 'react';
 
 const SongModal = forwardRef(
   (
     {
-      cat,
-      catId,
-      songModalData,
+      data,
       removeFromPlayList,
+      showSongInfoModal,
       addToPlayList,
-      handleSetSongQueues
+      handleSetSongQueues,
+      syncLikes
     },
     ref
   ) => {
     const { enqueueSnackbar } = useSnackbar();
+    const [likeBtn, setLikeBtn] = useState({ val: false });
 
     const handleCloseSongModal = () => {
       ref.current.classList.toggle('hide');
     };
+    const handleLikeClick = ({ target }) => {
+      const state = target.getAttribute('data-imgname');
+      if (state === 'like') {
+        target.setAttribute('data-imgname', 'like_fill');
+        let likes = localStorage.getItem(`${config.appName}_LIKES`);
+        if (likes && likes !== 'undefined') {
+          likes = JSON.parse(likes);
+          let isSongInList = false;
+          for (const s in likes) {
+            if (
+              data.name === likes[s].name &&
+              data.album === likes[s].album &&
+              data.artist === likes[s].artist
+            ) {
+              isSongInList = true;
+              // Song is already in likes
+            }
+          }
+          if (!isSongInList) {
+            delete data.cat;
+            delete data.catId;
+            delete data.queueId;
+            likes.push(data);
+            localStorage.setItem(
+              `${config.appName}_LIKES`,
+              JSON.stringify(likes)
+            );
+          }
+        } else {
+          localStorage.setItem(
+            `${config.appName}_LIKES`,
+            JSON.stringify([data])
+          );
+        }
+      } else {
+        target.setAttribute('data-imgname', 'like');
+        let likes = localStorage.getItem(`${config.appName}_LIKES`);
+        if (likes && likes !== 'undefined') {
+          likes = JSON.parse(likes);
+          const arr = [];
+          for (const s in likes) {
+            if (
+              likes[s].name === data.name &&
+              likes[s].artist === data.artist &&
+              likes[s].album === data.album
+            ) {
+              // Do nothing if found in likes
+            } else {
+              arr.push(likes[s]);
+            }
+          }
+          localStorage.setItem(`${config.appName}_LIKES`, JSON.stringify(arr));
+        }
+      }
+
+      syncLikes();
+    };
+
+    useEffect(() => {
+      let likes = localStorage.getItem(`${config.appName}_LIKES`);
+      if (likes && likes !== 'undefined') {
+        likes = JSON.parse(likes);
+        let isFound = false;
+        for (const s in likes) {
+          if (
+            likes[s].name === data.name &&
+            likes[s].artist === data.artist &&
+            likes[s].album === data.album
+          ) {
+            isFound = true;
+          }
+        }
+        if (isFound) {
+          setLikeBtn({ val: true });
+        } else {
+          setLikeBtn({ val: false });
+        }
+      }
+    }, [data.album, data.artist, data.name]);
     return (
       <div className='modal hide' ref={ref}>
         <div className='modal__wrapper ' onClick={handleCloseSongModal}></div>
@@ -29,16 +112,26 @@ const SongModal = forwardRef(
           <div className='modal__card__main'>
             <div className='modal__card__main__head'>
               <div className='modal__card__main__head__text truncate'>
-                {songModalData.name}
+                {data.name}
               </div>
-              <div
-                data-img
-                data-imgname='like'
-                className='modal__card__main__head__icon'
-              />
+              {data.cat !== 'nowplaying' ? (
+                <div
+                  data-img
+                  data-imgname={likeBtn.val ? 'like_fill' : 'like'}
+                  onClick={handleLikeClick}
+                  className='modal__card__main__head__icon'
+                />
+              ) : (
+                ''
+              )}
             </div>
             <div className='modal__card__main__content'>
-              <div className='modal__card__main__content__item'>
+              <div
+                className='modal__card__main__content__item'
+                onClick={() => {
+                  showSongInfoModal(data);
+                }}
+              >
                 <div
                   data-img
                   data-imgname='info'
@@ -48,12 +141,12 @@ const SongModal = forwardRef(
                   Song info
                 </div>
               </div>
-              {cat === 'queues' ? (
+              {data.cat === 'queues' ? (
                 <div
                   className='modal__card__main__content__item'
                   onClick={() => {
                     handleCloseSongModal();
-                    handleSetSongQueues('remove', songModalData.queueId);
+                    handleSetSongQueues('remove', data.queueId);
                   }}
                 >
                   <div
@@ -68,12 +161,12 @@ const SongModal = forwardRef(
               ) : (
                 ''
               )}
-              {cat !== 'queues' ? (
+              {data.cat !== 'queues' ? (
                 <div
                   className='modal__card__main__content__item'
                   onClick={() => {
                     ref.current.classList.add('hide');
-                    handleSetSongQueues('add', songModalData);
+                    handleSetSongQueues('add', data);
                   }}
                 >
                   <div
@@ -92,7 +185,7 @@ const SongModal = forwardRef(
                 className='modal__card__main__content__item'
                 onClick={() => {
                   ref.current.classList.add('hide');
-                  addToPlayList(undefined, undefined, songModalData, 'single');
+                  addToPlayList(undefined, undefined, data, 'single');
                 }}
               >
                 <div
@@ -104,12 +197,12 @@ const SongModal = forwardRef(
                   Add to playlist
                 </div>
               </div>
-              {cat === 'playlist' ? (
+              {data.cat === 'playlist' ? (
                 <div
                   className='modal__card__main__content__item'
                   onClick={() => {
                     ref.current.classList.add('hide');
-                    removeFromPlayList(catId, songModalData);
+                    removeFromPlayList(data.catId, data);
                   }}
                 >
                   <div
@@ -137,7 +230,7 @@ const SongModal = forwardRef(
               <div
                 className='modal__card__main__content__item'
                 onClick={() => {
-                  const link = `${window.location.host}/#/play/p?artist=${songModalData.artist}&song=${songModalData.name}`;
+                  const link = `${window.location.host}/#/play/p?artist=${data.artist}&song=${data.name}`;
                   if (navigator.share) {
                     navigator
                       .share({

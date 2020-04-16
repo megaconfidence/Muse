@@ -1,7 +1,7 @@
 import './InfoCard.css'
 import React from 'react';
 
-const InfoCard = ({ allAlbums, allSongs, handleListCardClick, cat }) => (
+const InfoCard = ({ viewAlbumsDisplay, viewSongsDisplay, handleListCardClick, cat }) => (
   <div className='vLanding__info'>
     <div className='vLanding__info__type'>
       <div className='vLanding__info__type__text'>
@@ -27,7 +27,7 @@ const InfoCard = ({ allAlbums, allSongs, handleListCardClick, cat }) => (
           <div className='vLanding__info__list__card__highlight'></div>
         </div>
       </div>
-      {allAlbums.val.map((a, k) => (
+      {viewAlbumsDisplay.map((a, k) => (
         <div
           key={k}
           onClick={() => {
@@ -48,10 +48,10 @@ const InfoCard = ({ allAlbums, allSongs, handleListCardClick, cat }) => (
     </div>
     <div className='vLanding__info__msc'>
       <div className='vLanding__info__msc__numArtist'>
-        {allAlbums.val.length} {cat === 'artist' || cat === 'genre' ? 'albums' : 'album artists'}
+        {viewAlbumsDisplay.length} {cat === 'artist' || cat === 'genre' ? 'albums' : 'album artists'}
       </div>
       <div className='vLanding__info__msc__numSongs'>
-        {allSongs.val.length} songs
+        {viewSongsDisplay.length} songs
       </div>
     </div>
   </div>
