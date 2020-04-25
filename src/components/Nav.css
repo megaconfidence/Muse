@@ -20,6 +20,7 @@
   background-size: 23px 23px;
 }
 .nav__link--active {
+  outline: none;
   border-bottom: 2px solid var(--green);
 }
 .nav__link--active [data-img] {
