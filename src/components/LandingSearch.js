@@ -10,7 +10,7 @@ const LandingSearch = ({ path, getSearchVal, filterList }) => {
     const duration = 500;
     clearTimeout(target._timer);
     target._timer = setTimeout(() => {
-      getSearchVal(target.value, path);
+      getSearchVal(target.value.toLowerCase(), path);
     }, duration);
   };
 
