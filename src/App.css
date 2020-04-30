@@ -6,6 +6,14 @@
 .hide {
   display: none !important;
 }
+.infinite__scroll__loader {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+.App__main {
+ position: relative;
+}
 @media (min-width: 800px) {
   div.App__main {
     margin: 0 auto;
@@ -21,7 +29,6 @@
   }
   div.sLanding {
     left: 50%;
-    width: 710px;
     transform: translateX(-50%);
   }
   ::-webkit-scrollbar {

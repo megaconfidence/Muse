@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import GoogleLogin from 'react-google-login';
 import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props';
 import { useSnackbar } from 'notistack';
@@ -6,10 +6,13 @@ import request from '../helpers';
 import config from 'environment';
 import './SigninLanding.css';
 import { Redirect } from 'react-router-dom';
+import AppContext from './hooks/AppContext';
 
 function SigninLanding() {
   const { enqueueSnackbar } = useSnackbar();
-  const [redirectTo, setRedirectTo] = useState(null);
+  const [redirect, setRedirect] = useState(false);
+  // eslint-disable-next-line no-unused-vars
+  const [_, setAppData] = useContext(AppContext);
 
   const saveToken = async (access_token, provider) => {
     try {
@@ -23,12 +26,11 @@ function SigninLanding() {
       localStorage.setItem(`${config.appName}_TOKEN`, token);
 
       const user = await request('get', 'api/user');
-      localStorage.setItem(
-        `${config.appName}_USER`,
-        JSON.stringify(user.data.data)
-      );
+      const userData = user.data.data;
+      setAppData({ user: userData });
+      localStorage.setItem(`${config.appName}_USER`, JSON.stringify(userData));
       enqueueSnackbar('Welcome 😜');
-      setRedirectTo('/play');
+      setRedirect(true);
     } catch (err) {
       enqueueSnackbar('Something went wrong 😢');
     }
@@ -45,12 +47,14 @@ function SigninLanding() {
   useEffect(() => {
     // if (localStorage.getItem(`${config.appName}_TOKEN`)) {
     //   setTimeout(() => {
-    //     setRedirectTo('/play');
+    //     setRedirect(true);
     //   }, 2000);
     // }
-    return () => {};
   }, []);
 
+  if (redirect) {
+    return <Redirect to='/play' />;
+  }
   return (
     <div className='sLanding'>
       <div className='sLanding__head'>
@@ -63,7 +67,7 @@ function SigninLanding() {
       <div className='sLanding__social'>
         <GoogleLogin
           clientId={process.env.REACT_APP_google_client_id}
-          render={renderProps => (
+          render={(renderProps) => (
             <button
               onClick={renderProps.onClick}
               disabled={renderProps.disabled}
@@ -84,7 +88,7 @@ function SigninLanding() {
           callback={responseFacebook}
           disableMobileRedirect={true}
           fields='name,email,picture'
-          render={renderProps => (
+          render={(renderProps) => (
             <button
               onClick={renderProps.onClick}
               className='sLanding__social__btn sLanding__social__btn--facebook'
@@ -156,7 +160,6 @@ function SigninLanding() {
         </div>
         <div className='sLanding__footer__bottom'>© 2020 Muse</div>
       </div>
-      {redirectTo ? <Redirect to={redirectTo} /> : null}
     </div>
   );
 }

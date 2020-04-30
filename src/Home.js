@@ -3,12 +3,9 @@ import {
   Switch,
   withRouter,
   HashRouter as Router,
-  useHistory
 } from 'react-router-dom';
 import './App.css';
 import Play from './routes/Play';
-import _ from 'lodash';
-import Root from './routes/Root';
 import View from './routes/View';
 import apiData from './data.json';
 import Nav from './components/Nav';
@@ -20,7 +17,6 @@ import { useSnackbar } from 'notistack';
 import PlayLists from './routes/PlayList';
 import NowPlaying from './components/NowPlaying';
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import Signin from './routes/Signin';
 import request from './helpers';
 import config from 'environment';
 import colorLog from './helpers/colorLog';
@@ -37,8 +33,15 @@ import srtWorker from 'worker-loader!./sortWorker.js';
 import schWorker from 'worker-loader!./searchWorker.js';
 import SongModal from './components/SongModal';
 import SongInfoModal from './components/SongInfoModal';
+import NoMatch from './routes/NoMatch';
+import { useContext } from 'react';
+import AppContext from './components/hooks/AppContext';
 
 const Home = withRouter(({ location, history }) => {
+  // console.log(location, history)
+  // let hist = useHistory();
+  // let location = useLocation();
+  // console.log(hist, loc);
   const { data } = apiData;
   const songs = data;
   const playerCompRef = useRef(null);
@@ -58,6 +61,7 @@ const Home = withRouter(({ location, history }) => {
 
   const [songQueues, setSongQueues] = useState({ val: [] });
   const [playingSongQueues, setPlayingSongQueues] = useState({ val: [] });
+  const [appData, setAppData] = useContext(AppContext);
 
   const albums = [];
   for (const ar in songs) {
@@ -65,7 +69,7 @@ const Home = withRouter(({ location, history }) => {
       albums.push(songs[ar][a]);
     }
   }
-  const setNowPlaying = data => {
+  const setNowPlaying = (data) => {
     console.log(data);
   };
 
@@ -84,7 +88,7 @@ const Home = withRouter(({ location, history }) => {
       setPlayingSongQueues({ val: queue });
     }
   }, []);
-  const savePlayingSongQueues = useCallback(async queue => {
+  const savePlayingSongQueues = useCallback(async (queue) => {
     const arr = await queue.map((q, i) => {
       delete q.cat;
       delete q.catId;
@@ -100,7 +104,7 @@ const Home = withRouter(({ location, history }) => {
     setPlayingSongQueues({ val: arr });
   }, []);
 
-  const saveQueue = useCallback(list => {
+  const saveQueue = useCallback((list) => {
     if (list) {
       localStorage.setItem(`${config.appName}_QUEUES`, JSON.stringify(list));
 
@@ -146,7 +150,7 @@ const Home = withRouter(({ location, history }) => {
   }, [saveQueue]);
 
   const handleSetSongQueues = (type, data) => {
-    const addSong = aData => {
+    const addSong = (aData) => {
       const arr = songQueues.val;
       arr.push({
         ...aData,
@@ -162,7 +166,7 @@ const Home = withRouter(({ location, history }) => {
     } else if (type === 'play') {
       addSong(data);
     } else if (type === 'remove') {
-      const filterSong = s => {
+      const filterSong = (s) => {
         if (s.queueId === data) {
           //Do nothing it the match is exact
         } else {
@@ -196,7 +200,7 @@ const Home = withRouter(({ location, history }) => {
       }
     };
     togglePlayer();
-    history.listen(location => {
+    history.listen((location) => {
       togglePlayer();
     });
   }, [history, location.pathname]);
@@ -215,7 +219,7 @@ const Home = withRouter(({ location, history }) => {
     }
   }, []);
 
-  const getPlayingData = useCallback(data => {
+  const getPlayingData = useCallback((data) => {
     let playng = localStorage.getItem(`${config.appName}_PLAYING`);
     let pPath = localStorage.getItem(`${config.appName}_PLAYPATH`);
 
@@ -276,7 +280,7 @@ const Home = withRouter(({ location, history }) => {
   }, [getPlayList]);
 
   const createPlayList = useCallback(
-    async name => {
+    async (name) => {
       createPlayListRef.current.classList.remove('hide');
       if (name) {
         try {
@@ -330,7 +334,7 @@ const Home = withRouter(({ location, history }) => {
   );
 
   const renamePlayList = useCallback(
-    name => {
+    (name) => {
       renamePlayListRef.current.classList.remove('hide');
       if (name) {
         let pList = localStorage.getItem(`${config.appName}_PLAYLIST`);
@@ -368,7 +372,7 @@ const Home = withRouter(({ location, history }) => {
   }, []);
 
   const deletePlayList = useCallback(
-    id => {
+    (id) => {
       if (id) {
         let pList = localStorage.getItem(`${config.appName}_PLAYLIST`);
         if (pList && pList !== 'undefined') {
@@ -584,17 +588,17 @@ const Home = withRouter(({ location, history }) => {
 
   const [songModalData, setSongModalData] = useState({ val: {} });
   const songModalRef = useRef(null);
-  const showSongModal = useCallback(data => {
+  const showSongModal = useCallback((data) => {
     songModalRef.current.classList.remove('hide');
     setSongModalData({ val: data });
   }, []);
 
   const songInfoModalRef = useRef(null);
   const [songInfoModalData, setSongInfoModalData] = useState({ val: {} });
-  const showSongInfoModal = useCallback(data => {
+  const showSongInfoModal = useCallback((data) => {
     songInfoModalRef.current.classList.remove('hide');
     setSongInfoModalData({ val: data });
-  });
+  }, []);
 
   /*
    *
@@ -644,213 +648,36 @@ const Home = withRouter(({ location, history }) => {
 
   const [fLCalledFrom, setFLCalledFrom] = useState({ val: '' });
   const [queueDisplay, setQueueDisplay] = useState({ val: [] });
-  const [albumsDisplay, setAlbumsDisplay] = useState({ val: albums });
-  const [listLandingDisplay, setListLandingDisplay] = useState({ val: [] });
+
   const [songMatchDisplay, setSongMatchDisplay] = useState({ val: [] });
   const [albumMatchDisplay, setAlbumMatchDisplay] = useState({ val: [] });
   const [artistMatchDisplay, setArtistMatchDisplay] = useState({ val: [] });
 
-  const [viewSongsDisplay, setViewSongsDisplay] = useState({ val: [] });
-  const viewSongsDisplayFixed = useRef(null);
-  const [viewAlbumsDisplay, setViewAlbumsDisplay] = useState({ val: [] });
-
-  const updateViewSongsDisplay = useCallback(newSongData => {
-    setViewSongsDisplay({ val: newSongData });
-  }, []);
-
-  const setViewDisplay = useCallback(
-    (cat, catName, catId) => {
-      if (cat === 'album') {
-        for (const a in songs) {
-          for (const s in songs[a]) {
-            if (songs[a][s].albumName === catName) {
-              songs[a][s].albumSongs = songs[a][s].albumSongs.map(ss => ({
-                url: ss.url,
-                name: ss.name,
-                cover: songs[a][s].albumArt,
-                album: songs[a][s].albumName,
-                artist: songs[a][s].albumArtist
-              }));
-              viewSongsDisplayFixed.current = songs[a][s].albumSongs;
-              setViewSongsDisplay({
-                val: songs[a][s].albumSongs
-              });
-
-              /**
-               * The below block generates card from song names containing feat or ft
-               */
-              const arr = [
-                {
-                  albumArt: songs[a][s].albumArt,
-                  albumName: songs[a][s].albumArtist
-                }
-              ];
-
-              songs[a][s].albumSongs.forEach(ss => {
-                let { name } = ss;
-                const re = /[^le]fe?a?t\.?\s/g;
-
-                if (re.test(name)) {
-                  const typ = name.includes('feat') ? 'feat' : 'ft';
-                  name = name.split(typ)[1];
-                  const save = v => {
-                    const obj = {
-                      albumName: v.replace(/[^a-zA-Z0-9 \-$]/g, '').trim(),
-                      albumArt: ss.cover
-                    };
-
-                    if (!_.find(arr, obj)) {
-                      arr.push(obj);
-                    }
-                  };
-
-                  name.split(/[&,]+/).forEach(n => {
-                    save(n);
-                  });
-                }
-              });
-              setViewAlbumsDisplay({ val: arr });
-              /**
-               * End of card generation block
-               */
-            }
-          }
-        }
-      } else if (cat === 'artist') {
-        for (const ar in songs) {
-          if (ar === catName) {
-            setViewAlbumsDisplay({ val: songs[ar] });
-            const arr = [];
-            for (const a in songs[ar]) {
-              songs[ar][a].albumSongs.forEach(s => {
-                arr.push({
-                  url: s.url,
-                  name: s.name,
-                  cover: songs[ar][a].albumArt,
-                  album: songs[ar][a].albumName,
-                  artist: songs[ar][a].albumArtist
-                });
-              });
-            }
-            viewSongsDisplayFixed.current = arr;
-            setViewSongsDisplay({ val: arr });
-          }
-        }
-      } else if (cat === 'genre') {
-        const songsArr = [];
-        const albumsArr = [];
-        for (const ar in songs) {
-          for (const a in songs[ar]) {
-            if (songs[ar][a].albumGenre === catName) {
-              albumsArr.push(songs[ar][a]);
-              songs[ar][a].albumSongs.forEach(s => {
-                songsArr.push({
-                  url: s.url,
-                  name: s.name,
-                  cover: songs[ar][a].albumArt,
-                  album: songs[ar][a].albumName,
-                  artist: songs[ar][a].albumArtist
-                });
-              });
-            }
-          }
-        }
-        viewSongsDisplayFixed.current = songsArr;
-        setViewAlbumsDisplay({ val: albumsArr });
-        setViewSongsDisplay({ val: songsArr });
-      } else if (cat === 'playlist') {
-        for (const p in playList.val) {
-          if (playList.val[p]._id === catId) {
-            const pListSongs = playList.val[p].songs;
-            viewSongsDisplayFixed.current = pListSongs;
-            setViewSongsDisplay({
-              val: pListSongs
-            });
-          }
-        }
-      } else if (cat === 'favorites') {
-        let likes = localStorage.getItem(`${config.appName}_LIKES`);
-        if (likes && likes !== 'undefined') {
-          likes = JSON.parse(likes);
-          viewSongsDisplayFixed.current = likes;
-          setViewSongsDisplay({
-            val: likes
-          });
-        }
-      } else if (cat === 'recents') {
-        let recents = localStorage.getItem(`${config.appName}_PLAYING_QUEUES`);
-        if (recents && recents !== 'undefined') {
-          recents = JSON.parse(recents);
-          viewSongsDisplayFixed.current = recents;
-          setViewSongsDisplay({ val: recents });
-
-          const result = [];
-          const map = new Map();
-          for (const s of recents) {
-            if (!map.has(s.album)) {
-              map.set(s.album, true); // set any value to Map
-              result.push({ albumName: s.album.trim(), albumArt: s.cover });
-            }
-          }
-
-          setViewAlbumsDisplay({ val: result });
-        }
-      }
-    },
-    [playList.val, songs]
-  );
-
   const updateQueueDisplay = useCallback(
-    newQueueData => {
+    (newQueueData) => {
       setQueueDisplay({ val: newQueueData });
       savePlayingSongQueues(newQueueData);
     },
     [savePlayingSongQueues]
   );
 
-  const updateAlbumsDisplay = useCallback(newAlbumData => {
-    setAlbumsDisplay({ val: newAlbumData });
-  }, []);
-
-  const updateListLandingDisplay = useCallback(
-    displayType => {
-      const arr = [];
-      if (displayType === 'artist') {
-        for (const artist in songs) {
-          arr.push(artist);
-        }
-      } else if (displayType === 'genre') {
-        for (const ar in songs) {
-          for (const a in songs[ar]) {
-            if (songs[ar][a].albumGenre) {
-              arr.push(songs[ar][a].albumGenre);
-            }
-          }
-        }
-      }
-
-      setListLandingDisplay({ val: [...new Set(arr)].sort() });
-    },
-    [songs]
-  );
-
   const handleSearch = useCallback(
     (query, cat) => {
       console.log(query, cat);
       if (cat === 'albums') {
-        if (query) {
-          searchWorker.postMessage([query, cat]);
-          searchWorker.onmessage = ({ data }) => {
-            updateAlbumsDisplay(data);
-          };
-        } else {
-          updateAlbumsDisplay(albums);
-        }
+        // if (query) {
+        //   searchWorker.postMessage([query, cat]);
+        //   searchWorker.onmessage = ({ data }) => {
+        //     updateAlbumsDisplay(data);
+        //   };
+        // } else {
+        //   updateAlbumsDisplay(albums);
+        // }
       } else if (cat === 'artist' || cat === 'genre') {
-        searchWorker.postMessage([query, cat]);
-        searchWorker.onmessage = ({ data }) => {
-          setListLandingDisplay({ val: data });
-        };
+        // searchWorker.postMessage([query, cat]);
+        // searchWorker.onmessage = ({ data }) => {
+        //   setListLandingDisplay({ val: data });
+        // };
       } else if (cat === 'search') {
         searchWorker.postMessage([query, cat]);
         searchWorker.onmessage = ({ data }) => {
@@ -860,7 +687,7 @@ const Home = withRouter(({ location, history }) => {
         };
       }
     },
-    [albums, searchWorker, updateAlbumsDisplay]
+    [searchWorker]
   );
 
   const filterList = useCallback(
@@ -877,18 +704,18 @@ const Home = withRouter(({ location, history }) => {
             updateQueueDisplay(data);
           };
         } else if (fLCalledFrom.val === 'albums') {
-          sortWorker.postMessage([albumsDisplay.val, type, 'albums']);
-          sortWorker.onmessage = ({ data }) => {
-            updateAlbumsDisplay(data);
-          };
+          // sortWorker.postMessage([albumsDisplay.val, type, 'albums']);
+          // sortWorker.onmessage = ({ data }) => {
+          //   updateAlbumsDisplay(data);
+          // };
         } else if (
           fLCalledFrom.val === 'artist' ||
           fLCalledFrom.val === 'genre'
         ) {
-          sortWorker.postMessage([listLandingDisplay.val, type, 'artist']);
-          sortWorker.onmessage = ({ data }) => {
-            setListLandingDisplay({ val: data });
-          };
+          // sortWorker.postMessage([listLandingDisplay.val, type, 'artist']);
+          // sortWorker.onmessage = ({ data }) => {
+          //   setListLandingDisplay({ val: data });
+          // };
         } else if (fLCalledFrom.val === 'search songs') {
           sortWorker.postMessage([songMatchDisplay.val, type, 'songs']);
           sortWorker.onmessage = ({ data }) => {
@@ -905,52 +732,51 @@ const Home = withRouter(({ location, history }) => {
             setArtistMatchDisplay({ val: data });
           };
         } else if (fLCalledFrom.val === 'view') {
-          sortWorker.postMessage([viewSongsDisplay.val, type, 'songs']);
-          sortWorker.onmessage = ({ data }) => {
-            updateViewSongsDisplay(data);
-          };
+          // sortWorker.postMessage([viewSongsDisplay.val, type, 'songs']);
+          // sortWorker.onmessage = ({ data }) => {
+          //   updateViewSongsDisplay(data);
+          // };
         }
       }
     },
     [
       albumMatchDisplay.val,
-      albumsDisplay.val,
       artistMatchDisplay.val,
       fLCalledFrom.val,
-      listLandingDisplay.val,
       queueDisplay.val,
       songMatchDisplay.val,
       sortWorker,
-      updateAlbumsDisplay,
-      updateQueueDisplay,
-      updateViewSongsDisplay,
-      viewSongsDisplay.val
+      updateQueueDisplay
     ]
   );
 
-  useEffect(() => {
-    getHistory();
-    getPlayList();
-    getPlayingData();
-    getSongQueues();
-    getPlayingSongQueues();
-    if (location.pathname.includes('/play/')) {
-      setPlayPath({ val: location.search });
-    }
-  }, [
-    getHistory,
-    getPlayList,
-    getPlayingData,
-    getPlayingSongQueues,
-    getSongQueues,
-    location.pathname,
-    location.search
-  ]);
+  // useEffect(() => {
+  //   getHistory();
+  // }, [getHistory]);
+  // useEffect(() => {
+  //   getPlayList();
+  // }, [getPlayList]);
+  // useEffect(() => {
+  //   getPlayingData();
+  // }, [getPlayingData]);
+  // useEffect(() => {
+  //   getSongQueues();
+  // }, [getSongQueues]);
+  // useEffect(() => {
+  //   getPlayingSongQueues();
+  // }, [getPlayingSongQueues]);
+
+  // useEffect(() => {
+  //   if (location.pathname.includes('/play/')) {
+  //     setPlayPath({ val: location.search });
+  //   }
+  // }, [location.pathname, location.search]);
 
   return (
     <Router>
       <div className='App App__main'>
         <Nav playPath={playPath.val} />
+        <div className='nav__clearfix' />
         <SongInfoModal ref={songInfoModalRef} data={songInfoModalData.val} />
         <CreatePlayList
           ref={createPlayListRef}
@@ -993,12 +819,11 @@ const Home = withRouter(({ location, history }) => {
           showSongInfoModal={showSongInfoModal}
           playingSongQueues={playingSongQueues.val}
         />
+
         <Switch>
-          <Route exact path='/' render={props => <Root />} />
-          <Route exact path='/signin' render={props => <Signin />} />
           <Route
             path='/play/:playId'
-            render={props => (
+            render={(props) => (
               <Play
                 {...props}
                 songs={songs}
@@ -1010,7 +835,7 @@ const Home = withRouter(({ location, history }) => {
           <Route
             exact
             path='/queues'
-            render={props => (
+            render={(props) => (
               <Queues
                 {...props}
                 ref={{
@@ -1033,33 +858,29 @@ const Home = withRouter(({ location, history }) => {
           <Route
             exact
             path='/albums'
-            render={props => (
+            render={(props) => (
               <Albums
                 {...props}
                 filterList={filterList}
                 handleSearch={handleSearch}
-                albumsDisplay={albumsDisplay.val}
-                updateAlbumsDisplay={updateAlbumsDisplay}
               />
             )}
           />
           <Route
             exact
             path='/artist'
-            render={props => (
+            render={(props) => (
               <Artist
                 {...props}
                 filterList={filterList}
                 handleSearch={handleSearch}
-                listLandingDisplay={listLandingDisplay.val}
-                updateListLandingDisplay={updateListLandingDisplay}
               />
             )}
           />
           <Route
             exact
             path='/playlists'
-            render={props => (
+            render={(props) => (
               <PlayLists
                 {...props}
                 playList={playList.val}
@@ -1071,20 +892,18 @@ const Home = withRouter(({ location, history }) => {
           <Route
             exact
             path='/genre'
-            render={props => (
+            render={(props) => (
               <Genre
                 {...props}
                 filterList={filterList}
                 handleSearch={handleSearch}
-                listLandingDisplay={listLandingDisplay.val}
-                updateListLandingDisplay={updateListLandingDisplay}
               />
             )}
           />{' '}
           <Route
             exact
             path='/search'
-            render={props => (
+            render={(props) => (
               <Search
                 {...props}
                 filterList={filterList}
@@ -1100,22 +919,15 @@ const Home = withRouter(({ location, history }) => {
           <Route
             exact
             path='/settings'
-            render={props => <Settings {...props} />}
+            render={(props) => <Settings {...props} />}
           />
           <Route
             exact
             path='/view/:cat/:catName/:catId'
-            render={props => (
+            render={(props) => (
               <View
                 {...props}
-                viewSongsDisplay={viewSongsDisplay.val}
-                ref={{
-                  viewSongsDisplayFixed
-                }}
-                setViewDisplay={setViewDisplay}
                 filterList={filterList}
-                viewAlbumsDisplay={viewAlbumsDisplay.val}
-                updateViewSongsDisplay={updateViewSongsDisplay}
                 addToPlayList={addToPlayList}
                 showSongModal={showSongModal}
                 handleSetSongQueues={handleSetSongQueues}
@@ -1123,7 +935,10 @@ const Home = withRouter(({ location, history }) => {
               />
             )}
           />
+          <Route component={NoMatch} />
         </Switch>
+
+       
       </div>
     </Router>
   );
@@ -1131,16 +946,3 @@ const Home = withRouter(({ location, history }) => {
 
 export default Home;
 // export default withRouter(App);
-
-{
-  /* <SongModal
-catId={catId}
-cat={cat}
-syncLikes={syncLikes}
-ref={songModalRef}
-addToPlayList={addToPlayList}
-removeFromPlayList={removeFromPlayList}
-songModalData={songModalData.val}
-handleSetSongQueues={handleSetSongQueues}
-/> */
-}

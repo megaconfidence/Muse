@@ -1,12 +1,8 @@
-import React from 'react';
-import { forwardRef } from 'react';
+import React, { forwardRef, useState, useEffect } from 'react';
 import './SongModal.css';
-import { useRef } from 'react';
 import colorLog from '../helpers/colorLog';
 import { useSnackbar } from 'notistack';
 import config from 'environment';
-import { useState } from 'react';
-import { useEffect } from 'react';
 
 const SongModal = forwardRef(
   (
@@ -239,13 +235,13 @@ const SongModal = forwardRef(
                         text: 'Check out Muse.'
                       })
                       .then(() => colorLog('Successful share', 'success'))
-                      .catch(error => colorLog('Error sharing', 'error'));
+                      .catch((error) => colorLog('Error sharing', 'error'));
                   } else if (navigator.clipboard) {
                     navigator.clipboard.writeText(link).then(
                       () => {
                         enqueueSnackbar('Copied link to clipboard');
                       },
-                      err => {
+                      (err) => {
                         console.log(err);
                         enqueueSnackbar('Could not share');
                       }

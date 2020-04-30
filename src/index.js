@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
+import { ApolloProvider } from '@apollo/react-hooks';
+import apolloClient from './apolloClient';
 import * as serviceWorker from './serviceWorker';
 import { SnackbarProvider } from 'notistack';
 
@@ -55,7 +57,9 @@ ReactDOM.render(
 
 ReactDOM.render(
   <SnackbarProvider>
-    <App />
+    <ApolloProvider client={apolloClient}>
+      <App />
+    </ApolloProvider>
   </SnackbarProvider>,
   document.getElementById('root')
 );

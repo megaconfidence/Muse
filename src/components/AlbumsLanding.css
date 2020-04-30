@@ -1,4 +1,15 @@
 .aLanding__list {
+  /* display: flex;
+  flex-wrap: wrap; */
+  min-height: 100vh;
+}
+.aLanding__list__loader [data-img] {
+  width: 40px;
+  height: 40px;
+  background-size: 40px 40px;
+}
+.aLanding__list--scroller {
+  width: 100%;
   display: flex;
   flex-wrap: wrap;
 }
@@ -6,6 +17,7 @@
   all: unset;
   margin: 6px;
   display: block;
+  cursor: pointer;
   width: calc(50% - 12px);
 }
 .aLanding__list__album {

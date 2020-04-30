@@ -9,6 +9,7 @@ import './NowPlaying.css';
 import { useSnackbar } from 'notistack';
 import AudioPlayer from 'react-h5-audio-player';
 import config from 'environment';
+import useError from './hooks/useError';
 
 // import 'react-h5-audio-player/lib/styles.css';
 
@@ -30,20 +31,22 @@ const NowPlaying = forwardRef(
     const { playerRef, playerCompRef } = ref;
     const playingId = useRef(null);
     const tempPlaying = useRef(null);
-    const errorModalRef = useRef(null);
     const { enqueueSnackbar } = useSnackbar();
     const playLoderRef = useRef(null);
-    const songModalRef = useRef(null);
     const [playing, setPlaying] = useState({ val: {} });
     const [likeBtn, setLikeBtn] = useState({ val: false });
+    const [ErrModal, showErrModal] = useError(
+      'An error occured while trying to play this song',
+      reloadSong
+    );
 
     const handlePlayError = ({ target }) => {
       playLoderRef.current.classList.remove('hide');
-      errorModalRef.current.classList.toggle('hide');
+      showErrModal(true);
     };
 
-    const reloadSong = () => {
-      errorModalRef.current.classList.toggle('hide');
+    function reloadSong() {
+      showErrModal(true);
       tempPlaying.current = playing.val;
       setPlaying({ val: {} });
       setPlayingData({}, playPath);
@@ -52,10 +55,10 @@ const NowPlaying = forwardRef(
         setPlaying({ val: tempPlaying.current });
         setPlayingData(tempPlaying.current, playPath);
       }, 1000);
-    };
+    }
 
     const getPlayingIndex = useCallback(() => {
-      const indexFinder = s => {
+      const indexFinder = (s) => {
         if (s.queueId === playing.val.queueId) {
           //Do nothing it the match is exact
           return s;
@@ -125,26 +128,26 @@ const NowPlaying = forwardRef(
       setPlayingData
     ]);
 
-    const setMediaMetaData = useCallback(data => {
+    const setMediaMetaData = useCallback((data) => {
       if ('mediaSession' in navigator) {
         // eslint-disable-next-line no-undef
         navigator.mediaSession.metadata = new MediaMetadata({
           title: data.name
             ? data.name
                 .split(' ')
-                .map(s => s.charAt(0).toUpperCase() + s.substring(1))
+                .map((s) => s.charAt(0).toUpperCase() + s.substring(1))
                 .join(' ')
             : '',
           artist: data.artist
             ? data.artist
                 .split(' ')
-                .map(s => s.charAt(0).toUpperCase() + s.substring(1))
+                .map((s) => s.charAt(0).toUpperCase() + s.substring(1))
                 .join(' ')
             : '',
           album: data.album
             ? data.album
                 .split(' ')
-                .map(s => s.charAt(0).toUpperCase() + s.substring(1))
+                .map((s) => s.charAt(0).toUpperCase() + s.substring(1))
                 .join(' ')
             : '',
           artwork: [
@@ -265,7 +268,7 @@ const NowPlaying = forwardRef(
                       name: songs[a][s].albumSongs[i].name
                     };
 
-                    const indexFinder = s => {
+                    const indexFinder = (s) => {
                       if (
                         s.name === obj.name &&
                         s.artist === obj.artist &&
@@ -387,15 +390,15 @@ const NowPlaying = forwardRef(
       // });
 
       playerRef.current.audio.current.addEventListener('waiting', () => {
-        console.log('waiting')
+        console.log('waiting');
         playLoderRef.current.classList.remove('hide');
       });
       playerRef.current.audio.current.addEventListener('loadeddata', () => {
-        console.log('loadeddata')
+        console.log('loadeddata');
         playLoderRef.current.classList.add('hide');
       });
       playerRef.current.audio.current.addEventListener('canplay', () => {
-        console.log('canplay')
+        console.log('canplay');
         playLoderRef.current.classList.add('hide');
       });
 
@@ -438,43 +441,7 @@ const NowPlaying = forwardRef(
           height: `calc(${document.documentElement.clientHeight}px - 84px)`
         }}
       >
-        <div className='error hide' ref={errorModalRef}>
-          <div
-            className='error__wrapper '
-            onClick={() => {
-              errorModalRef.current.classList.toggle('hide');
-            }}
-          ></div>
-
-          <div className='error__card'>
-            <div className='error__card__main'>
-              <div className='error__card__main__icon'>
-                <div data-img data-imgname='alert' />
-              </div>
-              <div className='error__card__main__text'>
-                An error occured while trying to play this song
-              </div>
-            </div>
-            <div className='error__card__footer'>
-              <div className='error__card__footer__buttons'>
-                <div
-                  className='error__card__footer__buttons__left'
-                  onClick={() => {
-                    errorModalRef.current.classList.toggle('hide');
-                  }}
-                >
-                  back
-                </div>
-                <div
-                  className='error__card__footer__buttons__right'
-                  onClick={reloadSong}
-                >
-                  try again
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <ErrModal />
         <div className='nowPlaying__albumArt'>
           <div className='nowPlaying__albumArt__temp'>
             <div

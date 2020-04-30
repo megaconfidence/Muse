@@ -1,25 +1,21 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useContext } from 'react';
 import config from 'environment';
 import './SettingsLanding.css';
 import colorLog from '../helpers/colorLog';
 import { Redirect } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
+import AppContext from './hooks/AppContext';
+import defaultContext from './hooks/defaultContext';
 
 const SettingsLanding = () => {
-  const [user, setUser] = useState({ val: {} });
-  const [redirectTo, setRedirectTo] = useState(null);
+  const [isLoggedOut, setIsLoggedOut] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
+  const [{user}, setAppData]= useContext(AppContext)
 
-  const getUser = useCallback(() => {
-    const storedUser = localStorage.getItem(`${config.appName}_USER`);
-    if (storedUser) {
-      setUser({ val: JSON.parse(storedUser) });
-    }
-  }, []);
   const logout = () => {
-    localStorage.removeItem(`${config.appName}_USER`);
-    localStorage.removeItem(`${config.appName}_TOKEN`);
-    setRedirectTo('/signin');
+    localStorage.clear();
+    setIsLoggedOut(true);
+    setAppData(defaultContext)
   };
 
   const share = () => {
@@ -32,13 +28,13 @@ const SettingsLanding = () => {
           text: 'Check out Muse.'
         })
         .then(() => colorLog('Successful share', 'success'))
-        .catch(error => colorLog('Error sharing', 'error'));
+        .catch((error) => colorLog('Error sharing', 'error'));
     } else if (navigator.clipboard) {
       navigator.clipboard.writeText(link).then(
         () => {
           enqueueSnackbar('Copied link to clipboard');
         },
-        err => {
+        (err) => {
           console.log(err);
           enqueueSnackbar('Could not share');
         }
@@ -47,9 +43,13 @@ const SettingsLanding = () => {
       enqueueSnackbar('Could not share');
     }
   };
-  useEffect(() => {
-    getUser();
-  }, [getUser]);
+  // useEffect(() => {
+  // getUser();
+  // }, [getUser]);
+
+  if (isLoggedOut) {
+    return <Redirect to='/signin' />;
+  }
 
   return (
     <div className='stLanding'>
@@ -57,17 +57,17 @@ const SettingsLanding = () => {
         <div className='stLanding__cover__temp'>
           <div
             className='stLanding__cover__img'
-            style={{ backgroundImage: `url(${user.val.profileImageURL})` }}
+            style={{ backgroundImage: `url(${user.profileImageURL})` }}
           />
         </div>
       </div>
       <div className='stLanding__section'>
         <div className='stLanding__section__title'>Name</div>
-        <div className='stLanding__section__value'>{user.val.name}</div>
+        <div className='stLanding__section__value'>{user.name}</div>
       </div>{' '}
       <div className='stLanding__section'>
         <div className='stLanding__section__title'>Email</div>
-        <div className='stLanding__section__value'>{user.val.email}</div>
+        <div className='stLanding__section__value'>{user.email}</div>
       </div>
       <div className='stLanding__controls'>
         <div
@@ -83,7 +83,6 @@ const SettingsLanding = () => {
           Logout
         </div>
       </div>
-      {redirectTo ? <Redirect to={redirectTo} /> : null}
     </div>
   );
 };

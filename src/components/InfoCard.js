@@ -34,11 +34,11 @@ const InfoCard = ({ viewAlbumsDisplay, viewSongsDisplay, handleListCardClick, ca
             handleListCardClick(k + 1);
           }}
           className='vLanding__info__list__card'
-          style={{ backgroundImage: `url(${a.albumArt})` }}
+          style={{ backgroundImage: `url(${a.cover})` }}
         >
           <div className='vLanding__info__list__card__wrapper'>
             <div className='vLanding__info__list__card__name'>
-              <span>{a.albumName}</span>
+              <span>{a.name}</span>
             </div>
             <div className='vLanding__info__list__card__highlight'></div>
           </div>

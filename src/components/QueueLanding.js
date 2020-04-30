@@ -1,9 +1,7 @@
 import './QueueLanding.css';
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, forwardRef } from 'react';
 import SongItem from './SongItem';
 import config from 'environment';
-import { useCallback } from 'react';
-import { forwardRef } from 'react';
 const QueueLanding = forwardRef(
   (
     {

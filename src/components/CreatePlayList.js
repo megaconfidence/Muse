@@ -1,4 +1,4 @@
-import React, { useRef, forwardRef, useState } from 'react';
+import React, { forwardRef, useState } from 'react';
 import './CreatePlayList.css';
 
 const CreatePlayList = forwardRef(({ createPlayList }, ref) => {

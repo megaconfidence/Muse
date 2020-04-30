@@ -1,7 +1,6 @@
 import './PlayListLanding.css';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import config from 'environment';
 import ObjectID from 'bson-objectid';
 
 function PlayListLanding({ playList, createPlayList, getPlayList }) {
