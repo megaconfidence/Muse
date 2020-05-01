@@ -2,7 +2,7 @@ import {
   Route,
   Switch,
   withRouter,
-  HashRouter as Router,
+  HashRouter as Router
 } from 'react-router-dom';
 import './App.css';
 import Play from './routes/Play';
@@ -206,17 +206,17 @@ const Home = withRouter(({ location, history }) => {
   }, [history, location.pathname]);
 
   const setPlayingData = useCallback((playing, path) => {
-    if (playing) {
-      setPlaying({ val: playing });
-      localStorage.setItem(
-        `${config.appName}_PLAYING`,
-        JSON.stringify(playing)
-      );
-    }
-    if (path) {
-      setPlayPath({ val: path });
-      localStorage.setItem(`${config.appName}_PLAYPATH`, JSON.stringify(path));
-    }
+    // if (playing) {
+    //   setPlaying({ val: playing });
+    //   localStorage.setItem(
+    //     `${config.appName}_PLAYING`,
+    //     JSON.stringify(playing)
+    //   );
+    // }
+    // if (path) {
+    //   setPlayPath({ val: path });
+    //   localStorage.setItem(`${config.appName}_PLAYPATH`, JSON.stringify(path));
+    // }
   }, []);
 
   const getPlayingData = useCallback((data) => {
@@ -649,9 +649,7 @@ const Home = withRouter(({ location, history }) => {
   const [fLCalledFrom, setFLCalledFrom] = useState({ val: '' });
   const [queueDisplay, setQueueDisplay] = useState({ val: [] });
 
-  const [songMatchDisplay, setSongMatchDisplay] = useState({ val: [] });
-  const [albumMatchDisplay, setAlbumMatchDisplay] = useState({ val: [] });
-  const [artistMatchDisplay, setArtistMatchDisplay] = useState({ val: [] });
+
 
   const updateQueueDisplay = useCallback(
     (newQueueData) => {
@@ -679,15 +677,15 @@ const Home = withRouter(({ location, history }) => {
         //   setListLandingDisplay({ val: data });
         // };
       } else if (cat === 'search') {
-        searchWorker.postMessage([query, cat]);
-        searchWorker.onmessage = ({ data }) => {
-          setSongMatchDisplay({ val: data[0] });
-          setAlbumMatchDisplay({ val: data[1] });
-          setArtistMatchDisplay({ val: data[2] });
-        };
+        // searchWorker.postMessage([query, cat]);
+        // searchWorker.onmessage = ({ data }) => {
+        //   setSongMatchDisplay({ val: data[0] });
+        //   setAlbumMatchDisplay({ val: data[1] });
+        //   setArtistMatchDisplay({ val: data[2] });
+        // };
       }
     },
-    [searchWorker]
+    []
   );
 
   const filterList = useCallback(
@@ -716,21 +714,6 @@ const Home = withRouter(({ location, history }) => {
           // sortWorker.onmessage = ({ data }) => {
           //   setListLandingDisplay({ val: data });
           // };
-        } else if (fLCalledFrom.val === 'search songs') {
-          sortWorker.postMessage([songMatchDisplay.val, type, 'songs']);
-          sortWorker.onmessage = ({ data }) => {
-            setSongMatchDisplay({ val: data });
-          };
-        } else if (fLCalledFrom.val === 'search albums') {
-          sortWorker.postMessage([albumMatchDisplay.val, type, 'artist']);
-          sortWorker.onmessage = ({ data }) => {
-            setAlbumMatchDisplay({ val: data });
-          };
-        } else if (fLCalledFrom.val === 'search artists') {
-          sortWorker.postMessage([artistMatchDisplay.val, type, 'artist']);
-          sortWorker.onmessage = ({ data }) => {
-            setArtistMatchDisplay({ val: data });
-          };
         } else if (fLCalledFrom.val === 'view') {
           // sortWorker.postMessage([viewSongsDisplay.val, type, 'songs']);
           // sortWorker.onmessage = ({ data }) => {
@@ -739,15 +722,7 @@ const Home = withRouter(({ location, history }) => {
         }
       }
     },
-    [
-      albumMatchDisplay.val,
-      artistMatchDisplay.val,
-      fLCalledFrom.val,
-      queueDisplay.val,
-      songMatchDisplay.val,
-      sortWorker,
-      updateQueueDisplay
-    ]
+    [fLCalledFrom.val, queueDisplay.val, sortWorker, updateQueueDisplay]
   );
 
   // useEffect(() => {
@@ -776,7 +751,6 @@ const Home = withRouter(({ location, history }) => {
     <Router>
       <div className='App App__main'>
         <Nav playPath={playPath.val} />
-        <div className='nav__clearfix' />
         <SongInfoModal ref={songInfoModalRef} data={songInfoModalData.val} />
         <CreatePlayList
           ref={createPlayListRef}
@@ -805,14 +779,13 @@ const Home = withRouter(({ location, history }) => {
           handleSetSongQueues={handleSetSongQueues}
         />
         <NowPlaying
-          songs={songs}
           ref={{
             playerRef,
             playerCompRef
           }}
           syncLikes={syncLikes}
           data={playing.val}
-          playPath={playPath.val}
+          path={location.pathname.replace('/play/', '')}
           showSongModal={showSongModal}
           setPlayingData={setPlayingData}
           queuePlayBtnRef={queuePlayBtnRef}
@@ -826,7 +799,7 @@ const Home = withRouter(({ location, history }) => {
             render={(props) => (
               <Play
                 {...props}
-                songs={songs}
+               
                 setNowPlaying={setNowPlaying}
                 setPlayingData={setPlayingData}
               />
@@ -862,7 +835,6 @@ const Home = withRouter(({ location, history }) => {
               <Albums
                 {...props}
                 filterList={filterList}
-                handleSearch={handleSearch}
               />
             )}
           />
@@ -873,7 +845,6 @@ const Home = withRouter(({ location, history }) => {
               <Artist
                 {...props}
                 filterList={filterList}
-                handleSearch={handleSearch}
               />
             )}
           />
@@ -896,7 +867,6 @@ const Home = withRouter(({ location, history }) => {
               <Genre
                 {...props}
                 filterList={filterList}
-                handleSearch={handleSearch}
               />
             )}
           />{' '}
@@ -907,12 +877,8 @@ const Home = withRouter(({ location, history }) => {
               <Search
                 {...props}
                 filterList={filterList}
-                handleSearch={handleSearch}
                 showSongModal={showSongModal}
-                songMatchDisplay={songMatchDisplay.val}
-                albumMatchDisplay={albumMatchDisplay.val}
                 handleSetSongQueues={handleSetSongQueues}
-                artistMatchDisplay={artistMatchDisplay.val}
               />
             )}
           />{' '}
@@ -937,8 +903,6 @@ const Home = withRouter(({ location, history }) => {
           />
           <Route component={NoMatch} />
         </Switch>
-
-       
       </div>
     </Router>
   );

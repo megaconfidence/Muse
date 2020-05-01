@@ -244,6 +244,7 @@ const QueueLanding = forwardRef(
                 <SongItem
                   isPlaying={false}
                   key={k}
+                  id={s._id}
                   url={s.url}
                   name={s.name}
                   cat={'queues'}

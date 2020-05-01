@@ -23,9 +23,11 @@ const LazyLoadPlaceholder = () => (
   </div>
 );
 
-const AlbumsLanding = ({ path, handleSearch, filterList }) => {
+const AlbumsLanding = ({ path, filterList }) => {
   const page = useRef(0);
+  const count = useRef(null);
   const albumCache = useRef([]);
+  const [hasMore, setHasMore] = useState(true)
   const [searchVal, setSearchVal] = useState('');
   const [albumsDisplay, setAlbumsDisplay] = useState([]);
   const [ErrModal, showErrModal] = useError(
@@ -35,7 +37,6 @@ const AlbumsLanding = ({ path, handleSearch, filterList }) => {
 
   const fetchAlbums = useCallback(async () => {
     page.current = page.current + 1;
-    console.log(page.current);
     try {
       const { data } = await apolloClient.query({
         query: gql`
@@ -55,6 +56,9 @@ const AlbumsLanding = ({ path, handleSearch, filterList }) => {
         showErrModal(false);
         albumCache.current = albumCache.current.concat(data.allAlbums);
         setAlbumsDisplay(albumCache.current);
+      }
+      if (albumCache.current.length === Number(count.current)) {
+        setHasMore(false);
       }
     } catch (err) {
       showErrModal(true);
@@ -86,14 +90,25 @@ const AlbumsLanding = ({ path, handleSearch, filterList }) => {
 
   const setSearch = useCallback(
     (query, cat) => {
-      handleSearch(query, cat);
+      // handleSearch(query, cat);
       setSearchVal(query);
     },
-    [handleSearch]
+    []
   );
 
   useEffect(() => {
     fetchAlbums();
+    (async () => {
+      // console.log(path)
+      const { data } = await apolloClient.query({
+        query: gql`
+          query {
+            count(type: "album") 
+          }
+        `
+      });
+      count.current = data.count;
+    })();
   }, [fetchAlbums]);
 
   return (
@@ -122,7 +137,7 @@ const AlbumsLanding = ({ path, handleSearch, filterList }) => {
       />
       <div className='aLanding__list'>
         <InfiniteScroll
-          hasMore={true}
+          hasMore={hasMore}
           next={fetchAlbums}
           dataLength={albumsDisplay.length}
           className={'aLanding__list--scroller'}

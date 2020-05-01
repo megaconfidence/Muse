@@ -2,18 +2,18 @@ import './ListLanding.css';
 import { Link } from 'react-router-dom';
 import LandingSearch from './LandingSearch';
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import ObjectID from 'bson-objectid';
 // import SearchNotFound from './SearchNotFound';
 import apolloClient from '../apolloClient';
 import gql from 'graphql-tag';
 import useError from './hooks/useError';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
-function ListLanding({ path, handleSearch, filterList }) {
+function ListLanding({ path, filterList }) {
   const page = useRef(0);
   const [list, setList] = useState([]);
-  const [hasMore, setHasMore] = useState(true);
   const listCache = useRef([]);
+  const count = useRef(null);
+  const [hasMore, setHasMore] = useState(true);
   const [ErrModal, showErrModal] = useError(
     'An error occured while trying to get Artists',
     reFetchList
@@ -21,9 +21,9 @@ function ListLanding({ path, handleSearch, filterList }) {
 
   const setSearch = useCallback(
     (query, cat) => {
-      handleSearch(query, cat);
+      // handleSearch(query, cat);
     },
-    [handleSearch]
+    []
   );
 
   const fetchList = useCallback(async () => {
@@ -46,11 +46,11 @@ function ListLanding({ path, handleSearch, filterList }) {
           setList(listCache.current);
         }
       } else if (path === 'genre') {
-        setHasMore(false);
         const { data } = await apolloClient.query({
           query: gql`
             query {
-              allGenre {
+              allGenre(page: ${page.current}) {
+                _id
                 name
               }
             }
@@ -58,8 +58,12 @@ function ListLanding({ path, handleSearch, filterList }) {
         });
 
         if (data) {
-          setList(data.allGenre);
+          listCache.current = listCache.current.concat(data.allGenre);
+          setList(listCache.current);
         }
+      }
+      if (listCache.current.length === Number(count.current)) {
+        setHasMore(false);
       }
     } catch (err) {
       showErrModal(true);
@@ -73,7 +77,19 @@ function ListLanding({ path, handleSearch, filterList }) {
   }
   useEffect(() => {
     fetchList();
-  }, [fetchList]);
+    (async () => {
+      // console.log(path)
+      const { data } = await apolloClient.query({
+        query: gql`
+          query {
+            count(type: "${path}") 
+          }
+        `
+      });
+      count.current = data.count;
+    })();
+  }, [fetchList, path]);
+
   return (
     <div className='lLanding'>
       <ErrModal />
@@ -99,7 +115,7 @@ function ListLanding({ path, handleSearch, filterList }) {
             <Link
               key={k}
               to={{
-                pathname: `/view/${path}/${a.name}/${a._id || ObjectID()}`
+                pathname: `/view/${path}/${a.name}/${a._id}`
               }}
             >
               <div className='lLanding__item truncate'>{a.name}</div>

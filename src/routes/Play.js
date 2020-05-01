@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect } from 'react';
 
-function Play({ location, songs, setPlayingData }) {
+function Play({ location, setPlayingData }) {
   const data = location.data;
-  const path = location.search;
+  const path = location.pathname.replace('/play/', '');
 
   const uploadSetPlayingData = useCallback(() => {
     setPlayingData(data, path);

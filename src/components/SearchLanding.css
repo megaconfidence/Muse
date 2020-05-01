@@ -20,6 +20,7 @@
   text-decoration: underline;
 }
 .shLanding__tab__item {
+  cursor: pointer;
   padding: 10px 20px;
   border-radius: 5px;
 }
@@ -29,6 +30,7 @@
 .shLanding__artistPane a,
 .shLanding__albumPane a {
   all: unset;
+  cursor: pointer;
 }
 .shLanding__pane__item {
   font-size: 1.3em;

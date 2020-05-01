@@ -6,6 +6,7 @@ const SongItem = ({
   url,
   cat,
   catId,
+  id,
   name,
   album,
   cover,
@@ -16,6 +17,7 @@ const SongItem = ({
   handleSetSongQueues
 }) => {
   const songData = {
+    _id: id,
     url,
     name,
     album,
@@ -33,8 +35,7 @@ const SongItem = ({
       <Link
         to={{
           data: songData,
-          pathname: `/play/p`,
-          search: `?artist=${artist}&song=${name}`
+          pathname: `/play/${id}`,
         }}
         onClick={() => {
           if (cat !== 'queues') {

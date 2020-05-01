@@ -1,0 +1,10 @@
+.spinner__loader {
+  display: flex;
+  margin-top: 50px;
+  justify-content: center;
+}
+.spinner__loader [data-img] {
+  width: 100px;
+  height: 100px;
+  background-size: 100px 100px;
+}

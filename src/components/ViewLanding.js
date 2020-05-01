@@ -16,6 +16,7 @@ import { withRouter } from 'react-router-dom';
 import GroupContextMenue from './GroupContextMenue';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import useError from './hooks/useError';
+import useSpinner from './hooks/useSpinner';
 
 const withRouterAndRef = (Wrapped) => {
   const WithRouter = withRouter(({ forwardRef, ...otherProps }) => (
@@ -43,6 +44,7 @@ const ViewLanding = ({
   const catName = path[1];
   const catId = path[2];
   const page = useRef(0);
+  const [Spinner, setIsLoading] = useSpinner(true);
   const [hasMore, setHasMore] = useState(false);
   const groupContextMenueRef = useRef(null);
   const [viewSongs, setViewSongs] = useState([]);
@@ -137,6 +139,7 @@ const ViewLanding = ({
 
   const fetchView = useCallback(async () => {
     console.log('running');
+    page.current = page.current + 1;
     try {
       if (cat === 'album') {
         const { data } = await apolloClient.query({
@@ -145,13 +148,14 @@ const ViewLanding = ({
           album(_id: "${catId}") {
             _id
             songs {
-              url
+              _id
               name
               duration
               artist {
                 name
               }
               album {
+                url
                 cover
                 name
               }
@@ -162,6 +166,7 @@ const ViewLanding = ({
         });
 
         if (data) {
+          setIsLoading(false);
           const songs = data.album.songs;
           songsCache.current = songs;
           setViewSongs(songs);
@@ -217,13 +222,14 @@ const ViewLanding = ({
               name
             }
             songs {
-              url
+              _id
               name
               duration
               artist {
                 name
               }
               album {
+                url
                 cover
                 name
               }
@@ -234,6 +240,7 @@ const ViewLanding = ({
         });
 
         if (data) {
+          setIsLoading(false);
           const songs = data.artist.songs;
           setViewSongs(songs);
           songsCache.current = songs;
@@ -243,18 +250,21 @@ const ViewLanding = ({
         const { data } = await apolloClient.query({
           query: gql`
         query {
-          genre(type: "${catName}") {
+          genre(_id: "${catId}") {
             _id
-            cover
-            name
+            album {
+              cover
+              name
+            }
             songs {
-              url
+              _id
               name
               duration
               artist {
                 name
               }
               album {
+                url
                 cover
                 name
               }
@@ -265,10 +275,11 @@ const ViewLanding = ({
         });
 
         if (data) {
-          const songs = data.artist.songs;
+          setIsLoading(false);
+          const songs = data.genre.songs;
           setViewSongs(songs);
           songsCache.current = songs;
-          setViewAlbums(data.artist.album);
+          setViewAlbums(data.genre.album);
         }
       } else if (cat === 'playlist') {
         // for (const p in playList.val) {
@@ -310,9 +321,10 @@ const ViewLanding = ({
     } catch (err) {
       console.log(err);
       showErrModal(true);
+      setIsLoading(false);
     }
-  }, [cat, catId, catName, showErrModal]);
-  
+  }, [cat, catId, setIsLoading, showErrModal]);
+
   async function refetchView() {
     fetchView();
   }
@@ -385,6 +397,7 @@ const ViewLanding = ({
         </div>
 
         <div className='vLanding__songs__list'>
+          <Spinner />
           <InfiniteScroll
             hasMore={hasMore}
             next={fetchView}
@@ -401,14 +414,17 @@ const ViewLanding = ({
                 <SongItem
                   cat={cat}
                   catId={catId}
+                  id={s._id}
                   url={s.url}
                   name={s.name}
                   queueId={s.queueId}
-                  album={s.album.name}
-                  cover={s.album.cover}
+                  album={s.album ? s.album.name : null}
+                  cover={s.album ? s.album.cover : null}
                   showSongModal={showSongModal}
                   handleSetSongQueues={handleSetSongQueues}
-                  artist={s.artist.map((a) => a.name).join(' / ')}
+                  artist={
+                    s.artist ? s.artist.map((a) => a.name).join(' / ') : null
+                  }
                 />
               </LazyLoad>
             ))}

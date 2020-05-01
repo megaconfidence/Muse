@@ -10,6 +10,8 @@ import { useSnackbar } from 'notistack';
 import AudioPlayer from 'react-h5-audio-player';
 import config from 'environment';
 import useError from './hooks/useError';
+import apolloClient from '../apolloClient';
+import gql from 'graphql-tag';
 
 // import 'react-h5-audio-player/lib/styles.css';
 
@@ -18,7 +20,7 @@ const NowPlaying = forwardRef(
     {
       data,
       songs,
-      playPath,
+      path,
       showSongModal,
       setPlayingData,
       queuePlayBtnRef,
@@ -49,11 +51,11 @@ const NowPlaying = forwardRef(
       showErrModal(true);
       tempPlaying.current = playing.val;
       setPlaying({ val: {} });
-      setPlayingData({}, playPath);
+      setPlayingData({}, path);
 
       setTimeout(() => {
         setPlaying({ val: tempPlaying.current });
-        setPlayingData(tempPlaying.current, playPath);
+        setPlayingData(tempPlaying.current, path);
       }, 1000);
     }
 
@@ -72,7 +74,7 @@ const NowPlaying = forwardRef(
         const pIndex = getPlayingIndex();
         if (pIndex > 0) {
           setPlaying({ val: playingSongQueues[pIndex - 1] });
-          setPlayingData(playingSongQueues[pIndex - 1], playPath);
+          setPlayingData(playingSongQueues[pIndex - 1], path);
 
           playingId.current = playingSongQueues[pIndex - 1].queueId;
         } else {
@@ -83,10 +85,7 @@ const NowPlaying = forwardRef(
             }
           });
           setPlaying({ val: playingSongQueues[playingSongQueues.length - 1] });
-          setPlayingData(
-            playingSongQueues[playingSongQueues.length - 1],
-            playPath
-          );
+          setPlayingData(playingSongQueues[playingSongQueues.length - 1], path);
           playingId.current =
             playingSongQueues[playingSongQueues.length - 1].queueId;
         }
@@ -94,7 +93,7 @@ const NowPlaying = forwardRef(
     }, [
       enqueueSnackbar,
       getPlayingIndex,
-      playPath,
+      path,
       playingSongQueues,
       setPlayingData
     ]);
@@ -105,7 +104,7 @@ const NowPlaying = forwardRef(
         const pIndex = getPlayingIndex();
         if (pIndex < playingSongQueues.length - 1) {
           setPlaying({ val: playingSongQueues[pIndex + 1] });
-          setPlayingData(playingSongQueues[pIndex + 1], playPath);
+          setPlayingData(playingSongQueues[pIndex + 1], path);
 
           playingId.current = playingSongQueues[pIndex + 1].queueId;
         } else {
@@ -116,14 +115,14 @@ const NowPlaying = forwardRef(
             }
           });
           setPlaying({ val: playingSongQueues[0] });
-          setPlayingData(playingSongQueues[0], playPath);
+          setPlayingData(playingSongQueues[0], path);
           playingId.current = playingSongQueues[0].queueId;
         }
       }
     }, [
       enqueueSnackbar,
       getPlayingIndex,
-      playPath,
+      path,
       playingSongQueues,
       setPlayingData
     ]);
@@ -171,7 +170,7 @@ const NowPlaying = forwardRef(
             if (pIndex > 0) {
               setMediaMetaData(playingSongQueues[pIndex - 1]);
               setPlaying({ val: playingSongQueues[pIndex - 1] });
-              setPlayingData(playingSongQueues[pIndex - 1], playPath);
+              setPlayingData(playingSongQueues[pIndex - 1], path);
 
               playingId.current = playingSongQueues[pIndex - 1].queueId;
             } else {
@@ -181,7 +180,7 @@ const NowPlaying = forwardRef(
               });
               setPlayingData(
                 playingSongQueues[playingSongQueues.length - 1],
-                playPath
+                path
               );
 
               playingId.current =
@@ -196,12 +195,12 @@ const NowPlaying = forwardRef(
             if (pIndex < playingSongQueues.length - 1) {
               setMediaMetaData(playingSongQueues[pIndex + 1]);
               setPlaying({ val: playingSongQueues[pIndex + 1] });
-              setPlayingData(playingSongQueues[pIndex + 1], playPath);
+              setPlayingData(playingSongQueues[pIndex + 1], path);
               playingId.current = playingSongQueues[pIndex + 1].queueId;
             } else {
               setMediaMetaData(playingSongQueues[0]);
               setPlaying({ val: playingSongQueues[0] });
-              setPlayingData(playingSongQueues[0], playPath);
+              setPlayingData(playingSongQueues[0], path);
 
               playingId.current = playingSongQueues[0].queueId;
             }
@@ -227,75 +226,93 @@ const NowPlaying = forwardRef(
           );
         });
       }
-    }, [
-      playerRef,
-      playingSongQueues,
-      setMediaMetaData,
-      setPlayingData,
-      playPath
-    ]);
+    }, [playerRef, playingSongQueues, setMediaMetaData, setPlayingData, path]);
 
-    const getSong = useCallback(
-      (data, playPath, songs) => {
-        /**
-         * Check if data is a valid object
-         */
-        if (Object.keys(data).length) {
-          setMediaMetaData(data);
-          setPlaying({ val: data });
-          setPlayingData(data, playPath);
+    const getSong = useCallback(async (data, path = 'lorem') => {
+      console.log(path);
+      /**
+       * Check if data is a valid object
+       */
+      if (Object.keys(data).length) {
+        console.log(data);
+        // setMediaMetaData(data);
+        // setPlaying({ val: data });
+        // setPlayingData(data, path);
 
-          playingId.current = playingSongQueues.length
-            ? playingSongQueues.length
-            : 0;
-        } else {
-          const path = playPath
-            .replace(/(\?artist=)/g, '')
-            .replace(/%20/g, ' ')
-            .split('&song=');
-          const artist = path[0];
-          const track = path[1];
-          for (const a in songs) {
-            if (a === artist) {
-              for (const s in songs[a]) {
-                for (const i in songs[a][s].albumSongs) {
-                  if (songs[a][s].albumSongs[i].name === track) {
-                    const obj = {
-                      cover: songs[a][s].albumArt,
-                      album: songs[a][s].albumName,
-                      artist: songs[a][s].albumArtist,
-                      url: songs[a][s].albumSongs[i].url,
-                      name: songs[a][s].albumSongs[i].name
-                    };
-
-                    const indexFinder = (s) => {
-                      if (
-                        s.name === obj.name &&
-                        s.artist === obj.artist &&
-                        s.album === obj.album
-                      ) {
-                        //Do nothing it the match is exact
-                        return s;
-                      }
-                    };
-                    if (playingSongQueues.length) {
-                      const pIndex = playingSongQueues.findIndex(indexFinder);
-                      playingId.current = pIndex;
-                    } else {
-                      playingId.current = 0;
-                    }
-                    setMediaMetaData(obj);
-                    setPlaying({ val: obj });
-                    setPlayingData(obj, playPath);
-                  }
-                }
+        // playingId.current = playingSongQueues.length
+        //   ? playingSongQueues.length
+        //   : 0;
+      } else {
+        const { data } = await apolloClient.query({
+          query: gql`
+          query {
+            song(_id: "${path}") {
+              _id
+              name
+              duration
+              artist {
+                name
+              }
+              album {
+                url
+                cover
+                name
               }
             }
-          }
+           }
+      `
+        });
+
+        if (data) {
+          console.log(data);
         }
-      },
-      [setMediaMetaData, setPlayingData, playingSongQueues]
-    );
+
+        // const path = path
+        //   .replace(/(\?artist=)/g, '')
+        //   .replace(/%20/g, ' ')
+        //   .split('&song=');
+        // const artist = path[0];
+        // const track = path[1];
+
+        // for (const a in songs) {
+        //   if (a === artist) {
+        //     for (const s in songs[a]) {
+        //       for (const i in songs[a][s].albumSongs) {
+        //         if (songs[a][s].albumSongs[i].name === track) {
+        //           const obj = {
+        //             cover: songs[a][s].albumArt,
+        //             album: songs[a][s].albumName,
+        //             artist: songs[a][s].albumArtist,
+        //             url: songs[a][s].albumSongs[i].url,
+        //             name: songs[a][s].albumSongs[i].name
+        //           };
+
+        //           const indexFinder = (s) => {
+        //             if (
+        //               s.name === obj.name &&
+        //               s.artist === obj.artist &&
+        //               s.album === obj.album
+        //             ) {
+        //               //Do nothing it the match is exact
+        //               return s;
+        //             }
+        //           };
+        //           if (playingSongQueues.length) {
+        //             const pIndex = playingSongQueues.findIndex(indexFinder);
+        //             playingId.current = pIndex;
+        //           } else {
+        //             playingId.current = 0;
+        //           }
+        //           setMediaMetaData(obj);
+        //           setPlaying({ val: obj });
+        //           setPlayingData(obj, path);
+        //         }
+        //       }
+        //     }
+        //   }
+        // }
+      }
+    }, []);
 
     const handleLikeClick = ({ target }) => {
       const state = target.getAttribute('data-imgname');
@@ -356,82 +373,52 @@ const NowPlaying = forwardRef(
       syncLikes();
     };
 
-    useEffect(() => {
-      let likes = localStorage.getItem(`${config.appName}_LIKES`);
-      if (likes && likes !== 'undefined') {
-        likes = JSON.parse(likes);
-        let isFound = false;
-        for (const s in likes) {
-          if (
-            likes[s].name === playing.val.name &&
-            likes[s].artist === playing.val.artist &&
-            likes[s].album === playing.val.album
-          ) {
-            isFound = true;
-          }
-        }
-        if (isFound) {
-          setLikeBtn({ val: true });
-        } else {
-          setLikeBtn({ val: false });
-        }
-      }
-    }, [playing.val.album, playing.val.artist, playing.val.name]);
+    // useEffect(() => {
+    //   let likes = localStorage.getItem(`${config.appName}_LIKES`);
+    //   if (likes && likes !== 'undefined') {
+    //     likes = JSON.parse(likes);
+    //     let isFound = false;
+    //     for (const s in likes) {
+    //       if (
+    //         likes[s].name === playing.val.name &&
+    //         likes[s].artist === playing.val.artist &&
+    //         likes[s].album === playing.val.album
+    //       ) {
+    //         isFound = true;
+    //       }
+    //     }
+    //     if (isFound) {
+    //       setLikeBtn({ val: true });
+    //     } else {
+    //       setLikeBtn({ val: false });
+    //     }
+    //   }
+    // }, [playing.val.album, playing.val.artist, playing.val.name]);
 
     useEffect(() => {
-      getSong(data, playPath, songs);
-    }, [data, getSong, playPath, songs]);
+      getSong(data, path);
+    }, [data, getSong, path]);
 
-    useEffect(() => {
-      // console.log(playerRef.current)
-      // playerRef.current.audio.current.addEventListener('suspend', () => {
-      //   console.log('suspend')
-      //   playLoderRef.current.classList.remove('hide');
-      // });
+    // useEffect(() => {
 
-      playerRef.current.audio.current.addEventListener('waiting', () => {
-        console.log('waiting');
-        playLoderRef.current.classList.remove('hide');
-      });
-      playerRef.current.audio.current.addEventListener('loadeddata', () => {
-        console.log('loadeddata');
-        playLoderRef.current.classList.add('hide');
-      });
-      playerRef.current.audio.current.addEventListener('canplay', () => {
-        console.log('canplay');
-        playLoderRef.current.classList.add('hide');
-      });
+    //   playerRef.current.audio.current.addEventListener('waiting', () => {
+    //     console.log('waiting');
+    //     playLoderRef.current.classList.remove('hide');
+    //   });
+    //   playerRef.current.audio.current.addEventListener('loadeddata', () => {
+    //     console.log('loadeddata');
+    //     playLoderRef.current.classList.add('hide');
+    //   });
+    //   playerRef.current.audio.current.addEventListener('canplay', () => {
+    //     console.log('canplay');
+    //     playLoderRef.current.classList.add('hide');
+    //   });
 
-      // playerRef.current.audio.current.addEventListener('ended', () => {
-      //   const repeatBtn = document.querySelector(
-      //     '.rhap_repeat-button [data-img="true"]'
-      //   );
-      //   if (repeatBtn.getAttribute('data-imgname') === 'repeat') {
-      //     console.log('clicking next')
-      //     // handleClickNext();
-      //   } else {
+    // }, [playerRef]);
 
-      //     console.log('not clicking next')
-      //   }
-      // });
-    }, [playerRef]);
-    useEffect(() => {
-      // console.log(window.screen.height);
-      // console.log(window.innerHeight);
-      // console.log(document.documentElement.clientHeight);
-      // console.log(document.body.clientHeight);
-      setMediaControls();
-      // setTimeout(() => {
-
-      //   // window.scrollTo(0,document.body.scrollHeight);
-      //   window.addEventListener("load",function() {
-      //     setTimeout(function(){
-      //         // This hides the address bar:
-      //         window.scrollTo(0, 1);
-      //     }, 0);
-      // });
-      // }, 1000)
-    });
+    // useEffect(() => {
+    //   setMediaControls();
+    // });
 
     return (
       <div
