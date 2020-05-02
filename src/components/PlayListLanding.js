@@ -1,15 +1,18 @@
 import './PlayListLanding.css';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import ObjectID from 'bson-objectid';
+import useCreatePlaylist from './hooks/useCreatePlaylist';
+import { useContext } from 'react';
+import AppContext from './hooks/AppContext';
 
-function PlayListLanding({ playList, createPlayList, getPlayList }) {
-  useEffect(() => {
-    getPlayList();
-  }, [getPlayList]);
+function PlayListLanding() {
+  const [CreatePLModal, showCreatePLModal] = useCreatePlaylist();;
+  const [appData] = useContext(AppContext)
 
   return (
     <div className='playList'>
+      <CreatePLModal />
       <div className='playList__cat'>
         <ul>
           {/* <li>
@@ -53,8 +56,8 @@ function PlayListLanding({ playList, createPlayList, getPlayList }) {
       <div className='playList__user'>
         <div className='playList__user__title'>Your playlists</div>
         <ul>
-          {playList.length
-            ? playList.map((p, k) => (
+          {appData.playlist.length
+            ? appData.playlist.map((p, k) => (
                 <Link
                   key={k}
                   to={{
@@ -80,7 +83,7 @@ function PlayListLanding({ playList, createPlayList, getPlayList }) {
         <div
           className='playList__user__create'
           onClick={() => {
-            createPlayList();
+            showCreatePLModal(true);
           }}
         >
           <div data-img data-imgname='plus' />

@@ -9,7 +9,7 @@
 .vLanding__songs__list__item a {
   all: unset;
   display: flex;
-  width: calc(100% - 24px);
+  width: calc(100% - 35px);
 }
 .vLanding__songs__list__item__img {
   width: 45px;
@@ -33,4 +33,9 @@
   text-transform: capitalize;
 }
 .vLanding__songs__list__item__option {
+  width: 35px;
+  background-position: center;
+  height: 35px;
+  cursor: pointer;
+  background-size: 24px 24px;
 }

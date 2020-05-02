@@ -7,8 +7,9 @@ import apolloClient from '../apolloClient';
 import gql from 'graphql-tag';
 import useError from './hooks/useError';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import useSpinner from './hooks/useSpinner';
 
-function ListLanding({ path, filterList }) {
+function ListLanding({ path }) {
   const page = useRef(0);
   const [list, setList] = useState([]);
   const listCache = useRef([]);
@@ -18,16 +19,12 @@ function ListLanding({ path, filterList }) {
     'An error occured while trying to get Artists',
     reFetchList
   );
-
-  const setSearch = useCallback(
-    (query, cat) => {
-      // handleSearch(query, cat);
-    },
-    []
-  );
+  const [Spinner, setIsLoading] = useSpinner(true);
 
   const fetchList = useCallback(async () => {
     try {
+      setHasMore(true);
+      setIsLoading(true);
       page.current = page.current + 1;
       if (path === 'artist') {
         const { data } = await apolloClient.query({
@@ -41,10 +38,9 @@ function ListLanding({ path, filterList }) {
         `
         });
 
-        if (data) {
-          listCache.current = listCache.current.concat(data.allArtists);
-          setList(listCache.current);
-        }
+        setIsLoading(false);
+        listCache.current = listCache.current.concat(data.allArtists);
+        setList(listCache.current);
       } else if (path === 'genre') {
         const { data } = await apolloClient.query({
           query: gql`
@@ -57,24 +53,74 @@ function ListLanding({ path, filterList }) {
           `
         });
 
-        if (data) {
-          listCache.current = listCache.current.concat(data.allGenre);
-          setList(listCache.current);
-        }
+        setIsLoading(false);
+        listCache.current = listCache.current.concat(data.allGenre);
+        setList(listCache.current);
       }
       if (listCache.current.length === Number(count.current)) {
         setHasMore(false);
       }
     } catch (err) {
-      showErrModal(true);
       console.log(err);
+      showErrModal(true);
+      setIsLoading(false);
     }
     // setList({ val: [...new Set(arr)].sort() });
-  }, [path, showErrModal]);
+  }, [path, setIsLoading, showErrModal]);
 
   function reFetchList() {
     fetchList();
   }
+  const setSearch = useCallback(
+    async (query, cat) => {
+      console.log(query, cat);
+      // handleSearch(query, cat);
+      try {
+        setList([]);
+        setIsLoading(true);
+        if (query) {
+          setHasMore(false);
+          if (cat === 'artist') {
+            const { data } = await apolloClient.query({
+              query: gql`
+                query {
+                  searchArtist(query: "${query}") {
+                    _id
+                    name
+                  }
+                }
+              `
+            });
+
+            setIsLoading(false);
+            setList(data.searchArtist);
+          } else if (cat === 'genre') {
+            const { data } = await apolloClient.query({
+              query: gql`
+                query {
+                  searchGenre(query: "${query}") {
+                    _id
+                    name
+                  }
+                }
+              `
+            });
+
+            setIsLoading(false);
+            setList(data.searchGenre);
+          }
+        } else {
+          fetchList();
+        }
+      } catch (err) {
+        console.log(err);
+        showErrModal(true);
+        setIsLoading(false);
+      }
+    },
+    [fetchList, setIsLoading, showErrModal]
+  );
+
   useEffect(() => {
     fetchList();
     (async () => {
@@ -95,10 +141,12 @@ function ListLanding({ path, filterList }) {
       <ErrModal />
       <LandingSearch
         path={path}
-        filterList={filterList}
         getSearchVal={setSearch}
+        pageState={list}
+        setPageState={setList}
       />
 
+      <Spinner />
       <InfiniteScroll
         next={fetchList}
         hasMore={hasMore}

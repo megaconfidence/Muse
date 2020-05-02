@@ -42,5 +42,6 @@
   .fModal__card__body__item {
     /* color: #bebebe; */
     margin: 20px 0;
+    cursor: pointer;
     font-size: 1.1em;
   }

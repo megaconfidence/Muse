@@ -9,6 +9,7 @@ import React, { useState, useCallback, useEffect, useRef } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import useError from './hooks/useError';
 import { useQuery } from '@apollo/react-hooks';
+import useSpinner from './hooks/useSpinner';
 
 const LazyLoadPlaceholder = () => (
   <div className='aLanding__list__album loading'>
@@ -23,20 +24,23 @@ const LazyLoadPlaceholder = () => (
   </div>
 );
 
-const AlbumsLanding = ({ path, filterList }) => {
+const AlbumsLanding = ({ path }) => {
   const page = useRef(0);
   const count = useRef(null);
   const albumCache = useRef([]);
-  const [hasMore, setHasMore] = useState(true)
+  const [hasMore, setHasMore] = useState(true);
   const [searchVal, setSearchVal] = useState('');
   const [albumsDisplay, setAlbumsDisplay] = useState([]);
   const [ErrModal, showErrModal] = useError(
     'An error occured while trying to get Albums',
     reFetchAlbums
   );
+  const [Spinner, setIsLoading] = useSpinner(true);
 
   const fetchAlbums = useCallback(async () => {
     page.current = page.current + 1;
+    setHasMore(true);
+    setIsLoading(true);
     try {
       const { data } = await apolloClient.query({
         query: gql`
@@ -53,6 +57,7 @@ const AlbumsLanding = ({ path, filterList }) => {
       `
       });
       if (data) {
+        setIsLoading(false);
         showErrModal(false);
         albumCache.current = albumCache.current.concat(data.allAlbums);
         setAlbumsDisplay(albumCache.current);
@@ -61,10 +66,11 @@ const AlbumsLanding = ({ path, filterList }) => {
         setHasMore(false);
       }
     } catch (err) {
-      showErrModal(true);
       console.log(err);
+      showErrModal(true);
+      setIsLoading(false);
     }
-  }, [showErrModal]);
+  }, [setIsLoading, showErrModal]);
 
   function reFetchAlbums() {
     fetchAlbums();
@@ -89,11 +95,42 @@ const AlbumsLanding = ({ path, filterList }) => {
   // shuffle(albums);
 
   const setSearch = useCallback(
-    (query, cat) => {
+    async (query, cat) => {
       // handleSearch(query, cat);
       setSearchVal(query);
+      try {
+        if (query) {
+          setIsLoading(false);
+          setAlbumsDisplay([]);
+          const { data } = await apolloClient.query({
+            query: gql`
+           query {
+             searchAlbums(query: "${query}") {
+               _id
+               cover
+               name
+               artist {
+                 name
+               }
+             }
+           }
+         `
+          });
+
+          setIsLoading(false);
+          setHasMore(false);
+          setAlbumsDisplay(data.searchAlbums);
+        } else {
+          fetchAlbums();
+        }
+      } catch (err) {
+        console.log(err);
+        setHasMore(false);
+        showErrModal(true);
+        setIsLoading(false);
+      }
     },
-    []
+    [fetchAlbums, setIsLoading, showErrModal]
   );
 
   useEffect(() => {
@@ -103,14 +140,13 @@ const AlbumsLanding = ({ path, filterList }) => {
       const { data } = await apolloClient.query({
         query: gql`
           query {
-            count(type: "album") 
+            count(type: "album")
           }
         `
       });
       count.current = data.count;
     })();
   }, [fetchAlbums]);
-
   return (
     <div
       className='aLanding'
@@ -122,19 +158,14 @@ const AlbumsLanding = ({ path, filterList }) => {
       }}
     >
       <ErrModal />
-      {/* {error ? (
-        <ErrorModal
-          action={fetchAlbums}
-          content='An error occured while trying to get Albums'
-        />
-      ) : (
-        ''
-      )} */}
+
       <LandingSearch
         path={path}
-        filterList={filterList}
         getSearchVal={setSearch}
+        pageState={albumsDisplay}
+        setPageState={setAlbumsDisplay}
       />
+      <Spinner />
       <div className='aLanding__list'>
         <InfiniteScroll
           hasMore={hasMore}

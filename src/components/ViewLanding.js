@@ -10,13 +10,16 @@ import InfoCard from './InfoCard';
 import SongItem from './SongItem';
 import apolloClient from '../apolloClient';
 import gql from 'graphql-tag';
-import config from 'environment';
-import LazyLoad from 'react-lazyload';
+import LazyLoad, { forceVisible } from 'react-lazyload';
 import { withRouter } from 'react-router-dom';
 import GroupContextMenue from './GroupContextMenue';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import useError from './hooks/useError';
 import useSpinner from './hooks/useSpinner';
+import { useContext } from 'react';
+import AppContext from './hooks/AppContext';
+import useSongModal from './hooks/useSongModal';
+import useFilterModal from './hooks/useFilterModal';
 
 const withRouterAndRef = (Wrapped) => {
   const WithRouter = withRouter(({ forwardRef, ...otherProps }) => (
@@ -30,15 +33,7 @@ const withRouterAndRef = (Wrapped) => {
   return WithRouterAndRef;
 };
 
-const ViewLanding = ({
-  path,
-  history,
-  addToPlayList,
-  filterList,
-  showSongModal,
-  handleSetSongQueues,
-  handleGroupContextMenueEvents
-}) => {
+const ViewLanding = ({ path, history }) => {
   path = path.split('/');
   const cat = path[0];
   const catName = path[1];
@@ -52,6 +47,10 @@ const ViewLanding = ({
     'An error occured while trying to get Albums',
     refetchView
   );
+  const [appData] = useContext(AppContext);
+  const [SongModal, showSongModal] = useSongModal();
+  const [FilterModal, setFilterModal] = useFilterModal();
+
 
   const [viewAlbums, setViewAlbums] = useState([]);
   const songsCache = useRef(null);
@@ -137,6 +136,12 @@ const ViewLanding = ({
     }
   };
 
+  const forceLazy = () => {
+    setTimeout(() => {
+      forceVisible();
+    }, 1000);
+  }
+
   const fetchView = useCallback(async () => {
     console.log('running');
     page.current = page.current + 1;
@@ -150,6 +155,7 @@ const ViewLanding = ({
             songs {
               _id
               name
+              playId
               duration
               artist {
                 name
@@ -158,6 +164,9 @@ const ViewLanding = ({
                 url
                 cover
                 name
+                genre {
+                  name
+                }
               }
             }
           }
@@ -224,6 +233,7 @@ const ViewLanding = ({
             songs {
               _id
               name
+              playId
               duration
               artist {
                 name
@@ -232,6 +242,9 @@ const ViewLanding = ({
                 url
                 cover
                 name
+                genre {
+                  name
+                }
               }
             }
           }
@@ -259,6 +272,7 @@ const ViewLanding = ({
             songs {
               _id
               name
+              playId
               duration
               artist {
                 name
@@ -267,6 +281,9 @@ const ViewLanding = ({
                 url
                 cover
                 name
+                genre {
+                  name
+                }
               }
             }
           }
@@ -282,68 +299,65 @@ const ViewLanding = ({
           setViewAlbums(data.genre.album);
         }
       } else if (cat === 'playlist') {
-        // for (const p in playList.val) {
-        //   if (playList.val[p]._id === catId) {
-        //     const pListSongs = playList.val[p].songs;
-        //     songsCache.current = pListSongs;
-        //     setViewSongs({
-        //       val: pListSongs
-        //     });
-        //   }
-        // }
-      } else if (cat === 'favorites') {
-        let likes = localStorage.getItem(`${config.appName}_LIKES`);
-        if (likes && likes !== 'undefined') {
-          likes = JSON.parse(likes);
-          songsCache.current = likes;
-          setViewSongs(likes);
+        for (const p in appData.playlist) {
+          if (appData.playlist[p]._id === catId) {
+            const pListSongs = appData.playlist[p].songs;
+            songsCache.current = pListSongs;
+            setViewSongs(pListSongs);
+            setIsLoading(false);
+          }
         }
+        forceLazy()
+      } else if (cat === 'favorites') {
+        setIsLoading(false);
+        setViewSongs(appData.likes);
+        forceLazy()
       } else if (cat === 'recents') {
-        let recents = localStorage.getItem(`${config.appName}_PLAYING_QUEUES`);
-        if (recents && recents !== 'undefined') {
-          recents = JSON.parse(recents);
-          songsCache.current = recents;
+        const recents = appData.recents;
+        if (recents) {
           setViewSongs(recents);
-
+          songsCache.current = recents;
           const result = [];
           const map = new Map();
           for (const s of recents) {
             if (!map.has(s.album)) {
               map.set(s.album, true); // set any value to Map
-              result.push({ albumName: s.album.trim(), albumArt: s.cover });
+              result.push({ name: s.album.name.trim(), cover: s.album.cover });
             }
           }
-
           setViewAlbums(result);
         }
+        forceLazy()
+        setIsLoading(false);
       }
-      showErrModal(false);
     } catch (err) {
       console.log(err);
       showErrModal(true);
       setIsLoading(false);
     }
-  }, [cat, catId, setIsLoading, showErrModal]);
+  }, [appData.likes, appData.playlist, appData.recents, cat, catId, setIsLoading, showErrModal]);
 
   async function refetchView() {
     fetchView();
   }
 
   useEffect(() => {
+    console.log('cat1: ', cat);
     fetchView();
-  }, [fetchView]);
+  }, [cat, fetchView]);
 
   return (
     <div className='vLanding'>
       <ErrModal />
+      <SongModal />
+      <FilterModal />
       <GroupContextMenue
         cat={cat}
+        history={history}
         catId={catId}
         catName={catName}
         songs={viewSongs}
         ref={groupContextMenueRef}
-        addToPlayList={addToPlayList}
-        handleGroupContextMenueEvents={handleGroupContextMenueEvents}
       />
 
       <div className='vLanding__nav'>
@@ -384,7 +398,7 @@ const ViewLanding = ({
             data-img
             data-imgname='sort'
             onClick={() => {
-              filterList('view', undefined);
+              setFilterModal(viewSongs, setViewSongs);
             }}
           />
           <div
@@ -412,19 +426,10 @@ const ViewLanding = ({
             {viewSongs.map((s, k) => (
               <LazyLoad key={k} placeholder={<div>***</div>}>
                 <SongItem
+                  s={s}
                   cat={cat}
                   catId={catId}
-                  id={s._id}
-                  url={s.url}
-                  name={s.name}
-                  queueId={s.queueId}
-                  album={s.album ? s.album.name : null}
-                  cover={s.album ? s.album.cover : null}
                   showSongModal={showSongModal}
-                  handleSetSongQueues={handleSetSongQueues}
-                  artist={
-                    s.artist ? s.artist.map((a) => a.name).join(' / ') : null
-                  }
                 />
               </LazyLoad>
             ))}

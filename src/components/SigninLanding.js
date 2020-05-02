@@ -5,15 +5,15 @@ import { useSnackbar } from 'notistack';
 import request from '../helpers';
 import config from 'environment';
 import './SigninLanding.css';
-import { Redirect } from 'react-router-dom';
+import { Redirect, withRouter } from 'react-router-dom';
 import AppContext from './hooks/AppContext';
+import defaultContext from './hooks/defaultContext';
 
-function SigninLanding() {
+const SigninLanding = withRouter(({ history }) => {
+  // console.log(history);
   const { enqueueSnackbar } = useSnackbar();
   const [redirect, setRedirect] = useState(false);
-  // eslint-disable-next-line no-unused-vars
-  const [_, setAppData] = useContext(AppContext);
-
+  const [appData, setAppData] = useContext(AppContext);
   const saveToken = async (access_token, provider) => {
     try {
       const payload = {
@@ -27,10 +27,57 @@ function SigninLanding() {
 
       const user = await request('get', 'api/user');
       const userData = user.data.data;
-      setAppData({ user: userData });
+      setAppData({ ...defaultContext, user: userData });
       localStorage.setItem(`${config.appName}_USER`, JSON.stringify(userData));
+
+      const likesData = await request('get', 'api/like');
+      console.log(likesData);
+      const likes = likesData.data.data[0];
+      localStorage.setItem(
+        `${config.appName}_LIKESID`,
+        JSON.stringify(likes._id)
+      );
+      localStorage.setItem(
+        `${config.appName}_LIKES`,
+        JSON.stringify(likes.songs)
+      );
+
+      const pListData = await request('get', 'api/playlist');
+      const playlist = pListData.data.data[0];
+      localStorage.setItem(
+        `${config.appName}_PLAYLIST`,
+        JSON.stringify(playlist.songs)
+      );
+
+      const queueData = await request('get', `api/queue/`);
+      const queue = queueData.data.data[0];
+      localStorage.setItem(
+        `${config.appName}_QUEUEID`,
+        JSON.stringify(queue._id)
+      );
+      localStorage.setItem(
+        `${config.appName}_QUEUES`,
+        JSON.stringify(queue.songs)
+      );
+
+      const redirect = JSON.parse(
+        localStorage.getItem(`${config.appName}_REDIRECT`)
+      );
+
       enqueueSnackbar('Welcome 😜');
-      setRedirect(true);
+      setAppData({
+        ...appData,
+        user: userData,
+        queue: queue.songs,
+        playlist: playlist.songs,
+        likes: likes.song
+      });
+      if (redirect) {
+        localStorage.removeItem(`${config.appName}_REDIRECT`);
+        setRedirect(redirect);
+      } else {
+        setRedirect('/play/');
+      }
     } catch (err) {
       enqueueSnackbar('Something went wrong 😢');
     }
@@ -53,8 +100,9 @@ function SigninLanding() {
   }, []);
 
   if (redirect) {
-    return <Redirect to='/play' />;
+    return <Redirect to={redirect} />;
   }
+
   return (
     <div className='sLanding'>
       <div className='sLanding__head'>
@@ -162,6 +210,6 @@ function SigninLanding() {
       </div>
     </div>
   );
-}
+});
 
 export default SigninLanding;

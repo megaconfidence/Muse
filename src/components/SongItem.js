@@ -1,30 +1,17 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import './SongItem.css';
+import { useContext } from 'react';
+import AppContext from './hooks/AppContext';
+import config from 'environment';
+import useQueue from './hooks/useQueue';
 
-const SongItem = ({
-  url,
-  cat,
-  catId,
-  id,
-  name,
-  album,
-  cover,
-  artist,
-  queueId,
-  isPlaying,
-  showSongModal,
-  handleSetSongQueues
-}) => {
-  const songData = {
-    _id: id,
-    url,
-    name,
-    album,
-    cover,
-    artist,
-    queueId
-  };
+const SongItem = ({ s, cat, catId, isPlaying, showSongModal }) => {
+  const album = s.album ? s.album.name : null;
+  const cover = s.album ? s.album.cover : null;
+  const artist = s.artist ? s.artist.map((a) => a.name).join(' / ') : null;
+  const [appData, setAppData] = useContext(AppContext);
+  const { mutateQueue } = useQueue();
 
   return (
     <div
@@ -34,12 +21,38 @@ const SongItem = ({
     >
       <Link
         to={{
-          data: songData,
-          pathname: `/play/${id}`,
+          pathname: `/play/${s._id}`
         }}
         onClick={() => {
-          if (cat !== 'queues') {
-            handleSetSongQueues('play', songData);
+          localStorage.setItem(`${config.appName}_PLAYING`, JSON.stringify(s));
+          const recents = JSON.parse(
+            localStorage.getItem(`${config.appName}_RECENTS`)
+          );
+          const song = s;
+          delete song.cat;
+          delete song.catId;
+          delete song.queueId;
+          delete song.catName;
+          let temp = [];
+          if (recents) {
+            recents.push(song);
+            temp = recents;
+            localStorage.setItem(
+              `${config.appName}_RECENTS`,
+              JSON.stringify(recents)
+            );
+          } else {
+            temp.push(song);
+            localStorage.setItem(
+              `${config.appName}_RECENTS`,
+              JSON.stringify([song])
+            );
+          }
+
+          if (cat === 'queues') {
+            setAppData({ ...appData, playing: s, recents: temp });
+          } else {
+            mutateQueue('play', s, { ...appData, playing: s, recents: temp });
           }
         }}
       >
@@ -49,7 +62,7 @@ const SongItem = ({
         />
         <div className='vLanding__songs__list__item__text'>
           <div className='vLanding__songs__list__item__text__song truncate'>
-            {name}
+            {s.name}
           </div>
           <div className='vLanding__songs__list__item__text__artist truncate'>
             {cat === 'artist' ? album : artist}
@@ -58,12 +71,12 @@ const SongItem = ({
       </Link>
       <div
         data-img
-        data-imgname='menu_horizontal'
+        data-imgname='menu'
         onClick={() => {
           showSongModal({
-            cat,
+            ...s,
             catId,
-            ...songData
+            cat: cat
           });
         }}
         className='vLanding__songs__list__item__option'

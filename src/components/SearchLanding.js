@@ -11,15 +11,14 @@ import apolloClient from '../apolloClient';
 import gql from 'graphql-tag';
 import useSpinner from './hooks/useSpinner';
 import useError from './hooks/useError';
+import useSongModal from './hooks/useSongModal';
 
-function SearchLanding({
-  filterList,
-  showSongModal,
-  handleSetSongQueues
-}) {
+function SearchLanding() {
   const [path, setPath] = useState('songs');
   const [searchVal, setSearchVal] = useState('');
   const [dontShowSearchNotFound, setDontShowSearchNotFound] = useState(true);
+  const [SongModal, showSongModal] = useSongModal();
+
 
   const songPane = useRef(null);
   const albumPane = useRef(null);
@@ -44,6 +43,7 @@ function SearchLanding({
               searchSongs(query: "${query}") {
                 _id
                 name
+                playId
                 duration
                 artist {
                   name
@@ -155,19 +155,14 @@ function SearchLanding({
     });
   };
 
-  const interCeptFilterList = useCallback(
-    (val) => {
-      filterList('search ' + val.toLowerCase());
-    },
-    [filterList]
-  );
   return (
     <div className='shLanding'>
       <ErrModal />
+      <SongModal />
       <LandingSearch
         getSearchVal={setSearch}
-        filterList={interCeptFilterList}
         path={path}
+      
       />
       <div className='shLanding__tab'>
         <div
@@ -200,25 +195,17 @@ function SearchLanding({
             songMatchDisplay.map((s, k) => (
               <LazyLoad key={k} placeholder={<div>***</div>}>
                 <SongItem
-                  id={s._id}
-                  url={s.url}
-                  name={s.name}
+                  s={s}
                   cat={'search'}
-                  album={s.album ? s.album.name : null}
-                  cover={s.album ? s.album.cover : null}
-                  artist={
-                    s.artist ? s.artist.map((a) => a.name).join(' / ') : null
-                  }
                   queueId={s.queueId}
                   showSongModal={showSongModal}
-                  handleSetSongQueues={handleSetSongQueues}
                 />
               </LazyLoad>
             ))
           ) : searchVal.length ? (
             <SearchNotFound />
           ) : (
-            <SearchNotFound text={`search for ${path}s`} />
+            <SearchNotFound text={`search for ${path}`} />
           )}
         </div>
       </div>
@@ -237,7 +224,7 @@ function SearchLanding({
         ) : searchVal.length ? (
           <SearchNotFound />
         ) : (
-          <SearchNotFound text={`search for ${path}s`} />
+          <SearchNotFound text={`search for ${path}`} />
         )}
       </div>
       <div className='shLanding__artistPane hide' ref={artistPane}>
@@ -255,7 +242,7 @@ function SearchLanding({
         ) : searchVal.length ? (
           <SearchNotFound />
         ) : (
-          <SearchNotFound text={`search for ${path}s`} />
+          <SearchNotFound text={`search for ${path}`} />
         )}
       </div>
     </div>

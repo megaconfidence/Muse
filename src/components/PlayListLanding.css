@@ -16,6 +16,7 @@ li {
 }
 .playList ul a  {
   all: unset;
+  cursor: pointer;
 }
 .playList__cat ul li:first-of-type {
   margin-top: 0;
@@ -27,6 +28,7 @@ li {
 }
 .playList__user__create {
   display: flex;
+  cursor: pointer;
   margin-top: 20px;
   font-weight: 500;
   align-items: center;

@@ -1,16 +1,9 @@
 import React from 'react';
 import SearchLanding from '../components/SearchLanding';
 
-function Search({
-  filterList,
-  showSongModal,
-  handleSetSongQueues
-}) {
+function Search() {
   return (
     <SearchLanding
-      filterList={filterList}
-      showSongModal={showSongModal}
-      handleSetSongQueues={handleSetSongQueues}
     />
   );
 }

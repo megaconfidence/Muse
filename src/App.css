@@ -32,11 +32,11 @@
     transform: translateX(-50%);
   }
   ::-webkit-scrollbar {
-    width: 10px;
+    width: 8px;
   }
 
   ::-webkit-scrollbar-track {
-    background: red;
+    background: transparent;
   }
 
   ::-webkit-scrollbar-thumb {

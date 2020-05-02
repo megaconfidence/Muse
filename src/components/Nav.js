@@ -1,8 +1,11 @@
 import './Nav.css';
 import React from 'react';
 import { NavLink } from 'react-router-dom';
+import { useContext } from 'react';
+import AppContext from './hooks/AppContext';
 
-function Nav({ playPath }) {
+function Nav() {
+  const [{ playing }] = useContext(AppContext);
   return (
     <div className='nav'>
       <NavLink
@@ -14,7 +17,7 @@ function Nav({ playPath }) {
         <div data-img data-imgname='queue' />
       </NavLink>
       <NavLink
-        to={`/play${playPath ? '/p' + playPath : ''}`}
+        to={`/play/${playing._id || ''}`}
         activeClassName='nav__link--active'
         className='nav__link'
       >

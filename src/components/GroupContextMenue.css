@@ -47,6 +47,7 @@
   .gcMenue__card__main__content__item {
     display: flex;
     margin: 25px 0;
+    cursor: pointer;
     font-size: 1.1em;
     align-items: center;
   }
