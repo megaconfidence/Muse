@@ -29,6 +29,7 @@ const imgSrc = [
   '/image/icon/like_fill.svg',
   '/image/icon/list.svg',
   '/image/icon/loading.svg',
+  '/image/icon/loading_2.svg',
   '/image/icon/menu.svg',
   '/image/icon/menu_fill.svg',
   '/image/icon/mobile.svg',

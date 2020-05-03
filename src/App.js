@@ -51,16 +51,18 @@ const App = () => {
     const isPWAInstalled = localStorage.getItem(
       `${config.appName}_PWA_PROMPT_RESPONDED`
     );
-    if (playerRef.current && !isPWAInstalled) {
-      playerRef.current.audio.current.addEventListener('playing', (event) => {
-        setTimeout(() => {
-          setShowInstallPlaceholder(true);
+    setTimeout(() => {
+      if (playerRef.current && !isPWAInstalled) {
+        playerRef.current.audio.current.addEventListener('playing', (event) => {
           setTimeout(() => {
-            setShowInstallBanner(true);
-          }, 500);
-        }, 10000);
-      });
-    }
+            setShowInstallPlaceholder(true);
+            setTimeout(() => {
+              setShowInstallBanner(true);
+            }, 500);
+          }, 10000);
+        });
+      }
+    }, 3000);
   }, [playerRef]);
 
   const installPWA = useCallback(() => {
@@ -100,10 +102,6 @@ const App = () => {
     showPWABanner();
   }, [showPWABanner]);
 
-  useEffect(() => {
-    console.log('lorem');
-  }, []);
-
   return (
     <AppContext.Provider value={appData}>
       <Router>
@@ -112,7 +110,9 @@ const App = () => {
             <Route
               exact
               path='/signin'
-              render={(props) => <Signin {...props} />}
+              render={(props) => (
+                <Signin {...props} showPWABanner={showPWABanner} />
+              )}
             />
             <Route
               path='/'

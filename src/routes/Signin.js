@@ -1,9 +1,9 @@
 import React from 'react';
 import SigninLanding from '../components/SigninLanding';
 
-function Signin() {
+function Signin({showPWABanner}) {
   return (
-   <SigninLanding />
+   <SigninLanding showPWABanner={showPWABanner} />
   );
 }
 

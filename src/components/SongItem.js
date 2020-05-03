@@ -68,6 +68,7 @@ const SongItem = ({ s, cat, catId, isPlaying, showSongModal }) => {
             {cat === 'artist' ? album : artist}
           </div>
         </div>
+        <div className='vLanding__songs__list__item__duration'>{s.duration}</div>
       </Link>
       <div
         data-img

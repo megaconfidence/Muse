@@ -9,7 +9,7 @@ import { Redirect } from 'react-router-dom';
 import AppContext from './hooks/AppContext';
 import defaultContext from './hooks/defaultContext';
 
-const SigninLanding = () => {
+const SigninLanding = ({showPWABanner}) => {
   const { enqueueSnackbar } = useSnackbar();
   const [redirect, setRedirect] = useState(false);
   const [appData, setAppData] = useContext(AppContext);
@@ -113,15 +113,9 @@ const SigninLanding = () => {
     saveToken(accessToken, 'facebook');
   };
 
-  useEffect(() => {
-    // if (localStorage.getItem(`${config.appName}_TOKEN`)) {
-    //   setTimeout(() => {
-    //     setRedirect(true);
-    //   }, 2000);
-    // }
-  }, []);
 
   if (redirect) {
+    showPWABanner()
     return <Redirect to={redirect} />;
   }
 

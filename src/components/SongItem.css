@@ -9,6 +9,7 @@
 .vLanding__songs__list__item a {
   all: unset;
   display: flex;
+  align-items: center;
   width: calc(100% - 35px);
 }
 .vLanding__songs__list__item__img {
@@ -19,7 +20,10 @@
 }
 .vLanding__songs__list__item__text {
   margin: 0 15px;
-  width: calc(100% - 75px);
+  width: calc(100% - 108px);
+}
+.vLanding__songs__list__item__duration {
+  font-size: 13px;
 }
 .vLanding__songs__list__item__text__song {
   width: 90%;
