@@ -42,6 +42,7 @@ const Home = withRouter(({ location, history }) => {
     });
   }, [history, location.pathname]);
 
+  // console.log('test console.log');
 
 
   useEffect(() => {

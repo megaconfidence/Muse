@@ -109,17 +109,35 @@ const NowPlaying = forwardRef(({ path, queuePlayBtnRef }, ref) => {
         playingId.current =
           appData.playingQueue[appData.playingQueue.length - 1].queueId;
       }
+    } else if (appData.queue.length) {
+      const pIndex = getPlayingIndex();
+      if (pIndex > 0) {
+        setPlaying(appData.queue[pIndex - 1]);
+        setPlayingData(appData.queue[pIndex - 1], path);
+
+        playingId.current = appData.queue[pIndex - 1].queueId;
+      } else {
+        enqueueSnackbar('Reached top of playlist', {
+          anchorOrigin: {
+            vertical: 'top',
+            horizontal: 'center'
+          }
+        });
+        setPlaying(appData.queue[appData.queue.length - 1]);
+        setPlayingData(appData.queue[appData.queue.length - 1], path);
+        playingId.current = appData.queue[appData.queue.length - 1].queueId;
+      }
     }
   }, [
-    enqueueSnackbar,
-    getPlayingIndex,
-    path,
     appData.playingQueue,
-    setPlayingData
+    appData.queue,
+    getPlayingIndex,
+    setPlayingData,
+    path,
+    enqueueSnackbar
   ]);
 
   const handleClickNext = useCallback(() => {
-    console.log('click next');
     if (appData.playingQueue.length) {
       const pIndex = getPlayingIndex();
       if (pIndex < appData.playingQueue.length - 1) {
@@ -138,13 +156,32 @@ const NowPlaying = forwardRef(({ path, queuePlayBtnRef }, ref) => {
         setPlayingData(appData.playingQueue[0], path);
         playingId.current = appData.playingQueue[0].queueId;
       }
+    } else if (appData.queue.length) {
+      const pIndex = getPlayingIndex();
+      if (pIndex < appData.queue.length - 1) {
+        setPlaying(appData.queue[pIndex + 1]);
+        setPlayingData(appData.queue[pIndex + 1], path);
+
+        playingId.current = appData.queue[pIndex + 1].queueId;
+      } else {
+        enqueueSnackbar('Reached end of playlist', {
+          anchorOrigin: {
+            vertical: 'top',
+            horizontal: 'center'
+          }
+        });
+        setPlaying(appData.queue[0]);
+        setPlayingData(appData.queue[0], path);
+        playingId.current = appData.queue[0].queueId;
+      }
     }
   }, [
-    enqueueSnackbar,
-    getPlayingIndex,
-    path,
     appData.playingQueue,
-    setPlayingData
+    appData.queue,
+    getPlayingIndex,
+    setPlayingData,
+    path,
+    enqueueSnackbar
   ]);
 
   const setMediaMetaData = useCallback((song) => {
@@ -200,48 +237,12 @@ const NowPlaying = forwardRef(({ path, queuePlayBtnRef }, ref) => {
   const setMediaControls = useCallback(() => {
     if ('mediaSession' in navigator) {
       const audio = playerRef.current.audio.current;
-      navigator.mediaSession.setActionHandler('previoustrack', () => {
-        if (appData.playingQueue.length) {
-          const pIndex = playingId.current;
-          if (pIndex > 0) {
-            setMediaMetaData(appData.playingQueue[pIndex - 1]);
-            setPlaying(appData.playingQueue[pIndex - 1]);
-            setPlayingData(appData.playingQueue[pIndex - 1], path);
+      navigator.mediaSession.setActionHandler(
+        'previoustrack',
+        handleClickPrevious
+      );
 
-            playingId.current = appData.playingQueue[pIndex - 1].queueId;
-          } else {
-            setMediaMetaData(
-              appData.playingQueue[appData.playingQueue.length - 1]
-            );
-            setPlaying(appData.playingQueue[appData.playingQueue.length - 1]);
-            setPlayingData(
-              appData.playingQueue[appData.playingQueue.length - 1],
-              path
-            );
-
-            playingId.current =
-              appData.playingQueue[appData.playingQueue.length - 1].queueId;
-          }
-        }
-      });
-
-      navigator.mediaSession.setActionHandler('nexttrack', () => {
-        if (appData.playingQueue.length) {
-          const pIndex = playingId.current;
-          if (pIndex < appData.playingQueue.length - 1) {
-            setMediaMetaData(appData.playingQueue[pIndex + 1]);
-            setPlaying(appData.playingQueue[pIndex + 1]);
-            setPlayingData(appData.playingQueue[pIndex + 1], path);
-            playingId.current = appData.playingQueue[pIndex + 1].queueId;
-          } else {
-            setMediaMetaData(appData.playingQueue[0]);
-            setPlaying(appData.playingQueue[0]);
-            setPlayingData(appData.playingQueue[0], path);
-
-            playingId.current = appData.playingQueue[0].queueId;
-          }
-        }
-      });
+      navigator.mediaSession.setActionHandler('nexttrack', handleClickNext);
       navigator.mediaSession.setActionHandler('play', () => {
         audio.play();
       });
@@ -249,7 +250,7 @@ const NowPlaying = forwardRef(({ path, queuePlayBtnRef }, ref) => {
         audio.pause();
       });
     }
-  }, [playerRef, appData.playingQueue, setMediaMetaData, setPlayingData, path]);
+  }, [playerRef, handleClickPrevious, handleClickNext]);
 
   const getUrl = useCallback(
     async (playId, albumUrl) => {
@@ -279,6 +280,7 @@ const NowPlaying = forwardRef(({ path, queuePlayBtnRef }, ref) => {
       try {
         if (Object.keys(song).length) {
           setPlaying(song);
+          setMediaControls();
           setMediaMetaData(song);
           setInfoModalData(song);
           getUrl(song.playId, song.album.url);
@@ -309,14 +311,11 @@ const NowPlaying = forwardRef(({ path, queuePlayBtnRef }, ref) => {
 
           const song = data.song;
           setPlaying(song);
+          setMediaControls();
           setMediaMetaData(song);
           setInfoModalData(song);
           getUrl(song.playId, song.album.url);
           setAppData({ ...appData, playing: song });
-
-          // setMediaMetaData(obj);
-          //           setPlaying({ val: obj });
-          //           setPlayingData(obj, path);
         }
       } catch (err) {
         console.log(err);
@@ -328,6 +327,7 @@ const NowPlaying = forwardRef(({ path, queuePlayBtnRef }, ref) => {
       getUrl,
       setAppData,
       setInfoModalData,
+      setMediaControls,
       setMediaMetaData,
       showErrModal
     ]
@@ -433,7 +433,6 @@ const NowPlaying = forwardRef(({ path, queuePlayBtnRef }, ref) => {
 
   useEffect(() => {
     const pathId = path.replace('/play/', '');
-    // console.log(appData.playing)
     if (path.includes('/play/') && pathId) {
       getSong(appData.playing, pathId);
     }
@@ -441,15 +440,12 @@ const NowPlaying = forwardRef(({ path, queuePlayBtnRef }, ref) => {
 
   useEffect(() => {
     playerRef.current.audio.current.addEventListener('waiting', () => {
-      console.log('waiting');
       playLoderRef.current.classList.remove('hide');
     });
     playerRef.current.audio.current.addEventListener('loadeddata', () => {
-      console.log('loadeddata');
       playLoderRef.current.classList.add('hide');
     });
     playerRef.current.audio.current.addEventListener('canplay', () => {
-      console.log('canplay');
       playLoderRef.current.classList.add('hide');
     });
   }, [playerRef]);
@@ -525,7 +521,6 @@ const NowPlaying = forwardRef(({ path, queuePlayBtnRef }, ref) => {
           showJumpControls={false}
           customVolumeControls={[]}
           onAbort={() => {
-            console.log('abort');
             playLoderRef.current.classList.remove('hide');
           }}
           onPlay={() => {

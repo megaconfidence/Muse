@@ -12,14 +12,14 @@ function Nav() {
         exact
         to={`/queues`}
         activeClassName='nav__link--active'
-        className='nav__link'
+        className='nav__link noselect'
       >
         <div data-img data-imgname='queue' />
       </NavLink>
       <NavLink
         to={`/play/${playing._id || ''}`}
         activeClassName='nav__link--active'
-        className='nav__link'
+        className='nav__link noselect'
       >
         <div data-img data-imgname='play_circle' />
       </NavLink>
@@ -27,7 +27,7 @@ function Nav() {
         exact
         to={`/artist`}
         activeClassName='nav__link--active'
-        className='nav__link'
+        className='nav__link noselect'
       >
         <div data-img data-imgname='artist' />
       </NavLink>
@@ -35,7 +35,7 @@ function Nav() {
         exact
         to={`/albums`}
         activeClassName='nav__link--active'
-        className='nav__link'
+        className='nav__link noselect'
       >
         <div data-img data-imgname='album' />
       </NavLink>
@@ -43,7 +43,7 @@ function Nav() {
         exact
         to={`/playlists`}
         activeClassName='nav__link--active'
-        className='nav__link'
+        className='nav__link noselect'
       >
         <div data-img data-imgname='playlist' />
       </NavLink>
@@ -51,7 +51,7 @@ function Nav() {
         exact
         to={`/genre`}
         activeClassName='nav__link--active'
-        className='nav__link'
+        className='nav__link noselect'
       >
         <div data-img data-imgname='tag' />
       </NavLink>{' '}
@@ -59,7 +59,7 @@ function Nav() {
         exact
         to={`/search`}
         activeClassName='nav__link--active'
-        className='nav__link'
+        className='nav__link noselect'
       >
         <div data-img data-imgname='search' />
       </NavLink>
@@ -67,7 +67,7 @@ function Nav() {
         exact
         to={`/settings`}
         activeClassName='nav__link--active'
-        className='nav__link'
+        className='nav__link noselect'
       >
         <div data-img data-imgname='menu' />
       </NavLink>

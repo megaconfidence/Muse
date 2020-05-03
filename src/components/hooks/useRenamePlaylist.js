@@ -86,7 +86,6 @@ const useRenamePlaylist = (history) => {
   const setUpHook = (id) => {
     setShowModal(true);
     setTempPlayListId(id);
-    console.log('dfasdfas');
   };
 
   const handleInputChange = ({ target }) => {

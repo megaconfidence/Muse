@@ -17,7 +17,6 @@ const SigninLanding = () => {
   const syncUserData = async (user) => {
     try {
       const likesData = await request('get', 'api/like');
-      console.log(likesData);
       const likes = likesData.data.data[0];
 
       if (likes && likes.songs) {
@@ -32,7 +31,6 @@ const SigninLanding = () => {
       }
 
       const pListData = await request('get', 'api/playlist');
-      console.log(pListData);
 
       const playlist = pListData.data.data[0];
       if (playlist && playlist.songs) {
@@ -43,7 +41,6 @@ const SigninLanding = () => {
       }
 
       const queueData = await request('get', `api/queue/`);
-      console.log(queueData);
       const queue = queueData.data.data[0];
       if (queue && queue.songs) {
         localStorage.setItem(
@@ -122,6 +119,7 @@ const SigninLanding = () => {
   return (
     <div className='sLanding'>
       <div className='sLanding__head'>
+        <div className='sLanding__head__top'>Muse</div>
         <div className='sLanding__head__main'>
           You bring the passion. <br />
           We bring the music.
@@ -135,7 +133,7 @@ const SigninLanding = () => {
             <button
               onClick={renderProps.onClick}
               disabled={renderProps.disabled}
-              className='sLanding__social__btn sLanding__social__btn--google'
+              className='sLanding__social__btn sLanding__social__btn--google noselect'
             >
               Google
             </button>
@@ -155,7 +153,7 @@ const SigninLanding = () => {
           render={(renderProps) => (
             <button
               onClick={renderProps.onClick}
-              className='sLanding__social__btn sLanding__social__btn--facebook'
+              className='sLanding__social__btn sLanding__social__btn--facebook noselect'
             >
               Facebook
             </button>

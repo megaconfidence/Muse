@@ -4,32 +4,31 @@ import React, {
   useState,
   useEffect,
   forwardRef,
-  useCallback,
   useContext
 } from 'react';
 import SongItem from './SongItem';
 import config from 'environment';
 import useQueue from './hooks/useQueue';
 import AppContext from './hooks/AppContext';
-import useAddToPlaylist from './hooks/useAddToPlaylist';
 import useSongModal from './hooks/useSongModal';
 import useFilterModal from './hooks/useFilterModal';
+import useAddToPlaylist from './hooks/useAddToPlaylist';
 // eslint-disable-next-line no-empty-pattern
 const QueueLanding = forwardRef(({}, ref) => {
-  const { queuePlayBtnRef, playerRef } = ref;
-  // const  queuePlayBtnRef  = useRef(null);
   const queueModal = useRef(null);
+  const { deleteQueue } = useQueue();
+  const { queuePlayBtnRef, playerRef } = ref;
+  const [SongModal, showSongModal] = useSongModal();
   const [appData, setAppData] = useContext(AppContext);
   const [queueDisplay, setQueueDisplay] = useState([]);
-  const [AddToPlayListModal, setAddToPlaylist] = useAddToPlaylist();
-  const { deleteQueue } = useQueue();
-  const [museViewQueue, setMuseViewQueue] = useState({ val: '' });
-  const [displayedTitle, setDisplayedTitle] = useState({ val: 'Queue' });
-  const [displayedCount, setDisplayedCount] = useState({ val: 1 });
-  const [SongModal, showSongModal] = useSongModal();
   const [FilterModal, setFilterModal] = useFilterModal();
+  const [museViewQueue, setMuseViewQueue] = useState({ val: '' });
+  const [displayedCount, setDisplayedCount] = useState({ val: 1 });
+  const [AddToPlayListModal, setAddToPlaylist] = useAddToPlaylist();
+  const [displayedTitle, setDisplayedTitle] = useState({ val: 'Queue' });
 
   const appDataCache = useRef(appData);
+
   useEffect(() => {
     setDisplayedCount({ val: '-- ' });
     queueDisplay.forEach((s, i) => {
@@ -97,7 +96,7 @@ const QueueLanding = forwardRef(({}, ref) => {
       <div className='qLanding__ctrl'>
         <div className='qLanding__ctrl__top'>
           <div
-            className='qLanding__ctrl__top__catSelect'
+            className='qLanding__ctrl__top__catSelect noselect'
             onClick={() => {
               queueModal.current.classList.remove('hide');
             }}

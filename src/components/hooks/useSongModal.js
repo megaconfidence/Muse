@@ -182,7 +182,6 @@ const useSongModal = () => {
     syncLikes();
   };
 
-  console.log(song.cat);
 
   useEffect(() => {
     let isFound = false;

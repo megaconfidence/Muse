@@ -28,7 +28,7 @@ const App = () => {
       return {
         ...defaultContext,
         user,
-        queue: queue || {},
+        queue: queue || [],
         likes: likes || [],
         playing: playing || [],
         recents: recents || [],

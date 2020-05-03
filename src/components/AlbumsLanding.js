@@ -2,14 +2,13 @@ import gql from 'graphql-tag';
 import './AlbumsLanding.css';
 import LazyLoad from 'react-lazyload';
 import { Link } from 'react-router-dom';
+import useError from './hooks/useError';
 import apolloClient from '../apolloClient';
 import LandingSearch from './LandingSearch';
-import SearchNotFound from './SearchNotFound';
-import React, { useState, useCallback, useEffect, useRef } from 'react';
-import InfiniteScroll from 'react-infinite-scroll-component';
-import useError from './hooks/useError';
-import { useQuery } from '@apollo/react-hooks';
 import useSpinner from './hooks/useSpinner';
+import SearchNotFound from './SearchNotFound';
+import InfiniteScroll from 'react-infinite-scroll-component';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 
 const LazyLoadPlaceholder = () => (
   <div className='aLanding__list__album loading'>
@@ -136,7 +135,6 @@ const AlbumsLanding = ({ path }) => {
   useEffect(() => {
     fetchAlbums();
     (async () => {
-      // console.log(path)
       const { data } = await apolloClient.query({
         query: gql`
           query {
@@ -148,15 +146,7 @@ const AlbumsLanding = ({ path }) => {
     })();
   }, [fetchAlbums]);
   return (
-    <div
-      className='aLanding'
-      onScroll={({ target }) => {
-        console.log('scrolling');
-        console.log(
-          target.getBoundingClientRect().bottom <= window.innerHeight
-        );
-      }}
-    >
+    <div className='aLanding'>
       <ErrModal />
 
       <LandingSearch

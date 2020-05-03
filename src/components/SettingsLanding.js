@@ -1,11 +1,10 @@
-import React, { useState, useCallback, useEffect, useContext } from 'react';
-import config from 'environment';
 import './SettingsLanding.css';
-import colorLog from '../helpers/colorLog';
-import { Redirect } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
 import AppContext from './hooks/AppContext';
+import colorLog from '../helpers/colorLog';
+import { Redirect } from 'react-router-dom';
 import defaultContext from './hooks/defaultContext';
+import React, { useState,  useContext } from 'react';
 
 const SettingsLanding = () => {
   const [isLoggedOut, setIsLoggedOut] = useState(false);
@@ -71,13 +70,13 @@ const SettingsLanding = () => {
       </div>
       <div className='stLanding__controls'>
         <div
-          className='stLanding__controls__btn stLanding__controls__btn--share'
+          className='stLanding__controls__btn stLanding__controls__btn--share noselect'
           onClick={share}
         >
           Share Muse
         </div>
         <div
-          className='stLanding__controls__btn  stLanding__controls__btn--logout'
+          className='stLanding__controls__btn  stLanding__controls__btn--logout noselect'
           onClick={logout}
         >
           Logout

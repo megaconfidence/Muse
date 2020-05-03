@@ -81,7 +81,7 @@ function PlayListLanding() {
           </li> */}
         </ul>
         <div
-          className='playList__user__create'
+          className='playList__user__create noselect'
           onClick={() => {
             showCreatePLModal(true);
           }}

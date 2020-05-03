@@ -73,8 +73,6 @@ function ListLanding({ path }) {
   }
   const setSearch = useCallback(
     async (query, cat) => {
-      console.log(query, cat);
-      // handleSearch(query, cat);
       try {
         setList([]);
         setIsLoading(true);
@@ -124,7 +122,6 @@ function ListLanding({ path }) {
   useEffect(() => {
     fetchList();
     (async () => {
-      // console.log(path)
       const { data } = await apolloClient.query({
         query: gql`
           query {

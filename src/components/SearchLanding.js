@@ -1,17 +1,15 @@
-import LandingSearch from './LandingSearch';
 import './SearchLanding.css';
-import SongItem from './SongItem';
-import React, { useState, useRef } from 'react';
-import LazyLoad, { forceCheck } from 'react-lazyload';
-import { Link } from 'react-router-dom';
-import SearchNotFound from './SearchNotFound';
-import { useEffect } from 'react';
-import { useCallback } from 'react';
-import apolloClient from '../apolloClient';
 import gql from 'graphql-tag';
-import useSpinner from './hooks/useSpinner';
+import SongItem from './SongItem';
+import { Link } from 'react-router-dom';
 import useError from './hooks/useError';
+import apolloClient from '../apolloClient';
+import useSpinner from './hooks/useSpinner';
+import LandingSearch from './LandingSearch';
+import SearchNotFound from './SearchNotFound';
 import useSongModal from './hooks/useSongModal';
+import LazyLoad, { forceCheck } from 'react-lazyload';
+import React, { useState, useRef, useEffect } from 'react';
 
 function SearchLanding() {
   const [path, setPath] = useState('songs');
@@ -167,21 +165,21 @@ function SearchLanding() {
       <div className='shLanding__tab'>
         <div
           id='songs'
-          className='shLanding__tab__item shLanding__tab__item--active'
+          className='shLanding__tab__item shLanding__tab__item--active noselect'
           onClick={showCategory}
         >
           Songs
         </div>{' '}
         <div
           id='albums'
-          className='shLanding__tab__item '
+          className='shLanding__tab__item noselect'
           onClick={showCategory}
         >
           Albums
         </div>{' '}
         <div
           id='artists'
-          className='shLanding__tab__item'
+          className='shLanding__tab__item noselect'
           onClick={showCategory}
         >
           Artists

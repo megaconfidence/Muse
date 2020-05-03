@@ -1,7 +1,5 @@
-import React from 'react';
 import './useSpinner.css';
-import { useRef } from 'react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 const useSpinner = (defaultState) => {
   const [isLoading, setIsLoading] = useState(defaultState);

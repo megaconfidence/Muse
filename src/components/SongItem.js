@@ -15,7 +15,7 @@ const SongItem = ({ s, cat, catId, isPlaying, showSongModal }) => {
 
   return (
     <div
-      className={`vLanding__songs__list__item ${
+      className={`vLanding__songs__list__item noselect ${
         isPlaying ? 'item--playing' : ''
       }`}
     >

@@ -40,7 +40,6 @@ const ViewLanding = ({ path, history }) => {
   const catId = path[2];
   const page = useRef(0);
   const [Spinner, setIsLoading] = useSpinner(true);
-  const [hasMore, setHasMore] = useState(false);
   const groupContextMenueRef = useRef(null);
   const [viewSongs, setViewSongs] = useState([]);
   const [ErrModal, showErrModal] = useError(
@@ -143,7 +142,6 @@ const ViewLanding = ({ path, history }) => {
   }
 
   const fetchView = useCallback(async () => {
-    console.log('running');
     page.current = page.current + 1;
     try {
       if (cat === 'album') {
@@ -342,7 +340,6 @@ const ViewLanding = ({ path, history }) => {
   }
 
   useEffect(() => {
-    console.log('cat1: ', cat);
     fetchView();
   }, [cat, fetchView]);
 
@@ -413,7 +410,7 @@ const ViewLanding = ({ path, history }) => {
         <div className='vLanding__songs__list'>
           <Spinner />
           <InfiniteScroll
-            hasMore={hasMore}
+            hasMore={false}
             next={fetchView}
             dataLength={viewSongs.length}
             className={'aLanding__list--scroller'}

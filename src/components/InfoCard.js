@@ -21,7 +21,7 @@ const InfoCard = ({
     </div>
     <div className='vLanding__info__list'>
       <div
-        className='vLanding__info__list__card vLanding__info__list__card--select'
+        className='vLanding__info__list__card noselect vLanding__info__list__card--select'
         onClick={() => {
           handleListCardClick(0);
         }}
@@ -39,7 +39,7 @@ const InfoCard = ({
             onClick={() => {
               handleListCardClick(k + 1);
             }}
-            className='vLanding__info__list__card'
+            className='vLanding__info__list__card noselect'
             style={{ backgroundImage: `url(${a.cover})` }}
           >
             <div className='vLanding__info__list__card__wrapper'>
