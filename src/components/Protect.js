@@ -6,6 +6,7 @@ import config from 'environment';
 
 
 const Protect = ({ location, children }) => {
+
   const [{ user }] = useContext(AppContext);
   if (Object.keys(user).length) {
     return children;

@@ -50,7 +50,6 @@ const ViewLanding = ({ path, history }) => {
   const [SongModal, showSongModal] = useSongModal();
   const [FilterModal, setFilterModal] = useFilterModal();
 
-
   const [viewAlbums, setViewAlbums] = useState([]);
   const songsCache = useRef(null);
 
@@ -139,7 +138,7 @@ const ViewLanding = ({ path, history }) => {
     setTimeout(() => {
       forceVisible();
     }, 1000);
-  }
+  };
 
   const fetchView = useCallback(async () => {
     page.current = page.current + 1;
@@ -300,16 +299,18 @@ const ViewLanding = ({ path, history }) => {
         for (const p in appData.playlist) {
           if (appData.playlist[p]._id === catId) {
             const pListSongs = appData.playlist[p].songs;
-            songsCache.current = pListSongs;
-            setViewSongs(pListSongs);
-            setIsLoading(false);
+            if (pListSongs) {
+              songsCache.current = pListSongs;
+              setViewSongs(pListSongs);
+            }
           }
         }
-        forceLazy()
+        forceLazy();
+        setIsLoading(false);
       } else if (cat === 'favorites') {
         setIsLoading(false);
         setViewSongs(appData.likes);
-        forceLazy()
+        forceLazy();
       } else if (cat === 'recents') {
         const recents = appData.recents;
         if (recents) {
@@ -325,7 +326,7 @@ const ViewLanding = ({ path, history }) => {
           }
           setViewAlbums(result);
         }
-        forceLazy()
+        forceLazy();
         setIsLoading(false);
       }
     } catch (err) {
@@ -333,11 +334,20 @@ const ViewLanding = ({ path, history }) => {
       showErrModal(true);
       setIsLoading(false);
     }
-  }, [appData.likes, appData.playlist, appData.recents, cat, catId, setIsLoading, showErrModal]);
+  }, [
+    appData.likes,
+    appData.playlist,
+    appData.recents,
+    cat,
+    catId,
+    setIsLoading,
+    showErrModal
+  ]);
 
   async function refetchView() {
     fetchView();
   }
+  console.log(viewSongs);
 
   useEffect(() => {
     fetchView();

@@ -182,7 +182,6 @@ const useSongModal = () => {
     syncLikes();
   };
 
-
   useEffect(() => {
     let isFound = false;
     for (const s in appData.likes) {
@@ -325,7 +324,13 @@ const useSongModal = () => {
                 ) : (
                   ''
                 )}
-                <div className='modal__card__main__content__item'>
+                <div
+                  className='modal__card__main__content__item'
+                  onClick={() => {
+                    setShowModal(!showModal);
+                    mutateQueue('add', song, { ...appData, playing: song });
+                  }}
+                >
                   <div
                     data-img
                     data-imgname='next'
@@ -338,7 +343,7 @@ const useSongModal = () => {
                 <div
                   className='modal__card__main__content__item'
                   onClick={() => {
-                    const link = `${window.location.host}/#/play/p?artist=${song.artist}&song=${song.name}`;
+                    const link = `${window.location.host}/#/play/${song._id}`;
                     if (navigator.share) {
                       navigator
                         .share({

@@ -4,7 +4,7 @@ import { NavLink } from 'react-router-dom';
 import { useContext } from 'react';
 import AppContext from './hooks/AppContext';
 
-function Nav() {
+function Nav(d) {
   const [{ playing }] = useContext(AppContext);
   return (
     <div className='nav'>

@@ -13,6 +13,8 @@ const SigninLanding = () => {
   const { enqueueSnackbar } = useSnackbar();
   const [redirect, setRedirect] = useState(false);
   const [appData, setAppData] = useContext(AppContext);
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [facebookLoading, setFacebookLoading] = useState(false);
 
   const syncUserData = async (user) => {
     try {
@@ -53,7 +55,10 @@ const SigninLanding = () => {
         );
       }
 
+      setGoogleLoading(false);
+      setFacebookLoading(false);
       enqueueSnackbar('Welcome 😜');
+
       setAppData({
         ...appData,
         user,
@@ -72,6 +77,8 @@ const SigninLanding = () => {
       }
     } catch (err) {
       console.log(err);
+      setGoogleLoading(false);
+      setFacebookLoading(false);
     }
   };
   const saveToken = async (access_token, provider) => {
@@ -92,6 +99,8 @@ const SigninLanding = () => {
 
       syncUserData(userData);
     } catch (err) {
+      setGoogleLoading(false);
+      setFacebookLoading(false);
       enqueueSnackbar('Something went wrong 😢');
     }
   };
@@ -131,11 +140,15 @@ const SigninLanding = () => {
           clientId={process.env.REACT_APP_google_client_id}
           render={(renderProps) => (
             <button
-              onClick={renderProps.onClick}
+              onClick={() => {
+                setGoogleLoading(true);
+                renderProps.onClick();
+              }}
               disabled={renderProps.disabled}
               className='sLanding__social__btn sLanding__social__btn--google noselect'
             >
               Google
+              {googleLoading ? <div data-img data-imgname='loading_2' /> : null}
             </button>
           )}
           buttonText='Login'
@@ -152,10 +165,16 @@ const SigninLanding = () => {
           fields='name,email,picture'
           render={(renderProps) => (
             <button
-              onClick={renderProps.onClick}
+              onClick={() => {
+                setFacebookLoading(true);
+                renderProps.onClick();
+              }}
               className='sLanding__social__btn sLanding__social__btn--facebook noselect'
             >
               Facebook
+              {facebookLoading ? (
+                <div data-img data-imgname='loading_2' />
+              ) : null}
             </button>
           )}
         />

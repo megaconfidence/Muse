@@ -6,6 +6,12 @@
 .hide {
   display: none !important;
 }
+.cover {
+  position: fixed;
+  pointer-events: none;
+  visibility: hidden !important;
+  transform: translateX(-100vh);
+}
 .noselect {
   outline: none;
   user-select: none;
@@ -22,7 +28,58 @@
   justify-content: center;
 }
 .App__main {
- position: relative;
+  position: relative;
+}
+.install {
+  top: 0;
+  height: 50px;
+  z-index: 10;
+  display: flex;
+  padding: 5px 15px;
+  position: sticky;
+  align-items: center;
+  overflow-y: auto;
+  visibility: hidden;
+  overflow-x: hidden;
+  pointer-events: none;
+  transform: translateX(-100vh);
+  background-color: var(--green);
+  justify-content: space-between;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+    visibility 0s linear 0.25s;
+}
+@media (max-width: 360px) {
+  .install__content {
+    width: calc(100% - 120px);
+  }
+}
+.install--active {
+  visibility: visible;
+  pointer-events: inherit;
+  transform: translateX(0);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+    visibility 0s linear 0s;
+}
+
+.install__content__head {
+  font-weight: bold;
+  font-style: italic;
+}
+.install__content__body {
+  font-size: 0.8em;
+}
+
+.install__close [data-img] {
+  width: 15px;
+  height: 15px;
+  background-size: 15px 15px;
+}
+.install__button {
+  cursor: pointer;
+  padding: 7px 15px;
+  color: var(--green);
+  border-radius: 20px;
+  background-color: white;
 }
 @media (min-width: 800px) {
   div.App__main {
@@ -227,4 +284,7 @@
 }
 [data-imgname='loading'] {
   background-image: url(/image/icon/loading.svg);
+}
+[data-imgname='loading_2'] {
+  background-image: url(/image/icon/loading_2.svg);
 }

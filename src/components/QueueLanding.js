@@ -57,16 +57,20 @@ const QueueLanding = forwardRef(({}, ref) => {
         });
         setQueueDisplay(appDataCache.current.queue);
       } else {
-        for (const p in appDataCache.current.playlist) {
-          if (appDataCache.current.playlist[p]._id === vQueue) {
-            const songs = appDataCache.current.playlist[p].songs.map((p, i) => {
-              return { ...p, queueId: i };
-            });
-            setDisplayedCount({ val: '-- ' });
-            setQueueDisplay(songs);
-            setAppData({ ...appDataCache.current, playingQueue: songs });
+        if (appDataCache.current.playlist.length) {
+          for (const p in appDataCache.current.playlist) {
+            if (appDataCache.current.playlist[p]._id === vQueue) {
+              const songs = appDataCache.current.playlist[p].songs.map(
+                (p, i) => {
+                  return { ...p, queueId: i };
+                }
+              );
+              setDisplayedCount({ val: '-- ' });
+              setQueueDisplay(songs);
+              setAppData({ ...appDataCache.current, playingQueue: songs });
 
-            setDisplayedTitle({ val: appDataCache.current.playlist[p].name });
+              setDisplayedTitle({ val: appDataCache.current.playlist[p].name });
+            }
           }
         }
       }
@@ -246,7 +250,10 @@ const QueueLanding = forwardRef(({}, ref) => {
 
       <div className='qLanding__songlist'>
         {queueDisplay.map((s, k) => {
-          if (s._id === appData.playing._id && s.queueId === appData.playing.queueId) {
+          if (
+            s._id === appData.playing._id &&
+            s.queueId === appData.playing.queueId
+          ) {
             return (
               <SongItem
                 s={s}

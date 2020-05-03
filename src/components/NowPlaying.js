@@ -17,6 +17,7 @@ import AppContext from './hooks/AppContext';
 import useInfoModal from './hooks/useInfoModal';
 import request from '../helpers';
 import useSongModal from './hooks/useSongModal';
+import cheerio from 'cheerio';
 
 // import 'react-h5-audio-player/lib/styles.css';
 
@@ -257,22 +258,44 @@ const NowPlaying = forwardRef(({ path, queuePlayBtnRef }, ref) => {
       try {
         const { data } = await apolloClient.query({
           query: gql`
-          query {
-            getSongUrl(playId: "${playId}", albumUrl: "${albumUrl}"){
-              _id
-              url
-            }
-           }
-      `
+            query {
+              getSongUrl(playId: "${playId}", albumUrl: "${albumUrl}"){
+                _id
+                url
+              }
+             }
+        `
         });
 
         setPlayUrl(data.getSongUrl.url);
-      } catch (err) {
-        console.log(err);
-        showErrModal(true);
+        playerRef.current.audio.current.play();
+      } catch (err1) {
+        try {
+          const page = await fetch(
+            'https://cors-anywhere.herokuapp.com/' + albumUrl
+          )
+            .then((res) => res.text())
+            .then((body) => body);
+
+          const $ = cheerio.load(page);
+          const playDiv = $('body')
+            .find(`#${playId}`)
+            .find('span.ico')
+            .attr('data-url');
+          if (playDiv) {
+            const url = 'https://myzuka.club' + playDiv;
+            setPlayUrl(url);
+            playerRef.current.audio.current.play();
+          } else {
+            throw new Error('second attempt to generate url failed');
+          }
+        } catch (err2) {
+          console.log(err1, err2);
+          showErrModal(true);
+        }
       }
     },
-    [showErrModal]
+    [playerRef, showErrModal]
   );
 
   const getSong = useCallback(
@@ -438,17 +461,35 @@ const NowPlaying = forwardRef(({ path, queuePlayBtnRef }, ref) => {
     }
   }, [appData.playing, getSong, path]);
 
+  const waitingEvent = useCallback(() => {
+    playLoderRef.current.classList.remove('hide');
+  }, []);
+  const canplayEvent = useCallback(() => {
+    playLoderRef.current.classList.add('hide');
+  }, []);
+  const loadeddataEvent = useCallback(() => {
+    playLoderRef.current.classList.add('hide');
+  }, []);
+  const endedEvent = useCallback(() => {
+    console.log('ended');
+    if (!playerRef.current.audio.current.hasAttribute('loop')) {
+      handleClickNext();
+    }
+  }, [handleClickNext, playerRef]);
+
   useEffect(() => {
-    playerRef.current.audio.current.addEventListener('waiting', () => {
-      playLoderRef.current.classList.remove('hide');
-    });
-    playerRef.current.audio.current.addEventListener('loadeddata', () => {
-      playLoderRef.current.classList.add('hide');
-    });
-    playerRef.current.audio.current.addEventListener('canplay', () => {
-      playLoderRef.current.classList.add('hide');
-    });
-  }, [playerRef]);
+    const player = playerRef.current.audio.current;
+    player.addEventListener('waiting', waitingEvent);
+    player.addEventListener('loadeddata', loadeddataEvent);
+    player.addEventListener('canplay', canplayEvent);
+    player.addEventListener('ended', endedEvent);
+    return () => {
+      player.removeEventListener('waiting', waitingEvent);
+      player.removeEventListener('loadeddata', loadeddataEvent);
+      player.removeEventListener('canplay', canplayEvent);
+      player.removeEventListener('ended', endedEvent);
+    };
+  }, [canplayEvent, endedEvent, loadeddataEvent, playerRef, waitingEvent]);
 
   // useEffect(() => {
   //   setMediaControls();
@@ -456,7 +497,7 @@ const NowPlaying = forwardRef(({ path, queuePlayBtnRef }, ref) => {
 
   return (
     <div
-      className='nowPlaying hide'
+      className='nowPlaying'
       ref={playerCompRef}
       style={{
         height: `calc(${document.documentElement.clientHeight}px - 84px)`
@@ -513,9 +554,9 @@ const NowPlaying = forwardRef(({ path, queuePlayBtnRef }, ref) => {
           ref={playLoderRef}
         />
         <AudioPlayer
-          autoPlay
           src={playUrl}
           ref={playerRef}
+          autoPlay={false}
           listenInterval={1000}
           showSkipControls={true}
           showJumpControls={false}

@@ -4,21 +4,21 @@ import AppContext from './hooks/AppContext';
 import colorLog from '../helpers/colorLog';
 import { Redirect } from 'react-router-dom';
 import defaultContext from './hooks/defaultContext';
-import React, { useState,  useContext } from 'react';
+import React, { useState, useContext } from 'react';
 
 const SettingsLanding = () => {
   const [isLoggedOut, setIsLoggedOut] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
-  const [{user}, setAppData]= useContext(AppContext)
+  const [{ user }, setAppData] = useContext(AppContext);
 
   const logout = () => {
     localStorage.clear();
     setIsLoggedOut(true);
-    setAppData(defaultContext)
+    setAppData(defaultContext);
   };
 
   const share = () => {
-    const link = window.location.host;
+    const link = window.location.origin;
     if (navigator.share) {
       navigator
         .share({

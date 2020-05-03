@@ -8,7 +8,7 @@ import config from 'environment';
 import { useContext } from 'react';
 import AppContext from './hooks/AppContext';
 import useRenamePlaylist from './hooks/useRenamePlaylist';
-import request from '../helpers'
+import request from '../helpers';
 
 const GroupContextMenue = forwardRef(
   ({ cat, songs, catId, catName, history }, ref) => {
@@ -88,8 +88,19 @@ const GroupContextMenue = forwardRef(
             data[s].queueId = s;
             arr.push(data[s]);
           }
-          setAppData({ ...appData, queue: arr });
-          localStorage.setItem(`${config.appName}_QUEUES`, JSON.stringify(arr));
+          if (cat === 'playlist') {
+            setAppData({ ...appData, playingQueue: arr });
+            localStorage.setItem(
+              `${config.appName}_PLAYING_QUEUES`,
+              JSON.stringify(arr)
+            );
+          } else {
+            setAppData({ ...appData, queue: arr });
+            localStorage.setItem(
+              `${config.appName}_QUEUES`,
+              JSON.stringify(arr)
+            );
+          }
         } else if (action === 'queue') {
           const arr = appData.queue;
           const l = arr.length;
@@ -109,7 +120,7 @@ const GroupContextMenue = forwardRef(
           deletePlayList(data.id);
         }
       },
-      [appData, deletePlayList, setAppData, setRenamePLModal]
+      [appData, cat, deletePlayList, setAppData, setRenamePLModal]
     );
 
     return (

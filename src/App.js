@@ -1,11 +1,11 @@
 import Home from './Home';
-import React, { useState } from 'react';
-import { Route, HashRouter as Router, Switch } from 'react-router-dom';
-import AppContext from './components/hooks/AppContext';
-import defaultContext from './components/hooks/defaultContext';
-import Signin from './routes/Signin';
-import Protect from './components/Protect';
 import config from 'environment';
+import Signin from './routes/Signin';
+import React, { useState } from 'react';
+import Protect from './components/Protect';
+import AppContext from './components/hooks/AppContext';
+import { Route, HashRouter as Router, Switch } from 'react-router-dom';
+import defaultContext from './components/hooks/defaultContext';
 
 const App = () => {
   const appData = useState(() => {
@@ -52,7 +52,7 @@ const App = () => {
             />
             <Route
               path='/'
-              render={(props) => <Protect {...props} children={<Home />} />}
+              render={(props) => <Protect {...props} children={<Home  {...props}/>} />}
             />
           </Switch>
         </div>

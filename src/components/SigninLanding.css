@@ -44,17 +44,23 @@
   user-select: none;
   padding: 14px 30px;
   text-align: center;
+  position: relative;
   border-radius: 35px;
+}
+.sLanding__social__btn [data-img] {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 20px;
 }
 .sLanding__social__btn--google {
   background-color: #eb4132;
 }
 .sLanding__social__btn--facebook {
   background-color: #007fff;
-
 }
 .sLanding__info {
-    margin-top: 10px;
+  margin-top: 10px;
 }
 .sLanding__info__img {
   width: 100%;
@@ -91,7 +97,7 @@
 .sLanding__devices {
   text-align: center;
   padding: 20px;
-  margin: 60px 0 30px; 
+  margin: 60px 0 30px;
   background-color: var(--green);
 }
 .sLanding__devices__head {
