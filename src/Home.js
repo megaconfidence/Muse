@@ -52,9 +52,9 @@ const Home = forwardRef(
         if (playerCompRef.current) {
           const path = location.pathname;
           if (path.includes('/play/') || path.endsWith('/play')) {
-            playerCompRef.current.classList.remove('cover');
+            playerCompRef.current.classList.remove('hide');
           } else {
-            playerCompRef.current.classList.add('cover');
+            playerCompRef.current.classList.add('hide');
           }
         }
       };

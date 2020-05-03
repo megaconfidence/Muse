@@ -6,12 +6,12 @@
 .hide {
   display: none !important;
 }
-.cover {
+/* .cover {
   position: fixed;
   pointer-events: none;
   visibility: hidden !important;
   transform: translateX(-100vh);
-}
+} */
 .noselect {
   outline: none;
   user-select: none;
