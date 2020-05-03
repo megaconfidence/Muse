@@ -5,15 +5,78 @@ import { useSnackbar } from 'notistack';
 import request from '../helpers';
 import config from 'environment';
 import './SigninLanding.css';
-import { Redirect, withRouter } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
 import AppContext from './hooks/AppContext';
 import defaultContext from './hooks/defaultContext';
 
-const SigninLanding = withRouter(({ history }) => {
-  // console.log(history);
+const SigninLanding = () => {
   const { enqueueSnackbar } = useSnackbar();
   const [redirect, setRedirect] = useState(false);
   const [appData, setAppData] = useContext(AppContext);
+
+  const syncUserData = async (user) => {
+    try {
+      const likesData = await request('get', 'api/like');
+      console.log(likesData);
+      const likes = likesData.data.data[0];
+
+      if (likes && likes.songs) {
+        localStorage.setItem(
+          `${config.appName}_LIKESID`,
+          JSON.stringify(likes._id)
+        );
+        localStorage.setItem(
+          `${config.appName}_LIKES`,
+          JSON.stringify(likes.songs)
+        );
+      }
+
+      const pListData = await request('get', 'api/playlist');
+      console.log(pListData);
+
+      const playlist = pListData.data.data[0];
+      if (playlist && playlist.songs) {
+        localStorage.setItem(
+          `${config.appName}_PLAYLIST`,
+          JSON.stringify(playlist.songs)
+        );
+      }
+
+      const queueData = await request('get', `api/queue/`);
+      console.log(queueData);
+      const queue = queueData.data.data[0];
+      if (queue && queue.songs) {
+        localStorage.setItem(
+          `${config.appName}_QUEUEID`,
+          JSON.stringify(queue._id)
+        );
+        localStorage.setItem(
+          `${config.appName}_QUEUES`,
+          JSON.stringify(queue.songs)
+        );
+      }
+
+      enqueueSnackbar('Welcome 😜');
+      setAppData({
+        ...appData,
+        user,
+        likes: likes ? likes.song : [],
+        queue: queue ? queue.songs : [],
+        playlist: playlist ? playlist.songs : []
+      });
+      const redirect = JSON.parse(
+        localStorage.getItem(`${config.appName}_REDIRECT`)
+      );
+      if (redirect) {
+        localStorage.removeItem(`${config.appName}_REDIRECT`);
+        setRedirect(redirect);
+      } else {
+        setRedirect('/play/');
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
   const saveToken = async (access_token, provider) => {
     try {
       const payload = {
@@ -30,54 +93,7 @@ const SigninLanding = withRouter(({ history }) => {
       setAppData({ ...defaultContext, user: userData });
       localStorage.setItem(`${config.appName}_USER`, JSON.stringify(userData));
 
-      const likesData = await request('get', 'api/like');
-      console.log(likesData);
-      const likes = likesData.data.data[0];
-      localStorage.setItem(
-        `${config.appName}_LIKESID`,
-        JSON.stringify(likes._id)
-      );
-      localStorage.setItem(
-        `${config.appName}_LIKES`,
-        JSON.stringify(likes.songs)
-      );
-
-      const pListData = await request('get', 'api/playlist');
-      const playlist = pListData.data.data[0];
-      localStorage.setItem(
-        `${config.appName}_PLAYLIST`,
-        JSON.stringify(playlist.songs)
-      );
-
-      const queueData = await request('get', `api/queue/`);
-      const queue = queueData.data.data[0];
-      localStorage.setItem(
-        `${config.appName}_QUEUEID`,
-        JSON.stringify(queue._id)
-      );
-      localStorage.setItem(
-        `${config.appName}_QUEUES`,
-        JSON.stringify(queue.songs)
-      );
-
-      const redirect = JSON.parse(
-        localStorage.getItem(`${config.appName}_REDIRECT`)
-      );
-
-      enqueueSnackbar('Welcome 😜');
-      setAppData({
-        ...appData,
-        user: userData,
-        queue: queue.songs,
-        playlist: playlist.songs,
-        likes: likes.song
-      });
-      if (redirect) {
-        localStorage.removeItem(`${config.appName}_REDIRECT`);
-        setRedirect(redirect);
-      } else {
-        setRedirect('/play/');
-      }
+      syncUserData(userData);
     } catch (err) {
       enqueueSnackbar('Something went wrong 😢');
     }
@@ -210,6 +226,6 @@ const SigninLanding = withRouter(({ history }) => {
       </div>
     </div>
   );
-});
+};
 
 export default SigninLanding;
