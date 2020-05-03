@@ -1,13 +1,13 @@
 import './ListLanding.css';
-import { Link } from 'react-router-dom';
-import LandingSearch from './LandingSearch';
-import React, { useState, useCallback, useRef, useEffect } from 'react';
-// import SearchNotFound from './SearchNotFound';
-import apolloClient from '../apolloClient';
 import gql from 'graphql-tag';
+import { Link } from 'react-router-dom';
 import useError from './hooks/useError';
-import InfiniteScroll from 'react-infinite-scroll-component';
+import apolloClient from '../apolloClient';
+import LandingSearch from './LandingSearch';
 import useSpinner from './hooks/useSpinner';
+import SearchNotFound from './SearchNotFound';
+import InfiniteScroll from 'react-infinite-scroll-component';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 
 function ListLanding({ path }) {
   const page = useRef(0);
@@ -15,6 +15,7 @@ function ListLanding({ path }) {
   const listCache = useRef([]);
   const count = useRef(null);
   const [hasMore, setHasMore] = useState(true);
+  const [searchVal, setSearchVal] = useState('');
   const [ErrModal, showErrModal] = useError(
     'An error occured while trying to get Artists',
     reFetchList
@@ -73,6 +74,7 @@ function ListLanding({ path }) {
   }
   const setSearch = useCallback(
     async (query, cat) => {
+      setSearchVal(query);
       try {
         setList([]);
         setIsLoading(true);
@@ -144,19 +146,18 @@ function ListLanding({ path }) {
       />
 
       <Spinner />
-      <InfiniteScroll
-        next={fetchList}
-        hasMore={hasMore}
-        dataLength={list.length}
-        loader={
-          <div className='infinite__scroll__loader' key={0}>
-            <div data-img data-imgname='loading' />
-          </div>
-        }
-      >
-        {
-          // list.length ? (
-          list.map((a, k) => (
+      {list.length ? (
+        <InfiniteScroll
+          next={fetchList}
+          hasMore={hasMore}
+          dataLength={list.length}
+          loader={
+            <div className='infinite__scroll__loader' key={0}>
+              <div data-img data-imgname='loading' />
+            </div>
+          }
+        >
+          {list.map((a, k) => (
             <Link
               key={k}
               to={{
@@ -165,12 +166,11 @@ function ListLanding({ path }) {
             >
               <div className='lLanding__item truncate'>{a.name}</div>
             </Link>
-          ))
-          // ) : (
-          //   <SearchNotFound />
-          // )
-        }
-      </InfiniteScroll>
+          ))}
+        </InfiniteScroll>
+      ) : searchVal.length ? (
+        <SearchNotFound />
+      ) : null}
     </div>
   );
 }

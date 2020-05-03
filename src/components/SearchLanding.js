@@ -16,7 +16,7 @@ function SearchLanding() {
   const [searchVal, setSearchVal] = useState('');
   const [dontShowSearchNotFound, setDontShowSearchNotFound] = useState(true);
   const [SongModal, showSongModal] = useSongModal();
-
+  const [displayResults, setDisplayResults] = useState(true)
 
   const songPane = useRef(null);
   const albumPane = useRef(null);
@@ -31,8 +31,9 @@ function SearchLanding() {
   const [artistMatchDisplay, setArtistMatchDisplay] = useState([]);
 
   async function setSearch(query = searchVal, cat = path) {
-    setSearchVal(query);
     setIsLoading(true);
+    setSearchVal(query);
+    setDisplayResults(false)
     try {
       if (cat === 'songs' && query) {
         const { data } = await apolloClient.query({
@@ -58,6 +59,7 @@ function SearchLanding() {
 
         if (data) {
           setIsLoading(false);
+          setDisplayResults(true)
           setSongMatchDisplay(data.searchSongs);
         }
       } else if (cat === 'albums' && query) {
@@ -74,6 +76,7 @@ function SearchLanding() {
 
         if (data) {
           setIsLoading(false);
+          setDisplayResults(true)
           setAlbumMatchDisplay(data.searchAlbums);
         }
       } else if (cat === 'artists' && query) {
@@ -90,10 +93,12 @@ function SearchLanding() {
 
         if (data) {
           setIsLoading(false);
+          setDisplayResults(true)
           setArtistMatchDisplay(data.searchArtist);
         }
       } else if (!query) {
         setIsLoading(false);
+        setDisplayResults(true)
       }
       showErrModal(false);
     } catch (err) {
@@ -157,11 +162,7 @@ function SearchLanding() {
     <div className='shLanding'>
       <ErrModal />
       <SongModal />
-      <LandingSearch
-        getSearchVal={setSearch}
-        path={path}
-      
-      />
+      <LandingSearch getSearchVal={setSearch} path={path} />
       <div className='shLanding__tab'>
         <div
           id='songs'
@@ -187,62 +188,67 @@ function SearchLanding() {
       </div>
 
       <Spinner />
-      <div className='shLanding__songPane' ref={songPane}>
-        <div className='shLanding__songs__list'>
-          {dontShowSearchNotFound ? (
-            songMatchDisplay.map((s, k) => (
-              <LazyLoad key={k} placeholder={<div>***</div>}>
-                <SongItem
-                  s={s}
-                  cat={'search'}
-                  queueId={s.queueId}
-                  showSongModal={showSongModal}
-                />
-              </LazyLoad>
-            ))
-          ) : searchVal.length ? (
-            <SearchNotFound />
-          ) : (
-            <SearchNotFound text={`search for ${path}`} />
-          )}
-        </div>
-      </div>
-      <div className='shLanding__albumPane hide' ref={albumPane}>
-        {dontShowSearchNotFound ? (
-          albumMatchDisplay.map((a, k) => (
-            <Link
-              key={k}
-              to={{
-                pathname: `/view/album/${a.name}/${a._id}`
-              }}
-            >
-              <div className='shLanding__pane__item truncate'>{a.name}</div>
-            </Link>
-          ))
-        ) : searchVal.length ? (
-          <SearchNotFound />
-        ) : (
-          <SearchNotFound text={`search for ${path}`} />
-        )}
-      </div>
-      <div className='shLanding__artistPane hide' ref={artistPane}>
-        {dontShowSearchNotFound ? (
-          artistMatchDisplay.map((a, k) => (
-            <Link
-              key={k}
-              to={{
-                pathname: `/view/artist/${a.name}/${a._id}`
-              }}
-            >
-              <div className='shLanding__pane__item truncate'>{a.name}</div>
-            </Link>
-          ))
-        ) : searchVal.length ? (
-          <SearchNotFound />
-        ) : (
-          <SearchNotFound text={`search for ${path}`} />
-        )}
-      </div>
+      {displayResults ? (
+        <>
+          {' '}
+          <div className='shLanding__songPane' ref={songPane}>
+            <div className='shLanding__songs__list'>
+              {dontShowSearchNotFound ? (
+                songMatchDisplay.map((s, k) => (
+                  <LazyLoad key={k} placeholder={<div>***</div>}>
+                    <SongItem
+                      s={s}
+                      cat={'search'}
+                      queueId={s.queueId}
+                      showSongModal={showSongModal}
+                    />
+                  </LazyLoad>
+                ))
+              ) : searchVal.length ? (
+                <SearchNotFound />
+              ) : (
+                <SearchNotFound text={`search for ${path}`} />
+              )}
+            </div>
+          </div>
+          <div className='shLanding__albumPane hide' ref={albumPane}>
+            {dontShowSearchNotFound ? (
+              albumMatchDisplay.map((a, k) => (
+                <Link
+                  key={k}
+                  to={{
+                    pathname: `/view/album/${a.name}/${a._id}`
+                  }}
+                >
+                  <div className='shLanding__pane__item truncate'>{a.name}</div>
+                </Link>
+              ))
+            ) : searchVal.length ? (
+              <SearchNotFound />
+            ) : (
+              <SearchNotFound text={`search for ${path}`} />
+            )}
+          </div>
+          <div className='shLanding__artistPane hide' ref={artistPane}>
+            {dontShowSearchNotFound ? (
+              artistMatchDisplay.map((a, k) => (
+                <Link
+                  key={k}
+                  to={{
+                    pathname: `/view/artist/${a.name}/${a._id}`
+                  }}
+                >
+                  <div className='shLanding__pane__item truncate'>{a.name}</div>
+                </Link>
+              ))
+            ) : searchVal.length ? (
+              <SearchNotFound />
+            ) : (
+              <SearchNotFound text={`search for ${path}`} />
+            )}
+          </div>
+        </>
+      ) : null}
     </div>
   );
 }

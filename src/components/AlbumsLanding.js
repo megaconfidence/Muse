@@ -75,31 +75,13 @@ const AlbumsLanding = ({ path }) => {
     fetchAlbums();
   }
 
-  // function shuffle(array) {
-  //   let currentIndex = array.length,
-  //     temporaryValue,
-  //     randomIndex;
-
-  //   while (0 !== currentIndex) {
-  //     randomIndex = Math.floor(Math.random() * currentIndex);
-  //     currentIndex -= 1;
-
-  //     temporaryValue = array[currentIndex];
-  //     array[currentIndex] = array[randomIndex];
-  //     array[randomIndex] = temporaryValue;
-  //   }
-  //   return array;
-  // }
-
-  // shuffle(albums);
-
   const setSearch = useCallback(
     async (query, cat) => {
       // handleSearch(query, cat);
       setSearchVal(query);
       try {
         if (query) {
-          setIsLoading(false);
+          setIsLoading(true);
           setAlbumsDisplay([]);
           const { data } = await apolloClient.query({
             query: gql`
@@ -116,8 +98,8 @@ const AlbumsLanding = ({ path }) => {
          `
           });
 
-          setIsLoading(false);
           setHasMore(false);
+          setIsLoading(false);
           setAlbumsDisplay(data.searchAlbums);
         } else {
           fetchAlbums();
@@ -157,19 +139,19 @@ const AlbumsLanding = ({ path }) => {
       />
       <Spinner />
       <div className='aLanding__list'>
-        <InfiniteScroll
-          hasMore={hasMore}
-          next={fetchAlbums}
-          dataLength={albumsDisplay.length}
-          className={'aLanding__list--scroller'}
-          loader={
-            <div className='infinite__scroll__loader' key={0}>
-              <div data-img data-imgname='loading' />
-            </div>
-          }
-        >
-          {albumsDisplay.length ? (
-            albumsDisplay.map((a, k) => (
+        {albumsDisplay.length ? (
+          <InfiniteScroll
+            hasMore={hasMore}
+            next={fetchAlbums}
+            dataLength={albumsDisplay.length}
+            className={'aLanding__list--scroller'}
+            loader={
+              <div className='infinite__scroll__loader' key={0}>
+                <div data-img data-imgname='loading' />
+              </div>
+            }
+          >
+            {albumsDisplay.map((a, k) => (
               <LazyLoad key={k} placeholder={<LazyLoadPlaceholder />}>
                 <Link
                   to={{
@@ -194,13 +176,11 @@ const AlbumsLanding = ({ path }) => {
                   </div>
                 </Link>
               </LazyLoad>
-            ))
-          ) : searchVal.length ? (
-            <SearchNotFound />
-          ) : (
-            ''
-          )}
-        </InfiniteScroll>
+            ))}
+          </InfiniteScroll>
+        ) : searchVal.length ? (
+          <SearchNotFound />
+        ) : null}
       </div>
     </div>
   );
