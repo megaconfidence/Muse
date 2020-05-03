@@ -2,36 +2,23 @@ import React, {
   useRef,
   useState,
   useEffect,
-  forwardRef,
   useCallback
 } from 'react';
 import './ViewLanding.css';
+import gql from 'graphql-tag';
 import InfoCard from './InfoCard';
 import SongItem from './SongItem';
-import apolloClient from '../apolloClient';
-import gql from 'graphql-tag';
-import LazyLoad, { forceVisible } from 'react-lazyload';
-import { withRouter } from 'react-router-dom';
-import GroupContextMenue from './GroupContextMenue';
-import InfiniteScroll from 'react-infinite-scroll-component';
-import useError from './hooks/useError';
-import useSpinner from './hooks/useSpinner';
 import { useContext } from 'react';
+import useError from './hooks/useError';
+import apolloClient from '../apolloClient';
 import AppContext from './hooks/AppContext';
+import useSpinner from './hooks/useSpinner';
+import { withRouter } from 'react-router-dom';
 import useSongModal from './hooks/useSongModal';
+import GroupContextMenue from './GroupContextMenue';
 import useFilterModal from './hooks/useFilterModal';
-
-const withRouterAndRef = (Wrapped) => {
-  const WithRouter = withRouter(({ forwardRef, ...otherProps }) => (
-    <Wrapped ref={forwardRef} {...otherProps} />
-  ));
-  const WithRouterAndRef = forwardRef((props, ref) => (
-    <WithRouter {...props} forwardRef={ref} />
-  ));
-  const name = Wrapped.displayName || Wrapped.name;
-  WithRouterAndRef.displayName = `withRouterAndRef(${name})`;
-  return WithRouterAndRef;
-};
+import LazyLoad, { forceVisible } from 'react-lazyload';
+import InfiniteScroll from 'react-infinite-scroll-component';
 
 const ViewLanding = ({ path, history }) => {
   path = path.split('/');
@@ -347,7 +334,6 @@ const ViewLanding = ({ path, history }) => {
   async function refetchView() {
     fetchView();
   }
-  console.log(viewSongs);
 
   useEffect(() => {
     fetchView();
@@ -446,4 +432,4 @@ const ViewLanding = ({ path, history }) => {
     </div>
   );
 };
-export default withRouterAndRef(ViewLanding);
+export default withRouter(ViewLanding);

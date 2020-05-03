@@ -1,11 +1,12 @@
 import Home from './Home';
 import config from 'environment';
 import Signin from './routes/Signin';
-import React, { useState } from 'react';
+import { useSnackbar } from 'notistack';
 import Protect from './components/Protect';
 import AppContext from './components/hooks/AppContext';
-import { Route, HashRouter as Router, Switch } from 'react-router-dom';
 import defaultContext from './components/hooks/defaultContext';
+import { Route, HashRouter as Router, Switch } from 'react-router-dom';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 
 const App = () => {
   const appData = useState(() => {
@@ -40,6 +41,69 @@ const App = () => {
     }
   });
 
+  const playerRef = useRef(null);
+  const deferredPrompt = useRef(null);
+  const { enqueueSnackbar } = useSnackbar();
+  const [showInstallBanner, setShowInstallBanner] = useState(false);
+  const [showInstallPlaceholder, setShowInstallPlaceholder] = useState(false);
+
+  const showPWABanner = useCallback(() => {
+    const isPWAInstalled = localStorage.getItem(
+      `${config.appName}_PWA_PROMPT_RESPONDED`
+    );
+    if (playerRef.current && !isPWAInstalled) {
+      playerRef.current.audio.current.addEventListener('playing', (event) => {
+        setTimeout(() => {
+          setShowInstallPlaceholder(true);
+          setTimeout(() => {
+            setShowInstallBanner(true);
+          }, 500);
+        }, 10000);
+      });
+    }
+  }, [playerRef]);
+
+  const installPWA = useCallback(() => {
+    setShowInstallBanner(false);
+    setShowInstallPlaceholder(false);
+    if (deferredPrompt.current) {
+      deferredPrompt.current.prompt();
+      deferredPrompt.current.userChoice.then((choiceResult) => {
+        if (choiceResult.outcome === 'accepted') {
+          localStorage.setItem(`${config.appName}_PWA_PROMPT_RESPONDED`, true);
+          enqueueSnackbar('Awesome! Muse is being installed');
+        }
+        deferredPrompt.current = null;
+      });
+    }
+  }, [enqueueSnackbar]);
+
+  const dismissPWA = useCallback(() => {
+    setShowInstallBanner(false);
+    setTimeout(() => {
+      setShowInstallPlaceholder(false);
+    }, 500);
+    localStorage.setItem(`${config.appName}_PWA_PROMPT_RESPONDED`, true);
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt.current = e;
+    });
+    window.addEventListener('appinstalled', () => {
+      enqueueSnackbar('Install successful. Check your homescreen!');
+    });
+  }, [enqueueSnackbar]);
+
+  useEffect(() => {
+    showPWABanner();
+  }, [showPWABanner]);
+
+  useEffect(() => {
+    console.log('lorem');
+  }, []);
+
   return (
     <AppContext.Provider value={appData}>
       <Router>
@@ -52,7 +116,20 @@ const App = () => {
             />
             <Route
               path='/'
-              render={(props) => <Protect {...props} children={<Home  {...props}/>} />}
+              render={(props) => (
+                <Protect
+                  {...props}
+                  children={
+                    <Home
+                      ref={{ playerRef }}
+                      installPWA={installPWA}
+                      dismissPWA={dismissPWA}
+                      showInstallBanner={showInstallBanner}
+                      showInstallPlaceholder={showInstallPlaceholder}
+                    />
+                  }
+                />
+              )}
             />
           </Switch>
         </div>
