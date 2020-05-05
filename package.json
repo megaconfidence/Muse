@@ -32,7 +32,8 @@
   "scripts": {
     "sw": "cross-env CLIENT_ENV=dev craco build && cra-append-sw ./custom-sw.js",
     "start": "cross-env CLIENT_ENV=dev craco start",
-    "build": "cross-env CLIENT_ENV=prod craco build && cra-append-sw ./custom-sw.js",
+    "buildb": "cross-env CLIENT_ENV=prod craco build && cra-append-sw ./custom-sw.js",
+    "build": "cross-env CLIENT_ENV=prod craco build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
