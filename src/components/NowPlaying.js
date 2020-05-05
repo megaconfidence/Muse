@@ -3,42 +3,41 @@ import React, {
   useState,
   useEffect,
   forwardRef,
-  useCallback
+  useCallback,
 } from 'react';
 import './NowPlaying.css';
-import { useSnackbar } from 'notistack';
-import AudioPlayer from 'react-h5-audio-player';
-import config from 'environment';
-import useError from './hooks/useError';
-import apolloClient from '../apolloClient';
+import axios from 'axios';
 import gql from 'graphql-tag';
+import config from 'environment';
+import request from '../helpers';
+import useError from './hooks/useError';
+import { useSnackbar } from 'notistack';
 import { useContext } from 'react';
+import apolloClient from '../apolloClient';
 import AppContext from './hooks/AppContext';
 import useInfoModal from './hooks/useInfoModal';
-import request from '../helpers';
+import AudioPlayer from 'react-h5-audio-player';
 import useSongModal from './hooks/useSongModal';
-import cheerio from 'cheerio';
-
 // import 'react-h5-audio-player/lib/styles.css';
 
 const NowPlaying = forwardRef(({ path, queuePlayBtnRef }, ref) => {
   const { playerRef, playerCompRef } = ref;
   const playingId = useRef(null);
   const tempPlaying = useRef(null);
-  const { enqueueSnackbar } = useSnackbar();
   const playLoderRef = useRef(null);
-  const [setInfoModalData, shwoInfoModal, InfoModal] = useInfoModal();
-  const [SongModal, showSongModal] = useSongModal();
-
-  const [playing, setPlaying] = useState({ album: {}, artist: {} });
+  const { enqueueSnackbar } = useSnackbar();
   const [likeBtn, setLikeBtn] = useState(false);
+  const [SongModal, showSongModal] = useSongModal();
+  const [playUrl, setPlayUrl] = useState(undefined);
   const [appData, setAppData] = useContext(AppContext);
+  const [playing, setPlaying] = useState({ album: {}, artist: {} });
+  const [setInfoModalData, shwoInfoModal, InfoModal] = useInfoModal();
+
 
   const [ErrModal, showErrModal] = useError(
     'An error occured while trying to play this song',
     reloadSong
   );
-  const [playUrl, setPlayUrl] = useState(undefined);
 
   const handlePlayError = ({ target }) => {
     playLoderRef.current.classList.remove('hide');
@@ -99,8 +98,8 @@ const NowPlaying = forwardRef(({ path, queuePlayBtnRef }, ref) => {
         enqueueSnackbar('Reached top of playlist', {
           anchorOrigin: {
             vertical: 'top',
-            horizontal: 'center'
-          }
+            horizontal: 'center',
+          },
         });
         setPlaying(appData.playingQueue[appData.playingQueue.length - 1]);
         setPlayingData(
@@ -121,8 +120,8 @@ const NowPlaying = forwardRef(({ path, queuePlayBtnRef }, ref) => {
         enqueueSnackbar('Reached top of playlist', {
           anchorOrigin: {
             vertical: 'top',
-            horizontal: 'center'
-          }
+            horizontal: 'center',
+          },
         });
         setPlaying(appData.queue[appData.queue.length - 1]);
         setPlayingData(appData.queue[appData.queue.length - 1], path);
@@ -135,7 +134,7 @@ const NowPlaying = forwardRef(({ path, queuePlayBtnRef }, ref) => {
     getPlayingIndex,
     setPlayingData,
     path,
-    enqueueSnackbar
+    enqueueSnackbar,
   ]);
 
   const handleClickNext = useCallback(() => {
@@ -150,8 +149,8 @@ const NowPlaying = forwardRef(({ path, queuePlayBtnRef }, ref) => {
         enqueueSnackbar('Reached end of playlist', {
           anchorOrigin: {
             vertical: 'top',
-            horizontal: 'center'
-          }
+            horizontal: 'center',
+          },
         });
         setPlaying(appData.playingQueue[0]);
         setPlayingData(appData.playingQueue[0], path);
@@ -168,8 +167,8 @@ const NowPlaying = forwardRef(({ path, queuePlayBtnRef }, ref) => {
         enqueueSnackbar('Reached end of playlist', {
           anchorOrigin: {
             vertical: 'top',
-            horizontal: 'center'
-          }
+            horizontal: 'center',
+          },
         });
         setPlaying(appData.queue[0]);
         setPlayingData(appData.queue[0], path);
@@ -182,7 +181,7 @@ const NowPlaying = forwardRef(({ path, queuePlayBtnRef }, ref) => {
     getPlayingIndex,
     setPlayingData,
     path,
-    enqueueSnackbar
+    enqueueSnackbar,
   ]);
 
   const setMediaMetaData = useCallback((song) => {
@@ -212,25 +211,25 @@ const NowPlaying = forwardRef(({ path, queuePlayBtnRef }, ref) => {
           {
             src: song.album.cover || '',
             sizes: '128x128',
-            type: 'image/png'
+            type: 'image/png',
           },
           {
             src: song.album.cover || '',
             sizes: '192x192',
-            type: 'image/png'
+            type: 'image/png',
           },
           {
             src: song.album.cover || '',
             sizes: '256x256',
-            type: 'image/png'
+            type: 'image/png',
           },
           {
             src: song.album.cover || '',
             sizes: '384x384',
-            type: 'image/png'
+            type: 'image/png',
           },
-          { src: song.album.cover || '', sizes: '512x512', type: 'image/png' }
-        ]
+          { src: song.album.cover || '', sizes: '512x512', type: 'image/png' },
+        ],
       });
     }
   }, []);
@@ -255,45 +254,45 @@ const NowPlaying = forwardRef(({ path, queuePlayBtnRef }, ref) => {
 
   const getUrl = useCallback(
     async (playId, albumUrl) => {
+      const server = [
+        config.api,
+        'https://muse-proxy-1.herokuapp.com/',
+        'https://muse-proxy-2.herokuapp.com/',
+        'https://muse-proxy-3.herokuapp.com/',
+      ];
+
       try {
-        const { data } = await apolloClient.query({
-          query: gql`
-            query {
-              getSongUrl(playId: "${playId}", albumUrl: "${albumUrl}"){
-                _id
-                url
-              }
-             }
-        `
-        });
+        const songUrl = await axios({
+          method: 'POST',
+          url: server[Math.floor(Math.random() * server.length)],
+          data: { playId, albumUrl },
+        }).then((res) => res.data);
 
-        setPlayUrl(data.getSongUrl.url);
+        setPlayUrl(songUrl.url);
         playerRef.current.audio.current.play();
-      } catch (err1) {
-        try {
-          const page = await fetch(
-            'https://cors-anywhere.herokuapp.com/' + albumUrl
-          )
-            .then((res) => res.text())
-            .then((body) => body);
-
-          const $ = cheerio.load(page);
-          const playDiv = $('body')
-            .find(`#${playId}`)
-            .find('span.ico')
-            .attr('data-url');
-          if (playDiv) {
-            const url = 'https://myzuka.club' + playDiv;
-            setPlayUrl(url);
-            playerRef.current.audio.current.play();
-          } else {
-            throw new Error('second attempt to generate url failed');
-          }
-        } catch (err2) {
-          console.log(err1, err2);
-          showErrModal(true);
-        }
+      } catch (err) {
+        console.log(err);
+        showErrModal(true);
       }
+
+      // try {
+      //   const { data } = await apolloClient.query({
+      //     query: gql`
+      //       query {
+      //         getSongUrl(playId: "${playId}", albumUrl: "${albumUrl}"){
+      //           _id
+      //           url
+      //         }
+      //        }
+      //   `,
+      //   });
+
+      //   setPlayUrl(data.getSongUrl.url);
+      //   playerRef.current.audio.current.play();
+      // } catch (err1) {
+      //   console.log(err1);
+      //   showErrModal(true);
+      // }
     },
     [playerRef, showErrModal]
   );
@@ -329,7 +328,7 @@ const NowPlaying = forwardRef(({ path, queuePlayBtnRef }, ref) => {
                     }
                   }
                }
-          `
+          `,
           });
 
           const song = data.song;
@@ -352,7 +351,7 @@ const NowPlaying = forwardRef(({ path, queuePlayBtnRef }, ref) => {
       setInfoModalData,
       setMediaControls,
       setMediaMetaData,
-      showErrModal
+      showErrModal,
     ]
   );
   const syncLikes = useCallback(async () => {
@@ -364,7 +363,7 @@ const NowPlaying = forwardRef(({ path, queuePlayBtnRef }, ref) => {
         if (id && id !== 'undefined') {
           id = JSON.parse(id);
           const data = await request('put', `api/like/${id}`, {
-            songs: likes
+            songs: likes,
           });
           const songs = data.data.data.songs;
           localStorage.setItem(
@@ -374,7 +373,7 @@ const NowPlaying = forwardRef(({ path, queuePlayBtnRef }, ref) => {
           setAppData({ ...appData, likes: songs });
         } else {
           const data = await request('post', 'api/like', {
-            songs: likes
+            songs: likes,
           });
           const songs = data.data.data.songs;
           localStorage.setItem(
@@ -500,7 +499,7 @@ const NowPlaying = forwardRef(({ path, queuePlayBtnRef }, ref) => {
       className='nowPlaying'
       ref={playerCompRef}
       style={{
-        height: `calc(${document.documentElement.clientHeight}px - 84px)`
+        height: `calc(${document.documentElement.clientHeight}px - 84px)`,
       }}
     >
       <ErrModal />
@@ -586,7 +585,7 @@ const NowPlaying = forwardRef(({ path, queuePlayBtnRef }, ref) => {
             volume: <div data-img data-imgname='volume' />,
             volumeMute: <div data-img data-imgname='mute' />,
             loopOff: <div data-img data-imgname='no_repeat' />,
-            previous: <div data-img data-imgname='previous' />
+            previous: <div data-img data-imgname='previous' />,
           }}
         />
       </div>
