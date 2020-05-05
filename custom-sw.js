@@ -1,5 +1,6 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-restricted-globals */
+/*
 importScripts(
   'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/md5.js'
 );
@@ -7,7 +8,6 @@ importScripts(
   'https://cdn.jsdelivr.net/npm/idb-keyval@3/dist/idb-keyval-iife.min.js'
 );
 
-const cacheName = 'MUSE_CACHE';
 
 // Init indexedDB using idb-keyval, https://github.com/jakearchibald/idb-keyval
 const store = new idbKeyval.Store('GraphQL-Cache', 'PostResponses');
@@ -19,8 +19,9 @@ workbox.routing.registerRoute(
     return staleWhileRevalidate(event);
   },
   'POST'
-);
-
+  );
+  */
+const cacheName = 'MUSE_CACHE';
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches
@@ -81,7 +82,7 @@ self.addEventListener('install', (event) => {
       )
   );
 });
-
+/*
 // Return cached response when possible, and fetch new results from server in
 // the background and update the cache.
 self.addEventListener('fetch', async (event) => {
@@ -179,3 +180,4 @@ async function getPostKey(request) {
   let body = await request.json();
   return JSON.stringify(body);
 }
+*/
