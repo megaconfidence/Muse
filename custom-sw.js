@@ -1,13 +1,12 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-restricted-globals */
-/*
+
 importScripts(
   'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/md5.js'
 );
 importScripts(
   'https://cdn.jsdelivr.net/npm/idb-keyval@3/dist/idb-keyval-iife.min.js'
 );
-
 
 // Init indexedDB using idb-keyval, https://github.com/jakearchibald/idb-keyval
 const store = new idbKeyval.Store('GraphQL-Cache', 'PostResponses');
@@ -19,8 +18,8 @@ workbox.routing.registerRoute(
     return staleWhileRevalidate(event);
   },
   'POST'
-  );
-  */
+);
+
 const cacheName = 'MUSE_CACHE';
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -82,13 +81,13 @@ self.addEventListener('install', (event) => {
       )
   );
 });
-/*
+
 // Return cached response when possible, and fetch new results from server in
 // the background and update the cache.
 self.addEventListener('fetch', async (event) => {
   if (event.request.method === 'POST') {
     event.respondWith(staleWhileRevalidate(event));
-  } else {
+  } else if (!event.request.url.includes('myzcloud.pro/img/')) {
     event.respondWith(
       caches.match(event.request).then((response) => {
         if (response) {
@@ -96,7 +95,6 @@ self.addEventListener('fetch', async (event) => {
         } else {
           const url = event.request.url;
           const res = fetch(event.request);
-
           if (
             url.includes('https://graph.facebook.com/') ||
             url.includes('https://lh3.googleusercontent.com/')
@@ -128,7 +126,7 @@ async function staleWhileRevalidate(event) {
 
 async function serializeResponse(response) {
   let serializedHeaders = {};
-  for (var entry of response.headers.entries()) {
+  for (let entry of response.headers.entries()) {
     serializedHeaders[entry[0]] = entry[1];
   }
   let serialized = {
@@ -141,11 +139,11 @@ async function serializeResponse(response) {
 }
 
 async function setCache(request, response) {
-  var key, data;
+  let key, data;
   let body = await request.json();
   let id = CryptoJS.MD5(body.query).toString();
 
-  var entry = {
+  let entry = {
     query: body.query,
     response: await serializeResponse(response),
     timestamp: Date.now(),
@@ -180,4 +178,3 @@ async function getPostKey(request) {
   let body = await request.json();
   return JSON.stringify(body);
 }
-*/

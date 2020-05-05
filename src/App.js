@@ -48,9 +48,9 @@ const App = () => {
   const [showInstallPlaceholder, setShowInstallPlaceholder] = useState(false);
 
   const showPWABanner = useCallback(() => {
-    const isPWAInstalled = localStorage.getItem(
+    const isPWAInstalled = JSON.parse(localStorage.getItem(
       `${config.appName}_PWA_PROMPT_RESPONDED`
-    );
+    ));
     setTimeout(() => {
       if (playerRef.current && !isPWAInstalled) {
         playerRef.current.audio.current.addEventListener('playing', (event) => {
@@ -72,7 +72,7 @@ const App = () => {
       deferredPrompt.current.prompt();
       deferredPrompt.current.userChoice.then((choiceResult) => {
         if (choiceResult.outcome === 'accepted') {
-          localStorage.setItem(`${config.appName}_PWA_PROMPT_RESPONDED`, true);
+          localStorage.setItem(`${config.appName}_PWA_PROMPT_RESPONDED`, JSON.stringify(true));
           enqueueSnackbar('Awesome! Muse is being installed');
         }
         deferredPrompt.current = null;
@@ -85,7 +85,7 @@ const App = () => {
     setTimeout(() => {
       setShowInstallPlaceholder(false);
     }, 500);
-    localStorage.setItem(`${config.appName}_PWA_PROMPT_RESPONDED`, true);
+    localStorage.setItem(`${config.appName}_PWA_PROMPT_RESPONDED`, JSON.stringify(true));
   }, []);
 
   useEffect(() => {
