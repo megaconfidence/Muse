@@ -128,6 +128,7 @@ const ViewLanding = ({ path, history }) => {
   };
 
   const fetchView = useCallback(async () => {
+    setIsLoading(true);
     page.current = page.current + 1;
     try {
       if (cat === 'album') {
@@ -316,6 +317,7 @@ const ViewLanding = ({ path, history }) => {
         forceLazy();
         setIsLoading(false);
       }
+      setIsLoading(false);
     } catch (err) {
       console.log(err);
       showErrModal(true);
