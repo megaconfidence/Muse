@@ -33,7 +33,6 @@ const NowPlaying = forwardRef(({ path, queuePlayBtnRef }, ref) => {
   const [playing, setPlaying] = useState({ album: {}, artist: {} });
   const [setInfoModalData, shwoInfoModal, InfoModal] = useInfoModal();
 
-
   const [ErrModal, showErrModal] = useError(
     'An error occured while trying to play this song',
     reloadSong
@@ -252,50 +251,47 @@ const NowPlaying = forwardRef(({ path, queuePlayBtnRef }, ref) => {
     }
   }, [playerRef, handleClickPrevious, handleClickNext]);
 
-  const getUrl = useCallback(
-    async (playId, albumUrl) => {
-      const server = [
-        config.api,
-        'https://muse-proxy-1.herokuapp.com/',
-        'https://muse-proxy-2.herokuapp.com/',
-        'https://muse-proxy-3.herokuapp.com/',
-      ];
+  const getUrl = useCallback(async (playId, albumUrl) => {
+    const server = [
+      config.api,
+      'https://muse-proxy-1.herokuapp.com/',
+      'https://muse-proxy-2.herokuapp.com/',
+      'https://muse-proxy-3.herokuapp.com/',
+    ];
 
-      try {
-        const songUrl = await axios({
-          method: 'POST',
-          url: server[Math.floor(Math.random() * server.length)],
-          data: { playId, albumUrl },
-        }).then((res) => res.data);
+    try {
+      const songUrl = await axios({
+        method: 'POST',
+        url: server[Math.floor(Math.random() * server.length)],
+        data: { playId, albumUrl },
+      }).then((res) => res.data);
 
-        setPlayUrl(songUrl.url);
-        playerRef.current.audio.current.play();
-      } catch (err) {
-        console.log(err);
-        showErrModal(true);
-      }
+      setPlayUrl(songUrl.url);
+      playerRef.current.audio.current.play();
+    } catch (err) {
+      console.log(err);
+      showErrModal(true);
+    }
 
-      // try {
-      //   const { data } = await apolloClient.query({
-      //     query: gql`
-      //       query {
-      //         getSongUrl(playId: "${playId}", albumUrl: "${albumUrl}"){
-      //           _id
-      //           url
-      //         }
-      //        }
-      //   `,
-      //   });
+    // try {
+    //   const { data } = await apolloClient.query({
+    //     query: gql`
+    //       query {
+    //         getSongUrl(playId: "${playId}", albumUrl: "${albumUrl}"){
+    //           _id
+    //           url
+    //         }
+    //        }
+    //   `,
+    //   });
 
-      //   setPlayUrl(data.getSongUrl.url);
-      //   playerRef.current.audio.current.play();
-      // } catch (err1) {
-      //   console.log(err1);
-      //   showErrModal(true);
-      // }
-    },
-    [playerRef, showErrModal]
-  );
+    //   setPlayUrl(data.getSongUrl.url);
+    //   playerRef.current.audio.current.play();
+    // } catch (err1) {
+    //   console.log(err1);
+    //   showErrModal(true);
+    // }
+  }, [playerRef, showErrModal]);
 
   const getSong = useCallback(
     async (song, path) => {

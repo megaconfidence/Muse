@@ -8,6 +8,7 @@ import * as serviceWorker from './serviceWorker';
 import { ApolloProvider } from '@apollo/react-hooks';
 
 const imgSrc = [
+  '/image/muse.webp',
   '/image/icon/add_playlist.svg',
   '/image/icon/album.svg',
   '/image/icon/alert.svg',

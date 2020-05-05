@@ -3,7 +3,7 @@ import {
   Switch,
   Redirect,
   withRouter,
-  HashRouter as Router
+  HashRouter as Router,
 } from 'react-router-dom';
 import './App.css';
 import View from './routes/View';
@@ -39,7 +39,7 @@ const Home = forwardRef(
       installPWA,
       dismissPWA,
       showInstallBanner,
-      showInstallPlaceholder
+      showInstallPlaceholder,
     },
     ref
   ) => {
@@ -97,7 +97,7 @@ const Home = forwardRef(
           <NowPlaying
             ref={{
               playerRef,
-              playerCompRef
+              playerCompRef,
             }}
             path={location.pathname}
             queuePlayBtnRef={queuePlayBtnRef}
@@ -113,7 +113,7 @@ const Home = forwardRef(
                   {...props}
                   ref={{
                     playerRef,
-                    queuePlayBtnRef
+                    queuePlayBtnRef,
                   }}
                 />
               )}

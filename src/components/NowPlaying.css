@@ -27,7 +27,7 @@
   background-color: var(--dark-three);
   background-image: url('/image/muse.webp');
 }
-@media(max-width: 360px) {
+@media (max-width: 360px) {
   .nowPlaying__albumArt__temp {
     height: 300px;
   }
