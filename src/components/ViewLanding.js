@@ -1,9 +1,4 @@
-import React, {
-  useRef,
-  useState,
-  useEffect,
-  useCallback
-} from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import './ViewLanding.css';
 import gql from 'graphql-tag';
 import InfoCard from './InfoCard';
@@ -36,9 +31,11 @@ const ViewLanding = ({ path, history }) => {
   const [appData] = useContext(AppContext);
   const [SongModal, showSongModal] = useSongModal();
   const [FilterModal, setFilterModal] = useFilterModal();
+  const [hasMore, setHasMore] = useState(false);
 
   const [viewAlbums, setViewAlbums] = useState([]);
-  const songsCache = useRef(null);
+  const songsCache = useRef([]);
+  const count = useRef(null);
 
   const handleListCardClick = (i) => {
     if (cat === 'album') {
@@ -127,9 +124,56 @@ const ViewLanding = ({ path, history }) => {
     }, 1000);
   };
 
+  const fetchGenreSongs = useCallback(
+    async (firstCall) => {
+      try {
+        setIsLoading(true);
+        page.current += 1;
+
+        
+
+        const { data } = await apolloClient.query({
+          query: gql`
+          query {
+            songs: genreSongs(id: "${catId}", page: ${page.current}) {
+                _id
+              name
+              playId
+              duration
+              artist {
+                name
+              }
+              album {
+                url
+                cover
+                name
+                genre {
+                  name
+                }
+              }
+              }
+            }
+        `,
+        });
+
+        setIsLoading(false);
+        const songs = data.songs;
+        songsCache.current = songsCache.current.concat(songs);
+        setViewSongs(songsCache.current);
+        if (songsCache.current.length === count.current) {
+          setHasMore(false);
+        }
+      } catch (err) {
+        console.log(err);
+        showErrModal(true);
+        setIsLoading(false);
+      }
+    },
+    [catId, setIsLoading, showErrModal]
+  );
+
   const fetchView = useCallback(async () => {
     setIsLoading(true);
-    page.current = page.current + 1;
     try {
       if (cat === 'album') {
         const { data } = await apolloClient.query({
@@ -156,7 +200,7 @@ const ViewLanding = ({ path, history }) => {
             }
           }
          }
-    `
+    `,
         });
 
         if (data) {
@@ -181,7 +225,7 @@ const ViewLanding = ({ path, history }) => {
               const save = (v) => {
                 arr.push({
                   name: v.replace(/[^a-zA-Z0-9 \-$]/g, '').trim(),
-                  cover: ss.album.cover
+                  cover: ss.album.cover,
                 });
               };
 
@@ -196,7 +240,7 @@ const ViewLanding = ({ path, history }) => {
               map.set(i.name, true);
               uniqueArr.push({
                 name: i.name,
-                cover: i.cover
+                cover: i.cover,
               });
             }
           }
@@ -234,7 +278,7 @@ const ViewLanding = ({ path, history }) => {
             }
           }
          }
-    `
+    `,
         });
 
         if (data) {
@@ -254,33 +298,25 @@ const ViewLanding = ({ path, history }) => {
               cover
               name
             }
-            songs {
-              _id
-              name
-              playId
-              duration
-              artist {
-                name
-              }
-              album {
-                url
-                cover
-                name
-                genre {
-                  name
-                }
-              }
-            }
+           
           }
          }
-    `
+    `,
         });
 
+        const countData = await apolloClient.query({
+          query: gql`
+        query {
+          genreSongsCount(id: "${catId}") 
+         }
+    `,
+        });
+
+        count.current = countData.data.genreSongsCount;
+
         if (data) {
-          setIsLoading(false);
-          const songs = data.genre.songs;
-          setViewSongs(songs);
-          songsCache.current = songs;
+          fetchGenreSongs(true);
+          setHasMore(true);
           setViewAlbums(data.genre.album);
         }
       } else if (cat === 'playlist') {
@@ -317,7 +353,6 @@ const ViewLanding = ({ path, history }) => {
         forceLazy();
         setIsLoading(false);
       }
-      setIsLoading(false);
     } catch (err) {
       console.log(err);
       showErrModal(true);
@@ -329,8 +364,9 @@ const ViewLanding = ({ path, history }) => {
     appData.recents,
     cat,
     catId,
+    fetchGenreSongs,
     setIsLoading,
-    showErrModal
+    showErrModal,
   ]);
 
   async function refetchView() {
@@ -364,6 +400,12 @@ const ViewLanding = ({ path, history }) => {
             } else {
               history.push('/playlists');
             }
+
+            // if (cat === 'favorites' || cat === 'recents' || cat === 'playlist') {
+            //   history.goBack('/playlists');
+            // } else {
+            //   history.push(`/${cat}`);
+            // }
           }}
           data-imgname='arrow_left'
           className='vLanding__nav__icon'
@@ -408,8 +450,14 @@ const ViewLanding = ({ path, history }) => {
         <div className='vLanding__songs__list'>
           <Spinner />
           <InfiniteScroll
-            hasMore={false}
-            next={fetchView}
+            hasMore={hasMore}
+            next={() => {
+              if (cat === 'genre') {
+                fetchGenreSongs();
+              } else {
+                // fetchView()
+              }
+            }}
             dataLength={viewSongs.length}
             className={'aLanding__list--scroller'}
             loader={
@@ -418,16 +466,26 @@ const ViewLanding = ({ path, history }) => {
               </div>
             }
           >
-            {viewSongs.map((s, k) => (
-              <LazyLoad key={k} placeholder={<div>***</div>}>
-                <SongItem
-                  s={s}
-                  cat={cat}
-                  catId={catId}
-                  showSongModal={showSongModal}
-                />
-              </LazyLoad>
-            ))}
+            {cat === 'genre'
+              ? viewSongs.map((s, k) => (
+                  <SongItem
+                    s={s}
+                    key={k}
+                    cat={cat}
+                    catId={catId}
+                    showSongModal={showSongModal}
+                  />
+                ))
+              : viewSongs.map((s, k) => (
+                  <LazyLoad key={k} placeholder={<div>***</div>}>
+                    <SongItem
+                      s={s}
+                      cat={cat}
+                      catId={catId}
+                      showSongModal={showSongModal}
+                    />
+                  </LazyLoad>
+                ))}
           </InfiniteScroll>
         </div>
       </div>

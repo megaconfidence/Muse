@@ -120,7 +120,7 @@ const Home = forwardRef(
             />
             <Route
               exact
-              path='/albums'
+              path='/album'
               render={(props) => <Albums {...props} />}
             />
             <Route

@@ -61,7 +61,7 @@ const AlbumsLanding = ({ path }) => {
         albumCache.current = albumCache.current.concat(data.allAlbums);
         setAlbumsDisplay(albumCache.current);
       }
-      if (albumCache.current.length === Number(count.current)) {
+      if (albumCache.current.length === count.current) {
         setHasMore(false);
       }
     } catch (err) {

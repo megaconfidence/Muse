@@ -58,7 +58,7 @@ function ListLanding({ path }) {
         listCache.current = listCache.current.concat(data.allGenre);
         setList(listCache.current);
       }
-      if (listCache.current.length === Number(count.current)) {
+      if (listCache.current.length === count.current) {
         setHasMore(false);
       }
     } catch (err) {
@@ -73,18 +73,32 @@ function ListLanding({ path }) {
     fetchList();
   }
   const setSearch = useCallback(
-    async (query, cat) => {
+    async (query, cat, fetchMore) => {
       setSearchVal(query);
-      try {
+      if(!fetchMore) {
         setList([]);
+        page.current = 0;
+        listCache.current = []
+          const { data } = await apolloClient.query({
+            query: gql`
+              query {
+                countSearch(type: "${cat}", query: "${query}") 
+              }
+            `
+          });
+          count.current =  data.countSearch
+      }
+      try {
+        setHasMore(true);
         setIsLoading(true);
+        page.current += 1;
         if (query) {
-          setHasMore(false);
+          
           if (cat === 'artist') {
             const { data } = await apolloClient.query({
               query: gql`
                 query {
-                  searchArtist(query: "${query}") {
+                  searchArtist(page: ${page.current}, query: "${query}") {
                     _id
                     name
                   }
@@ -93,7 +107,8 @@ function ListLanding({ path }) {
             });
 
             setIsLoading(false);
-            setList(data.searchArtist);
+            listCache.current = listCache.current.concat(data.searchArtist);
+            setList(listCache.current);
           } else if (cat === 'genre') {
             const { data } = await apolloClient.query({
               query: gql`
@@ -106,11 +121,19 @@ function ListLanding({ path }) {
               `
             });
 
+            setHasMore(false)
             setIsLoading(false);
             setList(data.searchGenre);
           }
+          if (listCache.current.length === count.current) {
+            setHasMore(false);
+          }
         } else {
+          setList([]);
           fetchList();
+          page.current = 0;
+          count.current = null;
+          listCache.current = [];
         }
       } catch (err) {
         console.log(err);
@@ -148,7 +171,13 @@ function ListLanding({ path }) {
       <Spinner />
       {list.length ? (
         <InfiniteScroll
-          next={fetchList}
+          next={() => {
+            if(searchVal) {
+              setSearch(searchVal, path, true)
+            } else {
+              fetchList()
+            }
+          }}
           hasMore={hasMore}
           dataLength={list.length}
           loader={

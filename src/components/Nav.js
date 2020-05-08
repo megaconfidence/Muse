@@ -33,7 +33,7 @@ function Nav(d) {
       </NavLink>
       <NavLink
         exact
-        to={`/albums`}
+        to={`/album`}
         activeClassName='nav__link--active'
         className='nav__link noselect'
       >

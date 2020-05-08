@@ -10,13 +10,26 @@ import SearchNotFound from './SearchNotFound';
 import useSongModal from './hooks/useSongModal';
 import LazyLoad, { forceCheck } from 'react-lazyload';
 import React, { useState, useRef, useEffect } from 'react';
+import InfiniteScroll from 'react-infinite-scroll-component';
 
 function SearchLanding() {
   const [path, setPath] = useState('songs');
   const [searchVal, setSearchVal] = useState('');
   const [dontShowSearchNotFound, setDontShowSearchNotFound] = useState(true);
   const [SongModal, showSongModal] = useSongModal();
+  const count = useRef(null);
   const [displayResults, setDisplayResults] = useState(true);
+  const [hasMoreForSongs, setHasMoreForSongs] = useState(true);
+  const [hasMoreForAlbums, setHasMoreForAlbums] = useState(true);
+  const [hasMoreForArtists, setHasMoreForArtists] = useState(true);
+
+  const pageForSongs = useRef(0);
+  const pageForArtists = useRef(0);
+  const pageForAlbums = useRef(0);
+
+  const songMatchDisplayCache = useRef([]);
+  const albumMatchDisplayCache = useRef([]);
+  const artistMatchDisplayCache = useRef([]);
 
   const songPane = useRef(null);
   const albumPane = useRef(null);
@@ -30,16 +43,40 @@ function SearchLanding() {
   const [albumMatchDisplay, setAlbumMatchDisplay] = useState([]);
   const [artistMatchDisplay, setArtistMatchDisplay] = useState([]);
 
-  async function setSearch(query = searchVal, cat = path) {
+  async function setSearch(query = searchVal, cat = path, fectchMore) {
     setIsLoading(true);
     setSearchVal(query);
-    setDisplayResults(false);
+    if (!fectchMore) {
+      setDisplayResults(false);
+      setSongMatchDisplay([]);
+      setAlbumMatchDisplay([]);
+      setArtistMatchDisplay([]);
+
+      setHasMoreForSongs(true);
+      setHasMoreForAlbums(true);
+      setHasMoreForArtists(true);
+
+      songMatchDisplayCache.current = [];
+      albumMatchDisplayCache.current = [];
+      artistMatchDisplayCache.current = [];
+
+      console.log(cat, query)
+      const { data } = await apolloClient.query({
+        query: gql`
+          query {
+            countSearch(type: "${cat}", query: "${query}") 
+          }
+        `
+      });
+      count.current = data.countSearch
+    }
     try {
       if (cat === 'songs' && query) {
+        pageForSongs.current += 1;
         const { data } = await apolloClient.query({
           query: gql`
             query {
-              searchSongs(query: "${query}") {
+              searchSongs(page: ${pageForSongs.current}, query: "${query}") {
                 _id
                 name
                 playId
@@ -58,18 +95,29 @@ function SearchLanding() {
         });
 
         if (data) {
+          setHasMoreForSongs(true);
+          setHasMoreForAlbums(false);
+          setHasMoreForArtists(false);
+
           setIsLoading(false);
           setDisplayResults(true);
-          setSongMatchDisplay(data.searchSongs);
+          songMatchDisplayCache.current = songMatchDisplayCache.current.concat(
+            data.searchSongs
+          );
+          setSongMatchDisplay(songMatchDisplayCache.current);
           songPane.current.classList.remove('hide');
           albumPane.current.classList.add('hide');
           artistPane.current.classList.add('hide');
+          if (songMatchDisplayCache.current.length === count.current) {
+            setHasMoreForSongs(false);
+          }
         }
       } else if (cat === 'albums' && query) {
+        pageForAlbums.current += 1;
         const { data } = await apolloClient.query({
           query: gql`
             query {
-              searchAlbums(query: "${query}") {
+              searchAlbums(page: ${pageForAlbums.current}, query: "${query}") {
                 _id
                 name
               }
@@ -78,18 +126,30 @@ function SearchLanding() {
         });
 
         if (data) {
+          setHasMoreForSongs(false);
+          setHasMoreForAlbums(true);
+          setHasMoreForArtists(false);
+
           setIsLoading(false);
           setDisplayResults(true);
-          setAlbumMatchDisplay(data.searchAlbums);
+          albumMatchDisplayCache.current = albumMatchDisplayCache.current.concat(
+            data.searchAlbums
+          );
+          setAlbumMatchDisplay(albumMatchDisplayCache.current);
           songPane.current.classList.add('hide');
           albumPane.current.classList.remove('hide');
           artistPane.current.classList.add('hide');
+
+          if (albumMatchDisplayCache.current.length === count.current) {
+            setHasMoreForAlbums(false);
+          }
         }
       } else if (cat === 'artists' && query) {
+        pageForArtists.current += 1;
         const { data } = await apolloClient.query({
           query: gql`
             query {
-              searchArtist(query: "${query}") {
+              searchArtist(page: ${pageForArtists.current}, query: "${query}") {
                 _id
                 name
               }
@@ -98,16 +158,38 @@ function SearchLanding() {
         });
 
         if (data) {
+          setHasMoreForSongs(false);
+          setHasMoreForAlbums(false);
+          setHasMoreForArtists(true);
+
           setIsLoading(false);
           setDisplayResults(true);
-          setArtistMatchDisplay(data.searchArtist);
+          artistMatchDisplayCache.current = artistMatchDisplayCache.current.concat(
+            data.searchArtist
+          );
+          setArtistMatchDisplay(artistMatchDisplayCache.current);
           songPane.current.classList.add('hide');
           albumPane.current.classList.add('hide');
           artistPane.current.classList.remove('hide');
+
+          if (artistMatchDisplayCache.current.length === count.current) {
+            setHasMoreForArtists(false);
+          }
         }
       } else if (!query) {
         setIsLoading(false);
         setDisplayResults(true);
+        setSongMatchDisplay([]);
+        setAlbumMatchDisplay([]);
+        setArtistMatchDisplay([]);
+
+        setHasMoreForSongs(false);
+        setHasMoreForAlbums(false);
+        setHasMoreForArtists(false);
+
+        songMatchDisplayCache.current = [];
+        albumMatchDisplayCache.current = [];
+        artistMatchDisplayCache.current = [];
       }
       showErrModal(false);
     } catch (err) {
@@ -203,16 +285,29 @@ function SearchLanding() {
           <div className='shLanding__songPane' ref={songPane}>
             <div className='shLanding__songs__list'>
               {dontShowSearchNotFound ? (
-                songMatchDisplay.map((s, k) => (
-                  <LazyLoad key={k} placeholder={<div>***</div>}>
-                    <SongItem
-                      s={s}
-                      cat={'search'}
-                      queueId={s.queueId}
-                      showSongModal={showSongModal}
-                    />
-                  </LazyLoad>
-                ))
+                <InfiniteScroll
+                  next={() => {
+                    setSearch(searchVal, 'songs', true);
+                  }}
+                  hasMore={hasMoreForSongs}
+                  dataLength={songMatchDisplay.length}
+                  loader={
+                    <div className='infinite__scroll__loader' key={0}>
+                      <div data-img data-imgname='loading' />
+                    </div>
+                  }
+                >
+                  {songMatchDisplay.map((s, k) => (
+                    <LazyLoad key={k} placeholder={<div>***</div>}>
+                      <SongItem
+                        s={s}
+                        cat={'search'}
+                        queueId={s.queueId}
+                        showSongModal={showSongModal}
+                      />
+                    </LazyLoad>
+                  ))}
+                </InfiniteScroll>
               ) : searchVal.length ? (
                 <SearchNotFound />
               ) : (
@@ -222,16 +317,31 @@ function SearchLanding() {
           </div>
           <div className='shLanding__albumPane hide' ref={albumPane}>
             {dontShowSearchNotFound ? (
-              albumMatchDisplay.map((a, k) => (
-                <Link
-                  key={k}
-                  to={{
-                    pathname: `/view/album/${a.name}/${a._id}`,
-                  }}
-                >
-                  <div className='shLanding__pane__item truncate'>{a.name}</div>
-                </Link>
-              ))
+              <InfiniteScroll
+                next={() => {
+                  setSearch(searchVal, 'albums', true);
+                }}
+                hasMore={hasMoreForAlbums}
+                dataLength={albumMatchDisplay.length}
+                loader={
+                  <div className='infinite__scroll__loader' key={0}>
+                    <div data-img data-imgname='loading' />
+                  </div>
+                }
+              >
+                {albumMatchDisplay.map((a, k) => (
+                  <Link
+                    key={k}
+                    to={{
+                      pathname: `/view/album/${a.name}/${a._id}`,
+                    }}
+                  >
+                    <div className='shLanding__pane__item truncate'>
+                      {a.name}
+                    </div>
+                  </Link>
+                ))}
+              </InfiniteScroll>
             ) : searchVal.length ? (
               <SearchNotFound />
             ) : (
@@ -240,7 +350,19 @@ function SearchLanding() {
           </div>
           <div className='shLanding__artistPane hide' ref={artistPane}>
             {dontShowSearchNotFound ? (
-              artistMatchDisplay.map((a, k) => (
+               <InfiniteScroll
+               next={() => {
+                 setSearch(searchVal, 'artists', true);
+               }}
+               hasMore={hasMoreForArtists}
+               dataLength={artistMatchDisplay.length}
+               loader={
+                 <div className='infinite__scroll__loader' key={0}>
+                   <div data-img data-imgname='loading' />
+                 </div>
+               }
+             >
+              {artistMatchDisplay.map((a, k) => (
                 <Link
                   key={k}
                   to={{
@@ -249,7 +371,8 @@ function SearchLanding() {
                 >
                   <div className='shLanding__pane__item truncate'>{a.name}</div>
                 </Link>
-              ))
+              ))}
+                </InfiniteScroll>
             ) : searchVal.length ? (
               <SearchNotFound />
             ) : (
