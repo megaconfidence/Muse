@@ -48,18 +48,21 @@ const App = () => {
   const [showInstallPlaceholder, setShowInstallPlaceholder] = useState(false);
 
   const showPWABanner = useCallback(() => {
-    const isPWAInstalled = JSON.parse(
-      localStorage.getItem(`${config.appName}_PWA_PROMPT_RESPONDED`)
-    );
-    if (playerRef.current && !isPWAInstalled) {
+ 
+    if (playerRef.current) {
       setTimeout(() => {
         playerRef.current.audio.current.addEventListener('playing', (event) => {
-          setTimeout(() => {
-            setShowInstallPlaceholder(true);
+          let isPWAInstalled = JSON.parse(
+            localStorage.getItem(`${config.appName}_PWA_PROMPT_RESPONDED`)
+          );
+          if (!isPWAInstalled) {
             setTimeout(() => {
-              setShowInstallBanner(true);
-            }, 500);
-          }, 10000);
+              setShowInstallPlaceholder(true);
+              setTimeout(() => {
+                setShowInstallBanner(true);
+              }, 500);
+            }, 10000);
+          }
         });
       }, 3000);
     }
