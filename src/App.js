@@ -51,7 +51,6 @@ const App = () => {
     const isPWAInstalled = JSON.parse(localStorage.getItem(
       `${config.appName}_PWA_PROMPT_RESPONDED`
     ));
-    console.log(typeof isPWAInstalled.val)
     setTimeout(() => {
       if (playerRef.current && !isPWAInstalled.val) {
         playerRef.current.audio.current.addEventListener('playing', (event) => {
