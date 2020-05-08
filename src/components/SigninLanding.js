@@ -57,7 +57,7 @@ const SigninLanding = ({showPWABanner}) => {
 
       setGoogleLoading(false);
       setFacebookLoading(false);
-      enqueueSnackbar('Welcome 😜');
+      enqueueSnackbar('Welcome');
 
       setAppData({
         ...appData,
@@ -101,7 +101,7 @@ const SigninLanding = ({showPWABanner}) => {
     } catch (err) {
       setGoogleLoading(false);
       setFacebookLoading(false);
-      enqueueSnackbar('Something went wrong 😢');
+      enqueueSnackbar('Sorry that didn\'t work, please try again');
     }
   };
 

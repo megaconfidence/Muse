@@ -85,9 +85,9 @@ self.addEventListener('install', (event) => {
 // Return cached response when possible, and fetch new results from server in
 // the background and update the cache.
 self.addEventListener('fetch', async (event) => {
-  if (event.request.method === 'POST') {
+  if (event.request.method === 'POST' && event.request.url.includes('/graphql')) {
     event.respondWith(staleWhileRevalidate(event));
-  } else if (!event.request.url.includes('myzcloud.pro/img/')) {
+  } else if (!event.request.url.includes('myzcloud.pro/img/') && !event.request.url.includes('herokuapp') ) {
     event.respondWith(
       caches.match(event.request).then((response) => {
         if (response) {

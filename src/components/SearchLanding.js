@@ -16,7 +16,7 @@ function SearchLanding() {
   const [searchVal, setSearchVal] = useState('');
   const [dontShowSearchNotFound, setDontShowSearchNotFound] = useState(true);
   const [SongModal, showSongModal] = useSongModal();
-  const [displayResults, setDisplayResults] = useState(true)
+  const [displayResults, setDisplayResults] = useState(true);
 
   const songPane = useRef(null);
   const albumPane = useRef(null);
@@ -33,7 +33,7 @@ function SearchLanding() {
   async function setSearch(query = searchVal, cat = path) {
     setIsLoading(true);
     setSearchVal(query);
-    setDisplayResults(false)
+    setDisplayResults(false);
     try {
       if (cat === 'songs' && query) {
         const { data } = await apolloClient.query({
@@ -54,13 +54,16 @@ function SearchLanding() {
                 }  
               }
             }
-          `
+          `,
         });
 
         if (data) {
           setIsLoading(false);
-          setDisplayResults(true)
+          setDisplayResults(true);
           setSongMatchDisplay(data.searchSongs);
+          songPane.current.classList.remove('hide');
+          albumPane.current.classList.add('hide');
+          artistPane.current.classList.add('hide');
         }
       } else if (cat === 'albums' && query) {
         const { data } = await apolloClient.query({
@@ -71,13 +74,16 @@ function SearchLanding() {
                 name
               }
             }
-          `
+          `,
         });
 
         if (data) {
           setIsLoading(false);
-          setDisplayResults(true)
+          setDisplayResults(true);
           setAlbumMatchDisplay(data.searchAlbums);
+          songPane.current.classList.add('hide');
+          albumPane.current.classList.remove('hide');
+          artistPane.current.classList.add('hide');
         }
       } else if (cat === 'artists' && query) {
         const { data } = await apolloClient.query({
@@ -88,17 +94,20 @@ function SearchLanding() {
                 name
               }
             }
-          `
+          `,
         });
 
         if (data) {
           setIsLoading(false);
-          setDisplayResults(true)
+          setDisplayResults(true);
           setArtistMatchDisplay(data.searchArtist);
+          songPane.current.classList.add('hide');
+          albumPane.current.classList.add('hide');
+          artistPane.current.classList.remove('hide');
         }
       } else if (!query) {
         setIsLoading(false);
-        setDisplayResults(true)
+        setDisplayResults(true);
       }
       showErrModal(false);
     } catch (err) {
@@ -217,7 +226,7 @@ function SearchLanding() {
                 <Link
                   key={k}
                   to={{
-                    pathname: `/view/album/${a.name}/${a._id}`
+                    pathname: `/view/album/${a.name}/${a._id}`,
                   }}
                 >
                   <div className='shLanding__pane__item truncate'>{a.name}</div>
@@ -235,7 +244,7 @@ function SearchLanding() {
                 <Link
                   key={k}
                   to={{
-                    pathname: `/view/artist/${a.name}/${a._id}`
+                    pathname: `/view/artist/${a.name}/${a._id}`,
                   }}
                 >
                   <div className='shLanding__pane__item truncate'>{a.name}</div>

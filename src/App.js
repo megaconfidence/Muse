@@ -34,7 +34,7 @@ const App = () => {
         playing: playing || [],
         recents: recents || [],
         playlist: playlist || [],
-        playingQueue: playingQueue || []
+        playingQueue: playingQueue || [],
       };
     } else {
       return defaultContext;
@@ -48,11 +48,11 @@ const App = () => {
   const [showInstallPlaceholder, setShowInstallPlaceholder] = useState(false);
 
   const showPWABanner = useCallback(() => {
-    const isPWAInstalled = JSON.parse(localStorage.getItem(
-      `${config.appName}_PWA_PROMPT_RESPONDED`
-    ));
-    setTimeout(() => {
-      if (playerRef.current && isPWAInstalled && !isPWAInstalled.val) {
+    const isPWAInstalled = JSON.parse(
+      localStorage.getItem(`${config.appName}_PWA_PROMPT_RESPONDED`)
+    );
+    if (playerRef.current && !isPWAInstalled) {
+      setTimeout(() => {
         playerRef.current.audio.current.addEventListener('playing', (event) => {
           setTimeout(() => {
             setShowInstallPlaceholder(true);
@@ -61,8 +61,8 @@ const App = () => {
             }, 500);
           }, 10000);
         });
-      }
-    }, 3000);
+      }, 3000);
+    }
   }, [playerRef]);
 
   const installPWA = useCallback(() => {
@@ -72,20 +72,25 @@ const App = () => {
       deferredPrompt.current.prompt();
       deferredPrompt.current.userChoice.then((choiceResult) => {
         if (choiceResult.outcome === 'accepted') {
-          localStorage.setItem(`${config.appName}_PWA_PROMPT_RESPONDED`, JSON.stringify({val: true}));
-          enqueueSnackbar('Awesome! Muse is being installed');
+          localStorage.setItem(
+            `${config.appName}_PWA_PROMPT_RESPONDED`,
+            JSON.stringify(true)
+          );
         }
         deferredPrompt.current = null;
       });
     }
-  }, [enqueueSnackbar]);
+  }, []);
 
   const dismissPWA = useCallback(() => {
     setShowInstallBanner(false);
     setTimeout(() => {
       setShowInstallPlaceholder(false);
     }, 500);
-    localStorage.setItem(`${config.appName}_PWA_PROMPT_RESPONDED`, JSON.stringify({val: true}));
+    localStorage.setItem(
+      `${config.appName}_PWA_PROMPT_RESPONDED`,
+      JSON.stringify(true)
+    );
   }, []);
 
   useEffect(() => {

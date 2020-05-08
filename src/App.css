@@ -48,6 +48,9 @@
   transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
     visibility 0s linear 0.25s;
 }
+.install__content {
+  margin-left: 10px;
+}
 @media (max-width: 360px) {
   .install__content {
     width: calc(100% - 120px);

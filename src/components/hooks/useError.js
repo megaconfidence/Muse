@@ -27,7 +27,7 @@ const useError = (content, action) => {
                   className='error__card__footer__buttons__left'
                   onClick={closeModal}
                 >
-                  back
+                  close
                 </div>
                 <div
                   className='error__card__footer__buttons__right'
