@@ -251,47 +251,50 @@ const NowPlaying = forwardRef(({ path, queuePlayBtnRef }, ref) => {
     }
   }, [playerRef, handleClickPrevious, handleClickNext]);
 
-  const getUrl = useCallback(async (playId, albumUrl) => {
-    const server = [
-      config.api,
-      'https://muse-proxy-1.herokuapp.com/',
-      'https://muse-proxy-2.herokuapp.com/',
-      'https://muse-proxy-3.herokuapp.com/',
-    ];
+  const getUrl = useCallback(
+    async (playId, albumUrl) => {
+      const server = [
+        config.api,
+        'https://muse-proxy-1.herokuapp.com/',
+        'https://muse-proxy-2.herokuapp.com/',
+        'https://muse-proxy-3.herokuapp.com/',
+      ];
 
-    try {
-      const songUrl = await axios({
-        method: 'POST',
-        url: server[Math.floor(Math.random() * server.length)],
-        data: { playId, albumUrl },
-      }).then((res) => res.data);
+      try {
+        const songUrl = await axios({
+          method: 'POST',
+          url: server[Math.floor(Math.random() * server.length)],
+          data: { playId, albumUrl },
+        }).then((res) => res.data);
 
-      setPlayUrl(songUrl.url);
-      playerRef.current.audio.current.play();
-    } catch (err) {
-      console.log(err);
-      showErrModal(true);
-    }
+        setPlayUrl(songUrl.url);
+        playerRef.current.audio.current.play();
+      } catch (err) {
+        console.log(err);
+        showErrModal(true);
+      }
 
-    // try {
-    //   const { data } = await apolloClient.query({
-    //     query: gql`
-    //       query {
-    //         getSongUrl(playId: "${playId}", albumUrl: "${albumUrl}"){
-    //           _id
-    //           url
-    //         }
-    //        }
-    //   `,
-    //   });
+      // try {
+      //   const { data } = await apolloClient.query({
+      //     query: gql`
+      //       query {
+      //         getSongUrl(playId: "${playId}", albumUrl: "${albumUrl}"){
+      //           _id
+      //           url
+      //         }
+      //        }
+      //   `,
+      //   });
 
-    //   setPlayUrl(data.getSongUrl.url);
-    //   playerRef.current.audio.current.play();
-    // } catch (err1) {
-    //   console.log(err1);
-    //   showErrModal(true);
-    // }
-  }, [playerRef, showErrModal]);
+      //   setPlayUrl(data.getSongUrl.url);
+      //   playerRef.current.audio.current.play();
+      // } catch (err1) {
+      //   console.log(err1);
+      //   showErrModal(true);
+      // }
+    },
+    [playerRef, showErrModal]
+  );
 
   const getSong = useCallback(
     async (song, path) => {
@@ -512,7 +515,9 @@ const NowPlaying = forwardRef(({ path, queuePlayBtnRef }, ref) => {
       <div className='nowPlaying__songInfo'>
         <div className='nowPlaying__songInfo__name'>{playing.name}</div>
         <div className='nowPlaying__songInfo__artist'>
-          {playing.artist.name}
+          {playing.artist.length
+            ? playing.artist.map((a) => a.name).join(' / ')
+            : null}
         </div>
         <div className='nowPlaying__songInfo__album'>{playing.album.name}</div>
       </div>
