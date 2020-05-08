@@ -53,7 +53,7 @@ const AlbumsLanding = ({ path }) => {
             }
           }
         }
-      `
+      `,
       });
       if (data) {
         setIsLoading(false);
@@ -76,17 +76,32 @@ const AlbumsLanding = ({ path }) => {
   }
 
   const setSearch = useCallback(
-    async (query, cat) => {
+    async (query, cat, fetchMore) => {
       // handleSearch(query, cat);
       setSearchVal(query);
+      if (!fetchMore) {
+        setAlbumsDisplay([]);
+        page.current = 0;
+        albumCache.current = [];
+        const { data } = await apolloClient.query({
+          query: gql`
+            query {
+              countSearch(type: "${cat}", query: "${query}") 
+            }
+          `,
+        });
+        count.current = data.countSearch;
+      }
       try {
         if (query) {
+          setHasMore(true);
+          page.current += 1;
           setIsLoading(true);
           setAlbumsDisplay([]);
           const { data } = await apolloClient.query({
             query: gql`
            query {
-             searchAlbums(query: "${query}") {
+             searchAlbums(page: ${page.current}, query: "${query}") {
                _id
                cover
                name
@@ -95,13 +110,20 @@ const AlbumsLanding = ({ path }) => {
                }
              }
            }
-         `
+         `,
           });
 
-          setHasMore(false);
           setIsLoading(false);
-          setAlbumsDisplay(data.searchAlbums);
+          albumCache.current = albumCache.current.concat(data.searchAlbums);
+          setAlbumsDisplay(albumCache.current);
+          if (albumCache.current.length === count.current) {
+            setHasMore(false);
+          }
         } else {
+          page.current = 0;
+          count.current = null;
+          setAlbumsDisplay([]);
+          albumCache.current = []
           fetchAlbums();
         }
       } catch (err) {
@@ -122,7 +144,7 @@ const AlbumsLanding = ({ path }) => {
           query {
             count(type: "album")
           }
-        `
+        `,
       });
       count.current = data.count;
     })();
@@ -142,7 +164,13 @@ const AlbumsLanding = ({ path }) => {
         {albumsDisplay.length ? (
           <InfiniteScroll
             hasMore={hasMore}
-            next={fetchAlbums}
+            next={() => {
+              if (searchVal) {
+                setSearch(searchVal, path, true);
+              } else {
+                fetchAlbums();
+              }
+            }}
             dataLength={albumsDisplay.length}
             className={'aLanding__list--scroller'}
             loader={
@@ -155,7 +183,7 @@ const AlbumsLanding = ({ path }) => {
               <LazyLoad key={k} placeholder={<LazyLoadPlaceholder />}>
                 <Link
                   to={{
-                    pathname: `/view/album/${a.name}/${a._id}`
+                    pathname: `/view/album/${a.name}/${a._id}`,
                   }}
                 >
                   <div key={k} className='aLanding__list__album'>

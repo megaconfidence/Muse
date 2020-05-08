@@ -70,11 +70,13 @@ const ViewLanding = ({ path, history }) => {
                 //   arr.push(s);
                 // }
               });
-              if (arr.length) {
-                setViewSongs(arr);
-              } else {
-                setViewSongs(viewSongs);
-              }
+              setTimeout(() => {
+                if (arr.length) {
+                  setViewSongs(arr);
+                } else {
+                  setViewSongs(viewSongs);
+                }
+              }, 1000);
             }
           } else {
             e.classList.remove('vLanding__info__list__card--select');
@@ -105,11 +107,13 @@ const ViewLanding = ({ path, history }) => {
                 }
               });
 
-              if (arr.length) {
-                setViewSongs(arr);
-              } else {
-                setViewSongs(viewAlbums);
-              }
+              setTimeout(() => {
+                if (arr.length) {
+                  setViewSongs(arr);
+                } else {
+                  setViewSongs(viewAlbums);
+                }
+              }, 1000);
             }
           } else {
             e.classList.remove('vLanding__info__list__card--select');
@@ -124,16 +128,13 @@ const ViewLanding = ({ path, history }) => {
     }, 1000);
   };
 
-  const fetchGenreSongs = useCallback(
-    async (firstCall) => {
-      try {
-        setIsLoading(true);
-        page.current += 1;
+  const fetchGenreSongs = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      page.current += 1;
 
-        
-
-        const { data } = await apolloClient.query({
-          query: gql`
+      const { data } = await apolloClient.query({
+        query: gql`
           query {
             songs: genreSongs(id: "${catId}", page: ${page.current}) {
                 _id
@@ -154,23 +155,21 @@ const ViewLanding = ({ path, history }) => {
               }
             }
         `,
-        });
+      });
 
-        setIsLoading(false);
-        const songs = data.songs;
-        songsCache.current = songsCache.current.concat(songs);
-        setViewSongs(songsCache.current);
-        if (songsCache.current.length === count.current) {
-          setHasMore(false);
-        }
-      } catch (err) {
-        console.log(err);
-        showErrModal(true);
-        setIsLoading(false);
+      setIsLoading(false);
+      const songs = data.songs;
+      songsCache.current = songsCache.current.concat(songs);
+      setViewSongs(songsCache.current);
+      if (songsCache.current.length === count.current) {
+        setHasMore(false);
       }
-    },
-    [catId, setIsLoading, showErrModal]
-  );
+    } catch (err) {
+      console.log(err);
+      showErrModal(true);
+      setIsLoading(false);
+    }
+  }, [catId, setIsLoading, showErrModal]);
 
   const fetchView = useCallback(async () => {
     setIsLoading(true);
@@ -289,20 +288,20 @@ const ViewLanding = ({ path, history }) => {
           setViewAlbums([...new Set(data.artist.album)]);
         }
       } else if (cat === 'genre') {
-        const { data } = await apolloClient.query({
-          query: gql`
-        query {
-          genre(_id: "${catId}") {
-            _id
-            album {
-              cover
-              name
-            }
-           
-          }
-         }
-    `,
-        });
+        //   const { data } = await apolloClient.query({
+        //       query: gql`
+        //     query {
+        //       genre(_id: "${catId}") {
+        //         _id
+        //         album {
+        //           cover
+        //           name
+        //         }
+
+        //       }
+        //     }
+        // `,
+        //     });
 
         const countData = await apolloClient.query({
           query: gql`
@@ -313,12 +312,12 @@ const ViewLanding = ({ path, history }) => {
         });
 
         count.current = countData.data.genreSongsCount;
+        setHasMore(true);
+        fetchGenreSongs();
 
-        if (data) {
-          fetchGenreSongs(true);
-          setHasMore(true);
-          setViewAlbums(data.genre.album);
-        }
+        // if (data) {
+        //   setViewAlbums(data.genre.album);
+        // }
       } else if (cat === 'playlist') {
         for (const p in appData.playlist) {
           if (appData.playlist[p]._id === catId) {
@@ -418,16 +417,14 @@ const ViewLanding = ({ path, history }) => {
           className='vLanding__nav__icon'
         />
       </div>
-      {cat !== 'playlist' && cat !== 'favorites' ? (
+      {cat !== 'playlist' && cat !== 'favorites' && cat !== 'genre' ? (
         <InfoCard
           cat={cat}
           viewSongsDisplay={viewSongs}
           viewAlbumsDisplay={viewAlbums}
           handleListCardClick={handleListCardClick}
         />
-      ) : (
-        ''
-      )}
+      ) : null}
       <div className='vLanding__songs'>
         <div className='vLanding__songs__control'>
           <div data-img data-imgname='repeat' style={{ opacity: 0.1 }} />

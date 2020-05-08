@@ -130,10 +130,10 @@ function ListLanding({ path }) {
           }
         } else {
           setList([]);
-          fetchList();
           page.current = 0;
           count.current = null;
           listCache.current = [];
+          fetchList();
         }
       } catch (err) {
         console.log(err);

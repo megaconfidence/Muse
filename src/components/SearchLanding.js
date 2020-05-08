@@ -60,7 +60,6 @@ function SearchLanding() {
       albumMatchDisplayCache.current = [];
       artistMatchDisplayCache.current = [];
 
-      console.log(cat, query)
       const { data } = await apolloClient.query({
         query: gql`
           query {
