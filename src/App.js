@@ -52,7 +52,7 @@ const App = () => {
       `${config.appName}_PWA_PROMPT_RESPONDED`
     ));
     setTimeout(() => {
-      if (playerRef.current && !isPWAInstalled.val) {
+      if (playerRef.current && isPWAInstalled && !isPWAInstalled.val) {
         playerRef.current.audio.current.addEventListener('playing', (event) => {
           setTimeout(() => {
             setShowInstallPlaceholder(true);
